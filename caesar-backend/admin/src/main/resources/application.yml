@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: caesar
+
+server:
+  port: 8369
