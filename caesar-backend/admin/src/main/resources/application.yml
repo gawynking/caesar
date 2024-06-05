@@ -1,6 +1,12 @@
+server:
+  port: 8369
+
 spring:
   application:
     name: caesar
+  datasource:
+    url: jdbc:mysql://localhost:3306/caesar?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: mysql
 
-server:
-  port: 8369
