@@ -13,7 +13,7 @@ public class MenuModel {
     String parentIndex;
     String menuIndex;
     String menuName;
-    Integer isLeaf;
+    Boolean isLeaf;
 
 
     public static List<MenuNode> convert(List<MenuModel> menus) {
@@ -49,12 +49,12 @@ public class MenuModel {
 
         private String menuIndex;
         private String menuName;
-        private Integer isLeaf;
+        private Boolean isLeaf;
         private List<MenuNode> children;
 
 
 
-        public MenuNode(String menuIndex, String menuName,Integer isLeaf) {
+        public MenuNode(String menuIndex, String menuName,Boolean isLeaf) {
             this.menuIndex = menuIndex;
             this.menuName = menuName;
             this.isLeaf = isLeaf;
@@ -69,7 +69,7 @@ public class MenuModel {
             return this.menuName;
         }
 
-        public Integer getIsLeaf() {
+        public Boolean getIsLeaf() {
             return this.isLeaf;
         }
 
