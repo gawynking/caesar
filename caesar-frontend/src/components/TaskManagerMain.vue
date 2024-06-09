@@ -10,7 +10,6 @@
                         <div class="main-code-editor-menu">
                             <span class="main-code-editor-menu-left">
                                 <el-button type="primary" size="mini" plain>编辑</el-button>
-                                <!-- <el-link icon="el-icon-edit" style="margin-right: 10px;">编辑: 369985</el-link> -->
                                 <el-button type="primary" size="mini" plain>保存</el-button>
                                 <el-button type="primary" size="mini" plain>历史</el-button>
                             </span>
@@ -40,8 +39,9 @@
                         </div>
 
                     </el-tab-pane>
-
-                    <el-tab-pane label="调度管理" name="second">
+                    <el-tab-pane label="任务信息" name="task-info"></el-tab-pane>
+                    <el-tab-pane label="指标定义" name="index-define"></el-tab-pane>
+                    <el-tab-pane label="调度管理" name="schedule-manager">
 
                         <div class="schedule-config">
                             <!-- <el-divider content-position="left">调度配置</el-divider> -->
@@ -130,7 +130,7 @@
             </el-tab-pane>
 
             <el-tab-pane label="dim.dim_city" name="second1" closable>
-                这里没有填充
+                任务信息
             </el-tab-pane>
         </el-tabs>
 
