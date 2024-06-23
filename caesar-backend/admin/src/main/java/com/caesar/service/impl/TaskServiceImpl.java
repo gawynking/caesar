@@ -73,6 +73,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
 
             return taskMapper.addTask(caesarTask);
         }
+        boolean markDelete = false;
+        for(CaesarTask task:tasks){
+            if(task.getIsDelete() == 1){
+                markDelete=true;
+            }
+        }
+        if(markDelete){
+            return taskMapper.martDeleteToOnline(taskDto.getTaskName());
+        }
+
         return false;
     }
 

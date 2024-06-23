@@ -48,7 +48,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "order by t1.update_time desc")
     List<MenuModel> listLikeByOwnerAndTaskNameToMenu(String partten1, String partten2);
 
-    @Select("select * from caesar_task where task_name = #{taskName} and is_delete = 0")
+    @Select("select * from caesar_task where task_name = #{taskName}")
     List<CaesarTask> findByName(String taskName);
 
     @Insert("insert into caesar_task(\n" +
@@ -121,4 +121,8 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
 
     @Update("update caesar_task set is_delete = 1 where task_name = #{taskName}")
     Boolean markDeleteTaskFromTaskName(String taskName);
+
+    @Update("update caesar_task set is_delete = 0 where task_name = #{taskName}")
+    boolean martDeleteToOnline(String taskName);
+
 }
