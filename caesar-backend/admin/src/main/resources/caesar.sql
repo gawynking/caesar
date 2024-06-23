@@ -7,7 +7,7 @@ create table caesar_menu(
     menu_index  varchar(128) comment 'Menu索引',
     menu_name   varchar(128) comment 'Menu名称',
     location    int comment '位置: 1-头部菜单栏 2-侧边菜单栏',
-    node_type   int comment '类型: 1-分支节点 2-叶子节点',
+    node_type   int comment '类型: 0-根节点 1-分支节点 2-叶子节点',
     menu_type   int comment '菜单类型: 1-静态菜单 2-动态菜单',
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间戳',
     update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间戳',
@@ -17,7 +17,6 @@ create table caesar_menu(
 ) engine = innodb default charset=utf8mb4
 comment '系统菜单表'
 ;
-
 
 -- 头部菜单初始化
 insert into caesar_menu(id,location,node_type,parent_id,menu_type,menu_index,menu_name)values(1,1,2,0,1,'task','任务管理');
@@ -78,6 +77,7 @@ create table caesar_menu_role_permission(
     id                    int not null auto_increment comment 'ID',
     role_id               int comment '角色ID',
     menu_id               int comment '菜单ID',
+    permission            int comment '权限',
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间戳',
     update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间戳',
     primary key(id)
@@ -94,33 +94,35 @@ create table caesar_user(
     password     varchar(128)  comment '密码',
     email        varchar(128)  comment '邮箱',
     phone        varchar(32)   comment '电话',
-    team_group   varchar(128)  comment '用户所属组',
-    role_id      int comment '角色ID',
+    team_group   varchar(128)  comment '用户所属组', -- 控制资源权限，同一时间一个用户只能属于一个组，对一个组内资源具有编辑权限，对于跨组资源具有查询权限
+    role_id      int comment '角色ID', -- 用来控制菜单权限
     is_effective int default 0 comment '是否激活: 1-是 0-否',
     create_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间戳',
     update_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间戳',
     primary key(id),
     unique key(email),
-    unique key(phone)
+    unique key(phone),
+    unique key(username)
 ) engine = innodb default charset=utf8mb4
 comment '用户表'
 ;
-insert into caesar_user(id,username,password,email,phone,role_id,team_group,is_effective)values(1,'GawynKing','123','gawyn@gmail.com','15999998888',1,1,1);
+insert into caesar_user(id,username,password,email,phone,team_group,role_id,is_effective)values(1,'GawynKing','123','gawyn@gmail.com','15999998888',1,1,1);
 
 
 -- 任务表
 drop table if exists caesar_task;
 create table caesar_task(
     id                 int not null auto_increment comment '任务ID',
-    menu_id            int comment '任务所属菜单(父菜单标识)',
+    menu_id            int comment '任务所属菜单(父菜单标识)', -- 一个任务必然所属一个菜单
     task_type          int comment '任务类型: 1-离线任务 2-实时任务 3-数据服务',
     task_name          varchar(32) comment '任务名称(格式: 分层.表名称[.标识符],ex: caesar_dim.dim_date),不可更改',
-    datasource_info    varchar(256) comment '数据源信息,JSON结构{"prod":"1","pre":"2","test":"3"}',
-    exec_engine        int comment '执行引擎: 1-Hive 2-Spark 3-Flink 4-Doris 5-MySQL',
-    version            int comment '版本号',
-    group_id           int comment '任务所属组标识',
+    datasource_info    varchar(256) comment '数据源信息,JSON结构{"prod":"1","pre":"2","test":"3"}', -- 根据引擎匹配
+    exec_engine        int comment '执行引擎: 1-Hive 2-Spark 3-Flink 4-Doris 5-MySQL 6-Hbase',
+    version            int comment '版本号', -- 每次保存生成唯一版本号
+    group_id           int comment '任务所属组标识', -- 任务所属组在创建时根据创建人所属组赋值
     is_released        int comment '是否发布版本: 1-是 0-否',
     is_online          int comment '是否在线: 1-是 0-否',
+    is_delete          int default 0 comment '是否删除任务: 1-是 0-否',
     task_script        mediumtext comment '任务脚本',
     created_user       int comment '创建人',
     updated_user       int comment '最后更新人',
@@ -140,13 +142,38 @@ insert into caesar_task(menu_id,task_type,created_user,updated_user,task_name,ex
 drop table if exists caesar_task_template;
 create table caesar_task_template(
     id          int not null auto_increment comment '模板ID',
-    task_type   int comment '任务类型: 1-离线任务 2-实时任务 3-数据服务',
-    owner_id    int comment '创建人',
-    task_script mediumtext comment '模板脚本',
+    temp_name   varchar(256)  comment '模板名称',
+    task_type   int           comment '任务类型: 1-离线任务 2-实时任务 3-数据服务',
+    owner_id    int           comment '创建人',
+    is_default  int default 0 comment '是否默认: 1-是 0-否',
+    task_script mediumtext    comment '模板脚本',
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间戳',
     update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间戳',
     primary key(id)
 ) engine = innodb default charset=utf8mb4
 comment '任务模板表'
 ;
+
+-- 数据源表
+drop table if exists caesar_datasource;
+create table caesar_datasource(
+    id                int not null auto_increment comment '数据源ID',
+    datasource_name   varchar(256)  comment '数据源名称',
+    datasource_type   int           comment '数据源类型: 1-测试 2-预发 3-生产',
+    exec_engine       int           comment '执行引擎: 1-Hive 2-Spark 3-Flink 4-Doris 5-MySQL 6-Hbase',
+    url               varchar(256)  comment '数据源URL',
+    username          varchar(256)  comment '用户名',
+    password          varchar(256)  comment '密码',
+    db_name           varchar(256)  comment '默认数据库',
+    owner_id          int           comment '创建人',
+    create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间戳',
+    update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间戳',
+    primary key(id)
+) engine = innodb default charset=utf8mb4
+comment '数据源表'
+;
+insert into caesar_datasource(datasource_name,datasource_type,exec_engine)values("测试数据源",1,1);
+insert into caesar_datasource(datasource_name,datasource_type,exec_engine)values("预发数据源",2,1);
+insert into caesar_datasource(datasource_name,datasource_type,exec_engine)values("生成数据源",3,1);
+
 

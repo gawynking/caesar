@@ -59,4 +59,10 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, CaesarMenu> impleme
         return false;
     }
 
+    @Override
+    public Integer getMenuIdFromMenuIndex(String menuIndex) {
+        Integer menuId = menuMapper.getMenuIdFromMenuIndex(menuIndex);
+        return menuId;
+    }
+
 }

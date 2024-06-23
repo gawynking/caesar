@@ -5,13 +5,13 @@ import com.caesar.entity.CaesarUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
-
 @Mapper
 public interface UserMapper extends BaseMapper<CaesarUser> {
 
-    @Select("select team_group as group_id from caesar_user where id = #{id}")
-    int getGoupId(int id);
+    @Select("select team_group from caesar_user where id = #{id}")
+    int getTeamGroup(int id);
 
 
+    @Select("select id as userId from caesar.caesar_user where username = #{userName}")
+    Integer getUserIdFromUserName(String userName);
 }

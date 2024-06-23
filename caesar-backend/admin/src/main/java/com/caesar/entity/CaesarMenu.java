@@ -1,23 +1,20 @@
 package com.caesar.entity;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
+
 @Data
 @NoArgsConstructor
-public class CaesarMenu {
+public class CaesarMenu extends BaseEntity{
 
-    int id;
-    int location;
-    int nodeType;
     int parentId;
-    int menuType;
     String menuIndex;
     String menuName;
-    Timestamp createTime;
-    Timestamp updateTime;
+    int location;
+    int nodeType;
+    int menuType;
 
 }

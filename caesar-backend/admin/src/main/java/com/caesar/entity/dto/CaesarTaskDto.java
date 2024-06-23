@@ -11,11 +11,12 @@ public class CaesarTaskDto {
     String datasourceInfo;
     int execEngine;
     int version;
-    int createdUser;
-    int updatedUser;
     int groupId;
     int isReleased;
     int isOnline;
+    int isDelete;
     String taskScript;
+    int createdUser;
+    int updatedUser;
 
 }

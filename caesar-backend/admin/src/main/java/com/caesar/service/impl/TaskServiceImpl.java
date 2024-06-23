@@ -1,14 +1,20 @@
 package com.caesar.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.caesar.entity.CaesarDatasource;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.dto.CaesarTaskDto;
+import com.caesar.mapper.DatasourceMapper;
 import com.caesar.mapper.TaskMapper;
+import com.caesar.mapper.TaskTemplateMapper;
 import com.caesar.mapper.UserMapper;
 import com.caesar.model.MenuModel;
 import com.caesar.service.TaskService;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.tool.BeanConverterTools;
+import com.caesar.util.DatasourceUtils;
+import com.caesar.util.TaskVersionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -23,6 +29,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
 
     @Resource
     UserMapper userMapper;
+
+    @Resource
+    TaskTemplateMapper taskTemplateMapper;
+
+    @Resource
+    DatasourceMapper datasourceMapper;
 
     @Override
     public List<MenuModel> listTask(String partten) {
@@ -41,22 +53,24 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
     }
 
     @Override
-    public boolean addTask(CaesarTaskDto task) {
-        List<CaesarTask> tasks = taskMapper.findByName(task.getTaskName());
-        if(null == tasks){
-            int version = 1;
-            for(CaesarTask item:tasks){
-                int tmpVersion = item.getVersion();
-                if(tmpVersion>version){
-                    version=tmpVersion;
-                }
-            }
-            int taskType = 1;
-            int groupId = userMapper.getGoupId(task.getUpdatedUser());
-            task.setVersion(version);
-            task.setTaskType(taskType);
-            task.setGroupId(groupId);
-            CaesarTask caesarTask = BeanConverterTools.convert(task, CaesarTask.class);
+    public boolean addTask(CaesarTaskDto taskDto) {
+        List<CaesarTask> tasks = taskMapper.findByName(taskDto.getTaskName());
+        if(null == tasks || tasks.size() == 0){
+            int version = TaskVersionUtils.getInstance(taskMapper).getVersion();
+            int teamGroup = userMapper.getTeamGroup(taskDto.getCreatedUser());
+            taskDto.setVersion(version);
+            taskDto.setGroupId(teamGroup);
+            taskDto.setIsReleased(0);
+            taskDto.setIsOnline(0);
+            // datasource ,taskScript
+            String taskScript = taskTemplateMapper.getTaskTemplateScript(taskDto.getCreatedUser(),taskDto.getTaskType());
+            if(null == taskScript) taskScript="";
+            taskDto.setTaskScript(taskScript);
+            String datasourceInfo = DatasourceUtils.getDatasourceInfo(datasourceMapper.getDatasourceInfo(taskDto.getExecEngine()));
+            taskDto.setDatasourceInfo(datasourceInfo);
+
+            CaesarTask caesarTask = BeanConverterTools.convert(taskDto, CaesarTask.class);
+
             return taskMapper.addTask(caesarTask);
         }
         return false;
@@ -70,6 +84,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
     @Override
     public List<CaesarTaskVo> getTaskInfo(String taskName) {
         return taskMapper.getTaskInfo(taskName);
+    }
+
+    @Override
+    public Boolean deleteTaskFromTaskName(String taskName) {
+        return taskMapper.deleteTaskFromTaskName(taskName);
+    }
+
+    @Override
+    public Boolean markDeleteTaskFromTaskName(String taskName) {
+        return taskMapper.markDeleteTaskFromTaskName(taskName);
     }
 
 

@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarTask;
 import com.caesar.model.MenuModel;
 import com.caesar.entity.vo.CaesarTaskVo;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -24,7 +22,9 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tfrom caesar_task\n" +
             "\tgroup by task_name \n" +
             ") t2 on t1.id = t2.id \n" +
-            "join caesar_menu t3 on t1.menu_id = t3.id")
+            "join caesar_menu t3 on t1.menu_id = t3.id\n" +
+            "where t1.is_delete = 0\n" +
+            "order by t1.update_time desc")
     List<MenuModel> listToMenu();
 
     @Select("select \n" +
@@ -43,32 +43,40 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             ") t5 on t1.id = t5.id \n" +
             "where t2.username like #{partten1}\n" +
             "  and t3.username like #{partten1}\n" +
-            "  and t1.task_name like #{partten2}")
+            "  and t1.task_name like #{partten2}\n" +
+            "  and t1.is_delete = 0\n" +
+            "order by t1.update_time desc")
     List<MenuModel> listLikeByOwnerAndTaskNameToMenu(String partten1, String partten2);
 
-    @Select("select id,menu_id,task_type,task_name,exec_engine,version,created_user,updated_user,group_id,task_script,create_time,update_time from caesar_task where task_name = #{taskName}")
+    @Select("select * from caesar_task where task_name = #{taskName} and is_delete = 0")
     List<CaesarTask> findByName(String taskName);
 
     @Insert("insert into caesar_task(\n" +
             "\tmenu_id,\n" +
             "\ttask_type,\n" +
             "\ttask_name,\n" +
+            "\tdatasource_info,\n" +
             "\texec_engine,\n" +
             "\tversion,\n" +
-            "\tcreated_user,\n" +
-            "\tupdated_user,\n" +
             "\tgroup_id,\n" +
-            "\ttask_script\n" +
+            "\tis_released,\n" +
+            "\tis_online,\n" +
+            "\ttask_script,\n" +
+            "\tcreated_user,\n" +
+            "\tupdated_user\n" +
             ")values(\n" +
-            "\t#{menu_id},\n" +
-            "\t#{task_type},\n" +
-            "\t#{task_name},\n" +
-            "\t#{exec_engine},\n" +
+            "\t#{menuId},\n" +
+            "\t#{taskType},\n" +
+            "\t#{taskName},\n" +
+            "\t#{datasourceInfo},\n" +
+            "\t#{execEngine},\n" +
             "\t#{version},\n" +
-            "\t#{created_user},\n" +
-            "\t#{updated_user},\n" +
-            "\t#{group_id},\n" +
-            "\t#{task_script}\n" +
+            "\t#{groupId},\n" +
+            "\t#{isReleased},\n" +
+            "\t#{isOnline},\n" +
+            "\t#{taskScript},\n" +
+            "\t#{createdUser},\n" +
+            "\t#{updatedUser}\n" +
             ")")
     boolean addTask(CaesarTask task);
 
@@ -87,6 +95,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\twhere task_name = #{taskName}\n" +
             ") t2 on t1.id = t2.id \n" +
             "where t1.task_name = #{taskName}\n" +
+            "  and t1.is_delete = 0\n" +
             ";")
     CaesarTaskVo getCurrentTaskInfo(String taskName);
 
@@ -100,6 +109,16 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tt1.task_script     as task_script\n" +
             "from caesar_task t1 \n" +
             "where t1.task_name = #{taskName}\n" +
+            "  and t1.is_delete = 0\n" +
             ";")
     List<CaesarTaskVo> getTaskInfo(String taskName);
+
+    @Select("select max(version) as version from caesar_task")
+    Integer getVersion();
+
+    @Delete("delete from caesar_task where task_name = #{taskName}")
+    Boolean deleteTaskFromTaskName(String taskName);
+
+    @Update("update caesar_task set is_delete = 1 where task_name = #{taskName}")
+    Boolean markDeleteTaskFromTaskName(String taskName);
 }

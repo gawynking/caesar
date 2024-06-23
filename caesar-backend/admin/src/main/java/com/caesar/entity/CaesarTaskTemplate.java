@@ -5,12 +5,10 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 @Data
-public class CaesarTaskTemplate {
-    int id;
+public class CaesarTaskTemplate extends BaseEntity{
+
     int taskType;
     int ownerId;
-    int execEngine;
     String taskScript;
-    Timestamp createTime;
-    Timestamp updateTime;
+
 }

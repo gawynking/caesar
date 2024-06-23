@@ -19,4 +19,8 @@ public interface TaskService extends IService<CaesarTask> {
     CaesarTaskVo getCurrentTaskInfo(String taskName);
 
     List<CaesarTaskVo> getTaskInfo(String taskName);
+
+    Boolean deleteTaskFromTaskName(String taskName);
+
+    Boolean markDeleteTaskFromTaskName(String taskName);
 }

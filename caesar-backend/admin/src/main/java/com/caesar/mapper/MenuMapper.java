@@ -54,4 +54,8 @@ public interface MenuMapper extends BaseMapper<CaesarMenu> {
             "and t1.parent_id in (1,5)")
     List<MenuModel> listByAside();
 
+    @Select("select id as menuId\n" +
+            "from caesar_menu \n" +
+            "where menu_index = #{menuIndex}")
+    Integer getMenuIdFromMenuIndex(String menuIndex);
 }

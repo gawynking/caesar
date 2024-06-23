@@ -6,8 +6,8 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 @Data
-public class CaesarUser {
-    int id;
+public class CaesarUser extends BaseEntity{
+
     String username;
     String password;
     String email;
@@ -16,6 +16,5 @@ public class CaesarUser {
     int roleId;
     @TableField("is_effective")
     int isEffective;
-    Timestamp createTime;
-    Timestamp updateTime;
+
 }

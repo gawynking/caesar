@@ -20,4 +20,6 @@ public interface MenuService extends IService<CaesarMenu> {
     boolean existsSubtask(int id);
 
     boolean isTaskFolder(int parentId);
+
+    Integer getMenuIdFromMenuIndex(String menuIndex);
 }

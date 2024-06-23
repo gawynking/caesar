@@ -7,23 +7,20 @@ import java.sql.Timestamp;
 
 
 @Data
-@Builder
-public class CaesarTask {
+public class CaesarTask extends BaseEntity{
 
-    int id;
     int menuId;
     int taskType;
     String taskName;
     String datasourceInfo;
     int execEngine;
     int version;
-    int createdUser;
-    int updatedUser;
     int groupId;
     int isReleased;
     int isOnline;
+    int isDelete=0;
     String taskScript;
-    Timestamp createTime;
-    Timestamp updateTime;
+    int createdUser;
+    int updatedUser;
 
 }

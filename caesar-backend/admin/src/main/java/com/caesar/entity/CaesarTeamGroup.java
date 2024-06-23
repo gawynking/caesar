@@ -4,12 +4,12 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
+
 @Data
-public class CaesarTeamGroup {
-    int id;
+public class CaesarTeamGroup extends BaseEntity{
+
     String groupName;
     String groupDesc;
     int ownerId;
-    Timestamp createTime;
-    Timestamp updateTime;
+
 }

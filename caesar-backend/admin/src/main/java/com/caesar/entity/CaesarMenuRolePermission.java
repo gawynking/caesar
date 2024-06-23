@@ -5,10 +5,10 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 @Data
-public class CaesarMenuRolePermission {
-    int id;
+public class CaesarMenuRolePermission extends BaseEntity{
+
     int roleId;
     int menuId;
-    Timestamp createTime;
-    Timestamp updateTime;
+    int permission;
+
 }
