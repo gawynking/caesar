@@ -1,16 +1,12 @@
-package com.caesar.entity;
+package com.caesar.entity.vo;
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Timestamp;
 
-
 @Data
-@Builder
-public class CaesarTask {
+public class CaesarTaskVo {
 
-    int id;
     int menuId;
     int taskType;
     String taskName;
@@ -23,7 +19,5 @@ public class CaesarTask {
     int isReleased;
     int isOnline;
     String taskScript;
-    Timestamp createTime;
-    Timestamp updateTime;
 
 }

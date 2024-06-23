@@ -6,19 +6,19 @@
                 class="aside-el-menu" 
                 :collapse="isCollapse" 
                 :collapse-transition="false"
-                :default-active="activeMenu"
+                @select="handleSelectTask"
             >
 
                 <div v-show="isVisible">
                     <el-row class="aside-title">
                         <el-col :span="20" class="aside-title-name">
-                            <div v-html="setAsideTitle(headerMenuSelected)"></div>
+                            <div v-html="setAsideTitle()"></div>
                         </el-col>
                         <el-col :span="4" class="aside-collapse">
                             <i :class="asideCollapseIcon" @click="asideCollapse"></i>
                         </el-col>
                     </el-row>
-                    <el-input placeholder="输入筛选内容" v-model="filterText" v-if="isShowFilter(headerMenuSelected)"></el-input>
+                    <el-input placeholder="输入筛选内容" v-model="filterText" v-if="isShowFilter()"></el-input>
                 </div>
 
                 <div v-show="!isVisible">
@@ -30,7 +30,7 @@
                 </div>
 
                 <!-- 可以在这里添加你需要的内容 -->
-                <component :is="getAsideComponent(headerMenuSelected)"></component>
+                <component :is="getAsideComponent()"></component>
                 <!-- <TaskManagerAside></TaskManagerAside> -->
                 <!-- <SystemManagerAside></SystemManagerAside> -->
             </el-menu>
@@ -42,6 +42,8 @@
 import TaskManagerAside from '@/components/TaskManagerAside.vue'; // 引入 TaskManagerAside 组件
 import SystemManagerAside from '@/components/SystemManagerAside.vue';
 
+import { EventBus } from '../common/event-bus';
+
 export default {
     name: 'Aside',
     components: {
@@ -51,18 +53,36 @@ export default {
     data() {
         return {
             isCollapse: false,
-            activeMenu:"",
-            filterText: "GawynKing.*",
             asideWidth: "300px",
             asideCollapseIcon: "el-icon-s-fold",
             isVisible: true,
-            currentAsideMenu:"task"
+
+            filterText: "GawynKing.*",
+            currentAsideMenu:"task",
+            asideListData:[],
+            tasks: {
+                activeTask:"", // 选中的项 
+                selectedTasks: [] // 用于存储选中的项
+            }
         }
     },
-    props:{
-        headerMenuSelected: {
-            type: String,  
-            default: "task",  
+    created() {
+        EventBus.$on('header-menu-selected', data => {
+            this.currentAsideMenu = data
+        });
+        EventBus.$on('asideListData', data => {
+            if (typeof data !== 'string') {
+                // 如果数据不是字符串，将其转换为字符串
+                this.asideListData = JSON.stringify(data);
+            } else {
+                this.asideListData = data;
+            }
+        })
+    },
+    watch: {
+        filterText(filterText) {
+            this.filterText = filterText;
+            EventBus.$emit("filterText",filterText);
         }
     },
     methods: {
@@ -78,32 +98,37 @@ export default {
                 this.isVisible = true;
             }
         },
-        setAsideTitle(headerMenuSelected){
-            if(headerMenuSelected === "task"){
+
+        setAsideTitle(){
+            if(this.currentAsideMenu === "task"){
                 return '任务管理';
-            }else if(headerMenuSelected === "system"){
+            }else if(this.currentAsideMenu === "system"){
                 return "系统管理";
-            }else{
-                if(currentAsideMenu === "task"){
-                    return '任务管理';
-                }else if(currentAsideMenu === "system"){
-                    return "系统管理";
-                }
             }
         },
-        isShowFilter(headerMenuSelected){
-            if(headerMenuSelected === "task"){
+        isShowFilter(){
+            if(this.currentAsideMenu === "task"){
                 return true;
             }else{
                 return false;
             }
         },
-        getAsideComponent(headerMenuSelected){
-            if(headerMenuSelected === "task"){
+        getAsideComponent(){
+            if(this.currentAsideMenu === "task"){
                 return "TaskManagerAside";
-            }else if(headerMenuSelected === "system"){
+            }else if(this.currentAsideMenu === "system"){
                 return "SystemManagerAside";
             }
+        },
+        handleSelectTask(index) {
+            this.tasks.activeTask = index;
+            if(this.tasks.selectedTasks.includes(index)){
+
+            }else{
+                this.tasks.selectedTasks.push(index)
+            }
+            EventBus.$emit("tasks-activeTask",this.tasks.activeTask);
+            EventBus.$emit("tasks-selectedTasks",this.tasks.selectedTasks);
         }
     }
 };

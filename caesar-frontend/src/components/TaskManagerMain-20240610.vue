@@ -1,13 +1,11 @@
 <!-- src/components/Header.vue -->
 <template>
     <div class="task-manager-main">
+        <el-tabs v-model="activeTask" @tab-remove="removeTab">
 
-        <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
-
-            <el-tab-pane v-for="(item, index) in editableTabs" :key="item.name" :label="item.title" :name="item.name">
-
-                <el-tabs v-model="item.activeName" class="indented-tab">
-                    <el-tab-pane label="数据开发" name="data-develop">
+            <el-tab-pane v-for="task in this.selectedTasks" :key="task" :label="task" :name="task" closable>
+                <el-tabs v-model="activeSubTask">
+                    <el-tab-pane label="数据开发" name="by-task-devolop">
 
                         <div class="main-code-editor-menu">
                             <span class="main-code-editor-menu-left">
@@ -24,45 +22,43 @@
                         </div>
 
                         <div class="main-code-editor-area">
-                            <el-input type="textarea" size="small" :autosize="{ minRows: 25 }"
-                                v-model="item.dataDevelop.codeArea" autocomplete
-                                :readonly="item.dataDevelop.isCodeAreaReadOnly">
-                            </el-input>
+                            <el-input type="textarea" size="small" :autosize="{ minRows: 25 }" v-model="getTaskCodeArea"
+                                autocomplete :readonly="getIsCodeAreaReadOnly"></el-input>
                         </div>
 
-                        <div v-show="item.dataDevelop.isVisibleLogging" style="margin-top: 10px;">
+                        <div v-show="getIsVisibleLogging" style="margin-top: 10px;">
                             <span>
                                 执行日志
                             </span>
-                            <el-input type="textarea" size="small" :autosize="{ minRows: 20 }"
-                                v-model="item.dataDevelop.logArea" readonly>
-                            </el-input>
+                            <el-input type="textarea" size="small" :autosize="{ minRows: 20 }" v-model="getLogArea"
+                                readonly></el-input>
                         </div>
 
                     </el-tab-pane>
 
-                    <el-tab-pane label="调度配置" name="schedule-config">
+                    <el-tab-pane label="调度管理" name="by-task-schedule">
+
                         <div class="schedule-config">
-                            <div style="margin: 20px;"></div>
-                            <el-form :label-position="item.scheduleConfig.labelPosition" label-width="100px"
-                                :model="item.scheduleConfig" size="mini" style="width: 50%;">
-                                <el-form-item label="名称">
-                                    <el-input v-model="item.scheduleConfig.system"></el-input>
+                            <div style="margin-top: 10px;"></div>
+
+                            <el-form :label-position="labelPosition" label-width="100px" :model="getScheduleConfig" size="mini" style="width: 50%;">
+                                <el-form-item label="调度系统">
+                                    <el-input v-model="getScheduleConfig.system"></el-input>
                                 </el-form-item>
                                 <el-form-item label="任务类型">
-                                    <el-input v-model="item.scheduleConfig.taskType"></el-input>
+                                    <el-input v-model="getScheduleConfig.taskType"></el-input>
                                 </el-form-item>
                                 <el-form-item label="优先级">
-                                    <el-input v-model="item.scheduleConfig.priority"></el-input>
+                                    <el-input v-model="getScheduleConfig.priority"></el-input>
                                 </el-form-item>
                                 <el-form-item label="重试次数">
-                                    <el-input v-model="item.scheduleConfig.retryTimes"></el-input>
+                                    <el-input v-model="getScheduleConfig.retryTimes"></el-input>
                                 </el-form-item>
-                                <el-form-item label="重试间隔">
-                                    <el-input v-model="item.scheduleConfig.retryInterval"></el-input>
+                                <el-form-item label="重试间隔(分)">
+                                    <el-input v-model="getScheduleConfig.retryInterval"></el-input>
                                 </el-form-item>
                                 <el-form-item label="开始时间">
-                                    <el-input v-model="item.scheduleConfig.beginTime"></el-input>
+                                    <el-input v-model="getScheduleConfig.beginTime"></el-input>
                                 </el-form-item>
 
                                 <el-form-item label="依赖任务">
@@ -71,7 +67,7 @@
                                         <el-button type="primary" size="mini" plain>依赖识别</el-button>
                                     </div>
 
-                                    <el-table :data="item.scheduleConfig.dependency" style="width: 100%">
+                                    <el-table :data="getScheduleConfig.dependency" style="width: 100%">
                                         <el-table-column label="上游依赖">
                                             <template slot-scope="scope">
                                                 <el-popover trigger="hover" placement="top">
@@ -98,27 +94,26 @@
                                         <el-button type="primary" size="mini" plain>添加</el-button>
                                     </div>
                                 </el-form-item>
-
                             </el-form>
 
                             <div style="display: flex;justify-content: end;margin-right: 20px;">
                                 <el-button type="primary" size="mini" plain>保存</el-button>
                             </div>
 
+
                             <el-divider content-position="left">在行调度列表</el-divider>
 
                             <el-descriptions title="T+1调度: dim.dim_date.day">
-                                <el-descriptions-item label="调度系统">{{ item.scheduleConfig.system
+                                <el-descriptions-item label="调度系统">{{ getScheduleConfig.system }}</el-descriptions-item>
+                                <el-descriptions-item label="任务类型">{{ getScheduleConfig.taskType
                                     }}</el-descriptions-item>
-                                <el-descriptions-item label="任务类型">{{ item.scheduleConfig.taskType
+                                <el-descriptions-item label="优先级">{{ getScheduleConfig.priority
                                     }}</el-descriptions-item>
-                                <el-descriptions-item label="优先级">{{ item.scheduleConfig.priority
+                                <el-descriptions-item label="重试次数">{{ getScheduleConfig.retryTimes
                                     }}</el-descriptions-item>
-                                <el-descriptions-item label="重试次数">{{
-                                    item.scheduleConfig.retryTimes }}</el-descriptions-item>
-                                <el-descriptions-item label="重试间隔(分)">{{
-                                    item.scheduleConfig.retryInterval }}</el-descriptions-item>
-                                <el-descriptions-item label="开始时间">{{ item.scheduleConfig.beginTime
+                                <el-descriptions-item label="重试间隔(分)">{{ getScheduleConfig.retryInterval
+                                    }}</el-descriptions-item>
+                                <el-descriptions-item label="开始时间">{{ getScheduleConfig.beginTime
                                     }}</el-descriptions-item>
                             </el-descriptions>
 
@@ -128,14 +123,16 @@
                             </div>
 
                         </div>
-                    </el-tab-pane>
 
+                    </el-tab-pane>
                 </el-tabs>
             </el-tab-pane>
 
         </el-tabs>
     </div>
 </template>
+
+
 
 <script>
 import CodeEditor from '@/components/CodeEditor.vue';
@@ -148,12 +145,11 @@ export default {
     },
     data() {
         return {
-            selectedTasks: [],
             activeTask: "",
-            activeTabs:[],
-            editableTabsValue: '1',
-            editableTabs: [],
-            tabIndex: 1
+            activeSubTask: "by-task-devolop",
+            labelPosition: 'right',
+            selectedTasks: [],
+            taskArray: []
         }
     },
     created() {
@@ -162,39 +158,24 @@ export default {
         });
         EventBus.$on('tasks-selectedTasks', data => {
             this.selectedTasks = data;
+            this.updateTaskArray();
         });
     },
     watch: {
-        activeTask(newActiveTask) {
-            this.activeTask = newActiveTask;
-            const index = this.selectedTasks.indexOf(this.activeTask);
-            const flag = this.activeTabs.indexOf(index+'');
-            if (flag === -1) {
-                this.addTab(this.activeTask,index+'')
-                this.activeTabs.push(index+'')
-            }
-            console.log('index = ' + index + '; flag ' + flag +  '; task = ' + this.activeTask + ';' + 'taskList = ' + this.selectedTasks + '; activeTabs ' + this.activeTabs)
-        },
         selectedTasks(newSelectedTasks) {
             this.selectedTasks = newSelectedTasks;
+            this.updateTaskArray();
         }
     },
     methods: {
-        // targetName = index+'' 
-        addTab(titleName,targetName) {
-            // let newTabName = ++this.tabIndex + '';
-            this.editableTabs.push({
-                title: titleName,
-                name: targetName,
-                activeName: "data-develop",
-                dataDevelop: {
-                    codeArea: "",
-                    logArea: "",
-                    isCodeAreaReadOnly: false,
-                    isVisibleLogging: false
-                },
+        createTask(taskName) {
+            this.taskMap[taskName] = {
+                name: taskName,
+                taskCodeArea: "",
+                isCodeAreaReadOnly: true,
+                isVisibleLogging: false,
+                logArea: "",
                 scheduleConfig: {
-                    labelPosition: 'right',
                     system: "DolphinScheduler",
                     taskType: "shell",
                     priority: "low",
@@ -206,35 +187,106 @@ export default {
                         { task: 'ods.dim_city' }
                     ]
                 }
-            });
-            this.editableTabsValue = targetName;
-
-            console.log('index = ' + targetName +  '; task = ' + this.activeTask + ';' + 'taskList = ' + this.selectedTasks + '; activeTabs ' + this.activeTabs)
+            };
+            console.log("task ==> " + JSON.stringify(this.taskMap))
         },
-        removeTab(targetName) {
-            console.log('将要删除的Tabs页签为: ' + targetName)
-            let tabs = this.editableTabs;
-            let activeName = this.editableTabsValue;
-            if (activeName === targetName) {
-                tabs.forEach((tab, index) => {
-                    if (tab.name === targetName) {
-                        let nextTab = tabs[index + 1] || tabs[index - 1];
-                        if (nextTab) {
-                            activeName = nextTab.name;
-                        }
+        updateTaskArray() {
+            for (const task of this.selectedTasks) {
+                var tmp = false;
+                for (const item of this.taskArray) {
+                    if (task === item.name) {
+                        tmp = true;
                     }
-                });
-            }
-            const index = this.activeTabs.indexOf(targetName);
-                if (index !== -1) {
-                    var item = this.activeTabs.splice(index, 1);
                 }
-            this.editableTabsValue = activeName;
-            this.editableTabs = tabs.filter(tab => tab.name !== targetName);
-            console.log('index = ' + targetName +  '; task = ' + this.activeTask + ';' + 'taskList = ' + this.selectedTasks + '; activeTabs ' + this.activeTabs)
+                if (!tmp) {
+                    this.taskArray.push({
+                        "name": task,
+                        taskCodeArea: "",
+                        isCodeAreaReadOnly: false,
+                        isVisibleLogging: false,
+                        logArea: "",
+                        scheduleConfig: {
+                            system: "DolphinScheduler",
+                            taskType: "shell",
+                            priority: "low",
+                            retryTimes: "3",
+                            retryInterval: "5",
+                            beginTime: "00:15",
+                            dependency: [
+                                { task: 'ods.dim_date' },
+                                { task: 'ods.dim_city' }
+                            ]
+                        }
+                    })
+                }
+            }
+        },
+        removeTab(taskName) {
+            this.selectedTasks = this.selectedTasks.filter(t => t !== taskName);
+            this.taskArray = [];
+            this.updateTaskArray();
+            if (this.selectedTasks.length) {
+                this.activeTab = '';
+            } else {
+                this.activeTab = '';
+            }
+        }
+    },
+    computed: {
+        getTaskCodeArea: {
+            get() {
+                for (const item of this.taskArray) {
+                    if (this.activeTask === item.name) {
+                        return item.taskCodeArea;
+                    }
+                }
+            },
+            set(value) {
+                for (const item of this.taskArray) {
+                    if (this.activeTask === item.name) {
+                        item.taskCodeArea = value;
+                    }
+                }
+            }
+        },
+        getIsCodeAreaReadOnly: {
+            get() {
+                for (const item of this.taskArray) {
+                    if (this.activeTask === item.name) {
+                        return item.isCodeAreaReadOnly;
+                    }
+                }
+            }
+        },
+        getScheduleConfig: {
+            get() {
+                for (const item of this.taskArray) {
+                    if (this.activeTask === item.name) {
+                        return item.scheduleConfig;
+                    }
+                }
+            }
+        },
+        getLogArea: {
+            get() {
+                for (const item of this.taskArray) {
+                    if (this.activeTask === item.name) {
+                        return item.logArea;
+                    }
+                }
+            }
+        },
+        getIsVisibleLogging: {
+            get() {
+                for (const item of this.taskArray) {
+                    if (this.activeTask === item.name) {
+                        return item.isVisibleLogging;
+                    }
+                }
+            }
         }
     }
-}
+};
 </script>
 
 
@@ -265,9 +317,5 @@ export default {
 
 .main-code-editor-area {
     margin-top: 10px;
-}
-
-.indented-tab {
-    margin-left: 30px; 
 }
 </style>

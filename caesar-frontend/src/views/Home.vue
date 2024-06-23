@@ -2,10 +2,10 @@
 <template>
   <div class="home">
     <el-container direction="vertical" class="home-container">
-      <Header @header-menu-selected="onHeaderMenuSelected"></Header>
+      <Header></Header>
       <el-container class="home-aside-main-container">
-        <Aside :headerMenuSelected="headerMenuSelected"></Aside>
-        <Main :headerMenuSelected="headerMenuSelected"></Main>
+        <Aside></Aside>
+        <Main></Main>
       </el-container>
     </el-container>
   </div>
@@ -27,13 +27,9 @@ export default {
   },
   data(){
     return{
-      headerMenuSelected:"task"
     }
   },
   methods:{
-    onHeaderMenuSelected(index){
-      this.headerMenuSelected=index;
-    }
   }
 };
 </script>

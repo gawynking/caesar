@@ -2,9 +2,11 @@ package com.caesar.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.entity.CaesarMenu;
+import com.caesar.entity.dto.CaesarMenuDto;
 import com.caesar.mapper.MenuMapper;
 import com.caesar.model.MenuModel;
 import com.caesar.service.MenuService;
+import com.caesar.tool.BeanConverterTools;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,8 +19,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, CaesarMenu> impleme
     MenuMapper menuMapper;
 
     @Override
-    public boolean addFolder(CaesarMenu menu) {
-        return menuMapper.addFolder(menu);
+    public boolean addFolder(CaesarMenuDto menu) {
+        CaesarMenu caesarMenu = BeanConverterTools.convert(menu, CaesarMenu.class);
+        return menuMapper.addFolder(caesarMenu);
     }
 
     @Override

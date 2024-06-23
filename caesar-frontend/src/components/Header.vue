@@ -22,6 +22,7 @@
                             @select="handleHeaderMenuSelect" 
                         >
                             <el-menu-item index="task">任务管理</el-menu-item>
+                            <el-menu-item index="model">模型管理</el-menu-item>
                             <el-menu-item index="index">指标系统</el-menu-item>
                             <el-menu-item index="govern">数仓治理</el-menu-item>
                             <el-menu-item index="system">系统管理</el-menu-item>
@@ -42,6 +43,8 @@
 
 
 <script>
+import { EventBus } from '../common/event-bus';
+
 export default {
     name: 'Header',
     data() {
@@ -52,7 +55,8 @@ export default {
     methods: {
         handleHeaderMenuSelect(index){
             this.activeIndex=index;
-            this.$emit('header-menu-selected', index); 
+            // this.$emit('header-menu-selected', index); 
+            EventBus.$emit('header-menu-selected', index);
         }
     }
 };

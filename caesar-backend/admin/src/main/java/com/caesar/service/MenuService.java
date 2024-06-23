@@ -3,6 +3,7 @@ package com.caesar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.caesar.entity.CaesarMenu;
+import com.caesar.entity.dto.CaesarMenuDto;
 import com.caesar.model.MenuModel;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public interface MenuService extends IService<CaesarMenu> {
 
-    boolean addFolder(CaesarMenu menu);
+    boolean addFolder(CaesarMenuDto menu);
 
     boolean deleteFolder(Integer id);
 

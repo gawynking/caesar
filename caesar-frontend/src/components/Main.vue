@@ -3,7 +3,7 @@
     <div class="main">
         <el-main>
             <!-- 可以在这里添加你需要的内容 -->
-            <component :is="getMainComponent(headerMenuSelected)"></component>
+            <component :is="getMainComponent()"></component>
             <!-- <TaskManagerMain></TaskManagerMain> -->
         </el-main>
     </div>
@@ -11,23 +11,31 @@
 
 <script>
 import TaskManagerMain from '@/components/TaskManagerMain.vue'; // 引入 TaskManagerMain 组件
+import SystemManagerMain from '@/components/SystemManagerMain.vue'; // 引入 SystemManagerMain 组件
+
+import { EventBus } from '../common/event-bus';
 
 export default {
     name: 'Main',
     components: {
-        TaskManagerMain
+        TaskManagerMain,
+        SystemManagerMain
     },
-    props:{
-        headerMenuSelected: {
-            type: String,  
-            default: "task",  
+    data() {
+        return {
+            currentHeaderMenu:"task"
         }
     },
+    created() {
+        EventBus.$on('header-menu-selected', data => {
+            this.currentHeaderMenu = data
+        })
+    },
     methods:{
-        getMainComponent(headerMenuSelected){
-            if(headerMenuSelected === "task"){
+        getMainComponent(){
+            if(this.currentHeaderMenu === "task"){
                 return "TaskManagerMain";
-            }else if(headerMenuSelected === "system"){
+            }else if(this.currentHeaderMenu === "system"){
                 return "SystemManagerMain";
             }
         }

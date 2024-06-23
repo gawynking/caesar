@@ -1,23 +1,15 @@
-package com.caesar.entity;
+package com.caesar.entity.vo;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-
 @Data
 @NoArgsConstructor
-public class CaesarMenu {
-
-    int id;
+public class CaesarMenuVo {
     int location;
     int nodeType;
     int parentId;
     int menuType;
     String menuIndex;
     String menuName;
-    Timestamp createTime;
-    Timestamp updateTime;
-
 }

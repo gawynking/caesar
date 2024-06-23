@@ -2,10 +2,13 @@ package com.caesar.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.entity.CaesarTask;
+import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.mapper.TaskMapper;
 import com.caesar.mapper.UserMapper;
 import com.caesar.model.MenuModel;
 import com.caesar.service.TaskService;
+import com.caesar.entity.vo.CaesarTaskVo;
+import com.caesar.tool.BeanConverterTools;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,7 +41,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
     }
 
     @Override
-    public boolean addTask(CaesarTask task) {
+    public boolean addTask(CaesarTaskDto task) {
         List<CaesarTask> tasks = taskMapper.findByName(task.getTaskName());
         if(null == tasks){
             int version = 1;
@@ -53,9 +56,20 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
             task.setVersion(version);
             task.setTaskType(taskType);
             task.setGroupId(groupId);
-            return taskMapper.addTask(task);
+            CaesarTask caesarTask = BeanConverterTools.convert(task, CaesarTask.class);
+            return taskMapper.addTask(caesarTask);
         }
         return false;
+    }
+
+    @Override
+    public CaesarTaskVo getCurrentTaskInfo(String taskName) {
+        return taskMapper.getCurrentTaskInfo(taskName);
+    }
+
+    @Override
+    public List<CaesarTaskVo> getTaskInfo(String taskName) {
+        return taskMapper.getTaskInfo(taskName);
     }
 
 
