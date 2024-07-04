@@ -3,6 +3,8 @@ package com.caesar.util;
 
 import cn.izern.sequence.Sequence;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -11,6 +13,27 @@ import java.util.UUID;
  * @ChavinKing
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
+
+    public static Map<Character, Character> CHAR_MAP;
+    static {
+        CHAR_MAP = new HashMap<>();
+        for (char c = 'A'; c <= 'Z'; c++) {
+            CHAR_MAP.put(c, Character.toLowerCase(c));
+        }
+    }
+
+    public static String toDBNamed(String name){
+        StringBuffer sb = new StringBuffer();
+        char[] chars = name.toCharArray();
+        for(char c :chars){
+            if(CHAR_MAP.containsKey(c)){
+                sb.append('_').append(CHAR_MAP.get(c));
+            }else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 
     /**
      * 字符串截取

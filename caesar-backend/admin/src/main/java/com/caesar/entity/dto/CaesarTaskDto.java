@@ -4,19 +4,18 @@ import lombok.Data;
 
 @Data
 public class CaesarTaskDto {
-
     int menuId;
     int taskType;
     String taskName;
     String datasourceInfo;
-    int execEngine;
+    int engine;
     int version;
     int groupId;
     int isReleased;
     int isOnline;
-    int isDelete;
+    int isDeleted;
     String taskScript;
+    String checksum;
     int createdUser;
     int updatedUser;
-
 }

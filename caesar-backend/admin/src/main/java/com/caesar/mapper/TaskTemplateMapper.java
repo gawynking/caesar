@@ -11,7 +11,7 @@ public interface TaskTemplateMapper extends BaseMapper<CaesarTaskTemplate> {
     @Select("select task_script \n" +
             "from caesar_task_template \n" +
             "where task_type = #{taskType}\n" +
-            "  and owner_id = #{createdUser}\n" +
+            "  and owner_id = #{ownerId}\n" +
             "  and is_default = 1")
-    String getTaskTemplateScript(int createdUser, int taskType);
+    String getTaskTemplateScript(int ownerId, int taskType);
 }

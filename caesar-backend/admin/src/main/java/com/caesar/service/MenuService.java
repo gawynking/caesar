@@ -15,6 +15,8 @@ public interface MenuService extends IService<CaesarMenu> {
 
     boolean deleteFolder(Integer id);
 
+    boolean renameFolder(CaesarMenuDto caesarMenuDto);
+
     List<MenuModel> listByAside();
 
     boolean existsSubtask(int id);
@@ -22,4 +24,6 @@ public interface MenuService extends IService<CaesarMenu> {
     boolean isTaskFolder(int parentId);
 
     Integer getMenuIdFromMenuIndex(String menuIndex);
+
+
 }

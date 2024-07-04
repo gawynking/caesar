@@ -125,11 +125,5 @@
             <version>${roaringbitmap.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.caesar</groupId>
-            <artifactId>core</artifactId>
-            <version>1.0</version>
-        </dependency>
-
     </dependencies>
 </project>

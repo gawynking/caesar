@@ -9,7 +9,7 @@ public class CaesarDatasource extends BaseEntity{
 
     String datasourceName;
     int datasourceType;
-    int execEngine;
+    int engine;
     String url;
     String username;
     String password;

@@ -13,7 +13,6 @@ public class CaesarUser extends BaseEntity{
     String email;
     String phone;
     String teamGroup;
-    int roleId;
     @TableField("is_effective")
     int isEffective;
 

@@ -36,6 +36,12 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, CaesarMenu> impleme
     }
 
     @Override
+    public boolean renameFolder(CaesarMenuDto menu) {
+        CaesarMenu caesarMenu = BeanConverterTools.convert(menu, CaesarMenu.class);
+        return menuMapper.renameFolder(caesarMenu);
+    }
+
+    @Override
     public List<MenuModel> listByAside() {
         return menuMapper.listByAside();
     }

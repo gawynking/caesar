@@ -12,6 +12,6 @@ public interface UserMapper extends BaseMapper<CaesarUser> {
     int getTeamGroup(int id);
 
 
-    @Select("select id as userId from caesar.caesar_user where username = #{userName}")
+    @Select("select id as userId from caesar_user where username = #{userName}")
     Integer getUserIdFromUserName(String userName);
 }

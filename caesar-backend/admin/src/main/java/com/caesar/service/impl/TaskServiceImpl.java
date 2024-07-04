@@ -1,8 +1,6 @@
 package com.caesar.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.caesar.entity.CaesarDatasource;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.mapper.DatasourceMapper;
@@ -36,6 +34,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
     @Resource
     DatasourceMapper datasourceMapper;
 
+
+
+
     @Override
     public List<MenuModel> listTask(String partten) {
         if(null == partten || "".equals(partten.trim())){
@@ -66,20 +67,20 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
             String taskScript = taskTemplateMapper.getTaskTemplateScript(taskDto.getCreatedUser(),taskDto.getTaskType());
             if(null == taskScript) taskScript="";
             taskDto.setTaskScript(taskScript);
-            String datasourceInfo = DatasourceUtils.getDatasourceInfo(datasourceMapper.getDatasourceInfo(taskDto.getExecEngine()));
+            String datasourceInfo = DatasourceUtils.getDatasourceInfo(datasourceMapper.getDatasourceInfo(taskDto.getEngine()));
             taskDto.setDatasourceInfo(datasourceInfo);
 
             CaesarTask caesarTask = BeanConverterTools.convert(taskDto, CaesarTask.class);
 
             return taskMapper.addTask(caesarTask);
         }
-        boolean markDelete = false;
+        boolean markDeleted = false;
         for(CaesarTask task:tasks){
-            if(task.getIsDelete() == 1){
-                markDelete=true;
+            if(task.getIsDeleted() == 1){
+                markDeleted=true;
             }
         }
-        if(markDelete){
+        if(markDeleted){
             return taskMapper.martDeleteToOnline(taskDto.getTaskName());
         }
 

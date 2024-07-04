@@ -3,10 +3,7 @@ package com.caesar.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarMenu;
 import com.caesar.model.MenuModel;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -34,7 +31,7 @@ public interface MenuMapper extends BaseMapper<CaesarMenu> {
             ");")
     boolean addFolder(CaesarMenu menu);
 
-    @Select("select id,location,node_type,parent_id,menu_type,menu_index,menu_name,create_time,update_time from caesar_menu where id = #{id}")
+    @Select("select * from caesar_menu where id = #{id}")
     CaesarMenu findById(Integer id);
 
     @Delete("delete from caesar_menu where id = #{id}")
@@ -50,12 +47,14 @@ public interface MenuMapper extends BaseMapper<CaesarMenu> {
             "\tfalse         as is_leaf\n" +
             "from caesar_menu t1 \n" +
             "join caesar_menu t2 on t1.parent_id = t2.id \n" +
-            "where t1.location = 2 \n" +
-            "and t1.parent_id in (1,5)")
+            "where t1.location = 2")
     List<MenuModel> listByAside();
 
     @Select("select id as menuId\n" +
             "from caesar_menu \n" +
             "where menu_index = #{menuIndex}")
     Integer getMenuIdFromMenuIndex(String menuIndex);
+
+    @Update("update caesar_menu set menu_name = #{menuName} where menu_index = #{menuIndex}")
+    boolean renameFolder(CaesarMenu caesarMenu);
 }

@@ -11,14 +11,13 @@ import com.caesar.service.UserService;
 import com.caesar.tool.BeanConverterTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.spring.web.json.Json;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/task")
-public class TaskController {
+public class DevelopCenterController {
 
     @Autowired
     TaskService taskService;
@@ -58,7 +57,6 @@ public class TaskController {
 
     @GetMapping("/deleteTask")
     public JsonResponse<Boolean> deleteTask(@RequestParam(value = "taskName",required = false) String taskName){
-        System.out.println("-------> " + taskName);
 //        return JsonResponse.success(taskService.deleteTaskFromTaskName(taskName));
         return JsonResponse.success(taskService.markDeleteTaskFromTaskName(taskName));
     }

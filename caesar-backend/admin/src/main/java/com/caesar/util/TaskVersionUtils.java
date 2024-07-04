@@ -31,8 +31,11 @@ public class TaskVersionUtils {
      * @return 当前版本号加1
      */
     public synchronized Integer getVersion() {
-        if (version == null) {
+        if (null == version) {
             version = taskMapper.getVersion();
+            if(null == version){
+                version = 0;
+            }
         }
         version = version + 1;
         return version;

@@ -23,7 +23,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tgroup by task_name \n" +
             ") t2 on t1.id = t2.id \n" +
             "join caesar_menu t3 on t1.menu_id = t3.id\n" +
-            "where t1.is_delete = 0\n" +
+            "where t1.is_deleted = 0\n" +
             "order by t1.update_time desc")
     List<MenuModel> listToMenu();
 
@@ -44,7 +44,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "where t2.username like #{partten1}\n" +
             "  and t3.username like #{partten1}\n" +
             "  and t1.task_name like #{partten2}\n" +
-            "  and t1.is_delete = 0\n" +
+            "  and t1.is_deleted = 0\n" +
             "order by t1.update_time desc")
     List<MenuModel> listLikeByOwnerAndTaskNameToMenu(String partten1, String partten2);
 
@@ -56,7 +56,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\ttask_type,\n" +
             "\ttask_name,\n" +
             "\tdatasource_info,\n" +
-            "\texec_engine,\n" +
+            "\tengine,\n" +
             "\tversion,\n" +
             "\tgroup_id,\n" +
             "\tis_released,\n" +
@@ -69,7 +69,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\t#{taskType},\n" +
             "\t#{taskName},\n" +
             "\t#{datasourceInfo},\n" +
-            "\t#{execEngine},\n" +
+            "\t#{engine},\n" +
             "\t#{version},\n" +
             "\t#{groupId},\n" +
             "\t#{isReleased},\n" +
@@ -85,7 +85,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tt1.task_type       as task_type,\n" +
             "\tt1.task_name       as task_name,\n" +
             "\tt1.datasource_info as datasource_info,\n" +
-            "\tt1.exec_engine     as exec_engine,\n" +
+            "\tt1.engine          as engine,\n" +
             "\tt1.version         as version,\n" +
             "\tt1.task_script     as task_script\n" +
             "from caesar_task t1 \n" +
@@ -95,7 +95,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\twhere task_name = #{taskName}\n" +
             ") t2 on t1.id = t2.id \n" +
             "where t1.task_name = #{taskName}\n" +
-            "  and t1.is_delete = 0\n" +
+            "  and t1.is_deleted = 0\n" +
             ";")
     CaesarTaskVo getCurrentTaskInfo(String taskName);
 
@@ -104,12 +104,12 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tt1.task_type       as task_type,\n" +
             "\tt1.task_name       as task_name,\n" +
             "\tt1.datasource_info as datasource_info,\n" +
-            "\tt1.exec_engine     as exec_engine,\n" +
+            "\tt1.engine          as engine,\n" +
             "\tt1.version         as version,\n" +
             "\tt1.task_script     as task_script\n" +
             "from caesar_task t1 \n" +
             "where t1.task_name = #{taskName}\n" +
-            "  and t1.is_delete = 0\n" +
+            "  and t1.is_deleted = 0\n" +
             ";")
     List<CaesarTaskVo> getTaskInfo(String taskName);
 
@@ -119,10 +119,10 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
     @Delete("delete from caesar_task where task_name = #{taskName}")
     Boolean deleteTaskFromTaskName(String taskName);
 
-    @Update("update caesar_task set is_delete = 1 where task_name = #{taskName}")
+    @Update("update caesar_task set is_deleted = 1 where task_name = #{taskName}")
     Boolean markDeleteTaskFromTaskName(String taskName);
 
-    @Update("update caesar_task set is_delete = 0 where task_name = #{taskName}")
+    @Update("update caesar_task set is_deleted = 0 where task_name = #{taskName}")
     boolean martDeleteToOnline(String taskName);
 
 }

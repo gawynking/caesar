@@ -11,12 +11,13 @@
 
                         <div class="main-code-editor-menu">
                             <span class="main-code-editor-menu-left">
-                                <el-button type="primary" size="mini" plain>编辑</el-button>
-                                <el-button type="primary" size="mini" plain>保存</el-button>
+
                                 <el-button type="primary" size="mini" plain>历史</el-button>
                             </span>
 
                             <span class="main-code-editor-menu-right">
+                                <el-button type="primary" size="mini" plain>编辑</el-button>
+                                <el-button type="primary" size="mini" plain>保存</el-button>
                                 <el-button type="primary" size="mini" plain>执行</el-button>
                                 <el-button type="primary" size="mini" plain>回刷</el-button>
                                 <el-button type="primary" size="mini" plain>发布</el-button>

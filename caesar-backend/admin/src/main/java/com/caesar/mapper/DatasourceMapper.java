@@ -12,7 +12,7 @@ public interface DatasourceMapper extends BaseMapper<CaesarDatasource> {
 
     @Select("select * \n" +
             "from caesar_datasource \n" +
-            "where exec_engine = #{execEngine}")
-    List<CaesarDatasource> getDatasourceInfo(int execEngine);
+            "where engine = #{engine}")
+    List<CaesarDatasource> getDatasourceInfo(int engine);
 
 }

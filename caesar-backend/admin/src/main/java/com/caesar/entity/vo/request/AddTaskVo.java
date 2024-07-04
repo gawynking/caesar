@@ -8,7 +8,7 @@ public class AddTaskVo {
     String menuIndex;
     int taskType;
     String taskName;
-    int execEngine;
+    int engine;
     String createdUserName;
     String updatedUserName;
 

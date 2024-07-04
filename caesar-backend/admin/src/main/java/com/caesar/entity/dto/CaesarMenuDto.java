@@ -6,10 +6,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class CaesarMenuDto {
-    int location;
-    int nodeType;
+
     int parentId;
-    int menuType;
     String menuIndex;
     String menuName;
+    int location;
+    int nodeType;
+    int menuType;
+
 }
