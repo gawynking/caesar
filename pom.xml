@@ -12,7 +12,8 @@
 
 	<modules>
 		<module>caesar-backend</module>
-	</modules>
+        <module>caesar-backend/engine</module>
+    </modules>
 
 	<groupId>com.caesar</groupId>
 	<artifactId>caesar</artifactId>

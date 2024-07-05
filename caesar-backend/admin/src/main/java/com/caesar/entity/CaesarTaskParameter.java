@@ -5,7 +5,8 @@ import lombok.Data;
 @Data
 public class CaesarTaskParameter extends BaseEntity{
 
-    String paramValue;
+    String paramName;
     String paramDesc;
+    String expression;
 
 }

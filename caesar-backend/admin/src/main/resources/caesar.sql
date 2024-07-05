@@ -17,8 +17,6 @@ create table caesar_menu(
 comment '系统菜单表'
 ;
 
--- 根节点
-insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type) values(0, 0, 'root', '根页面', 0, 0, 1);
 
 -- 头部菜单初始化
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type) values(1, 0, 'task', '任务管理', 1, 2, 1);
@@ -48,6 +46,56 @@ insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_ty
 
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type) values(21, 1, 'data-service', '数据服务', 2, 1, 1);
 
+-- 根节点
+insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type) values(0, 0, 'root', '根页面', 0, 0, 1);
+update caesar_menu set id = 0 where menu_index = 'root';
+
+
+-- 菜单角色表
+drop table if exists caesar_role;
+create table caesar_role(
+    id          int not null auto_increment                                              comment '角色ID',
+    role_name   varchar(64) not null                                                     comment '角色名称',
+    create_time timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+) engine = innodb default charset=utf8mb4
+comment '菜单角色表'
+;
+insert into caesar_role(id,role_name)values(1,'超级管理员');
+insert into caesar_role(id,role_name)values(2,'组管理员');
+insert into caesar_role(id,role_name)values(3,'数据开发');
+insert into caesar_role(id,role_name)values(4,'一般用户');
+
+
+-- 角色权限表
+drop table if exists caesar_role_menu;
+create table caesar_role_menu(
+    id          int not null auto_increment                                              comment 'ID',
+    role_id     int                                                                      comment '角色ID',
+    menu_id     int                                                                      comment '菜单ID',
+    create_time timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+) engine = innodb default charset=utf8mb4
+comment '角色权限表'
+;
+
+
+-- 用户角色表
+drop table if exists caesar_user_role;
+create table caesar_user_role(
+    id          int not null auto_increment                                              comment 'ID',
+    user_id     int not null                                                             comment '用户ID',
+    role_id     int not null                                                             comment '角色ID',
+    create_time timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+) engine = innodb default charset=utf8mb4
+comment '用户表'
+;
+insert into caesar_user_role(user_id,role_id)values(1,1);
+
 
 -- 用户组(任务编辑权限)，组内用户可编辑，跨组用户可浏览
 drop table if exists caesar_team_group;
@@ -65,38 +113,6 @@ comment '用户组'
 insert into caesar_team_group(id,group_name,group_desc,owner_id)values(1,'默认组','默认团队',1);
 
 
--- 菜单角色表
-drop table if exists caesar_menu_role;
-create table caesar_menu_role(
-    id          int not null auto_increment                                              comment '角色ID',
-    role_name   varchar(64) not null                                                     comment '角色名称',
-    create_time timestamp not null default current_timestamp                             comment '创建时间戳',
-    update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
-    primary key(id)
-) engine = innodb default charset=utf8mb4
-comment '菜单角色表'
-;
-insert into caesar_menu_role(id,role_name)values(1,'超级管理员');
-insert into caesar_menu_role(id,role_name)values(2,'组管理员');
-insert into caesar_menu_role(id,role_name)values(3,'数据开发');
-insert into caesar_menu_role(id,role_name)values(4,'一般用户');
-
-
--- 角色权限表
-drop table if exists caesar_menu_role_permission;
-create table caesar_menu_role_permission(
-    id          int not null auto_increment                                              comment 'ID',
-    role_id     int                                                                      comment '角色ID',
-    menu_id     int                                                                      comment '菜单ID',
-    permission  int                                                                      comment '权限',
-    create_time timestamp not null default current_timestamp                             comment '创建时间戳',
-    update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
-    primary key(id)
-) engine = innodb default charset=utf8mb4
-comment '角色权限表'
-;
-
-
 -- 用户表
 drop table if exists caesar_user;
 create table caesar_user(
@@ -105,8 +121,7 @@ create table caesar_user(
     password     varchar(128)                                                            comment '密码',
     email        varchar(128)                                                            comment '邮箱',
     phone        varchar(32)                                                             comment '电话',
-    team_group   int                                                                     comment '用户所属组', -- 控制资源权限，同一时间一个用户只能属于一个组，对一个组内资源具有编辑权限，对于跨组资源具有查询权限
-    is_effective int default 0                                                           comment '是否激活: 1-是 0-否',
+    is_activated int default 0                                                           comment '是否激活: 1-是 0-否',
     create_time timestamp not null default current_timestamp                             comment '创建时间戳',
     update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
     primary key(id),
@@ -116,22 +131,23 @@ create table caesar_user(
 ) engine = innodb default charset=utf8mb4
 comment '用户表'
 ;
-insert into caesar_user(id,username,password,email,phone,team_group,role_id,is_effective)values(1,'GawynKing','123','gawynking@gmail.com','15999998888',1,1,1);
+insert into caesar_user(id,username,password,email,phone,is_activated)values(1,'GawynKing','123','gawynking@gmail.com','15999998888',1);
 
 
--- 用户角色表
-drop table if exists caesar_user_role;
-create table caesar_user_role(
-    id          int not null auto_increment                                              comment 'ID',
-    user_id     int not null                                                             comment '用户ID',
-    role_id     int not null                                                             comment '角色ID',
+-- 用户组表
+drop table if exists caesar_user_group;
+create table caesar_user_group(
+    id           int not null auto_increment                                             comment 'ID',
+    user_id      int not null                                                            comment '用户ID',
+    group_id     int not null                                                            comment '组ID',
     create_time timestamp not null default current_timestamp                             comment '创建时间戳',
     update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
     primary key(id)
 ) engine = innodb default charset=utf8mb4
-comment '用户表'
+comment '用户组表'
 ;
-insert into caesar_user_role(user_id,role_id)values(1,1);
+insert into caesar_user_group(user_id,group_id)values(1,1);
+
 
 
 -- 任务表
@@ -199,19 +215,21 @@ comment '数据源表'
 ;
 insert into caesar_datasource(datasource_name,datasource_type,engine)values("测试数据源",1,1);
 insert into caesar_datasource(datasource_name,datasource_type,engine)values("预发数据源",2,1);
-insert into caesar_datasource(datasource_name,datasource_type,engine)values("生成数据源",3,1);
+insert into caesar_datasource(datasource_name,datasource_type,engine)values("生产数据源",3,1);
+
 
 -- 任务开发参数表
 drop table if exists caesar_task_parameter;
 create table caesar_task_parameter(
 	id             int auto_increment                                                       comment 'ID',
-	param_value    varchar(64) not null                                                     comment '参数',
+	param_name     varchar(64) not null                                                     comment '参数名称',
 	param_desc     varchar(1024) not null                                                   comment '参数说明',
+	expression     varchar(512) not null                                                    comment '表达式',
     create_time    timestamp not null default current_timestamp                             comment '创建时间戳',
     update_time    timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
     primary key(id)
 ) engine = innodb default charset=utf8mb4
 comment '任务开发参数表'
 ;
-insert into caesar_task_parameter(param_value,param_desc)values('\$\{etl_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd');
+insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{etl_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd','getYestodayDate');
 

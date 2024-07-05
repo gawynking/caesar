@@ -12,8 +12,7 @@ public class CaesarUser extends BaseEntity{
     String password;
     String email;
     String phone;
-    String teamGroup;
-    @TableField("is_effective")
-    int isEffective;
+    @TableField("is_activated")
+    int isActivated;
 
 }

@@ -2,10 +2,8 @@ package com.caesar.entity;
 
 import lombok.Data;
 
-import java.sql.Timestamp;
-
 @Data
-public class CaesarMenuRole extends BaseEntity{
+public class CaesarRole extends BaseEntity{
 
     String roleName;
 
