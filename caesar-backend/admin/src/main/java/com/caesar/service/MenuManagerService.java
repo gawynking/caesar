@@ -9,7 +9,7 @@ import com.caesar.model.MenuModel;
 import java.util.List;
 
 
-public interface MenuService extends IService<CaesarMenu> {
+public interface MenuManagerService extends IService<CaesarMenu> {
 
     boolean addFolder(CaesarMenuDto menu);
 
@@ -17,13 +17,12 @@ public interface MenuService extends IService<CaesarMenu> {
 
     boolean renameFolder(CaesarMenuDto caesarMenuDto);
 
-    List<MenuModel> listByAside();
+    List<MenuModel> listMenuForAside();
 
     boolean existsSubtask(int id);
 
     boolean isTaskFolder(int parentId);
 
     Integer getMenuIdFromMenuIndex(String menuIndex);
-
 
 }

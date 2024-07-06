@@ -23,7 +23,7 @@ public class MenuModel {
 
         // Create all nodes and map them by their menu_id
         for (MenuModel menu : menus) {
-            MenuNode node = new MenuNode(menu.getMenuIndex(), menu.getMenuName(), menu.getIsLeaf());
+            MenuNode node = new MenuNodeImpl(menu.getMenuIndex(), menu.getMenuName(), menu.getIsLeaf());
             nodeMap.put(menu.menuIndex, node);
         }
 
@@ -36,7 +36,7 @@ public class MenuModel {
             } else {
                 MenuNode parentNode = nodeMap.get(menu.parentIndex);
                 if (parentNode != null) {
-                    parentNode.addChild(node);
+                    parentNode.addChild((MenuNodeImpl) node);
                 }
             }
         }
@@ -45,16 +45,16 @@ public class MenuModel {
     }
 
 
-    public static class MenuNode {
+    public static class MenuNodeImpl implements MenuNode {
 
         private String menuIndex;
         private String menuName;
         private Boolean isLeaf;
-        private List<MenuNode> children;
+        private List<MenuNodeImpl> children;
 
 
 
-        public MenuNode(String menuIndex, String menuName,Boolean isLeaf) {
+        public MenuNodeImpl(String menuIndex, String menuName, Boolean isLeaf) {
             this.menuIndex = menuIndex;
             this.menuName = menuName;
             this.isLeaf = isLeaf;
@@ -73,11 +73,13 @@ public class MenuModel {
             return this.isLeaf;
         }
 
-        public List<MenuNode> getChildren() {
+        @Override
+        public List<MenuNodeImpl> getChildren() {
             return this.children;
         }
 
-        public void addChild(MenuNode child) {
+        @Override
+        public void addChild(MenuNodeImpl child) {
             this.children.add(child);
         }
 

@@ -25,7 +25,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "join caesar_menu t3 on t1.menu_id = t3.id\n" +
             "where t1.is_deleted = 0\n" +
             "order by t1.update_time desc")
-    List<MenuModel> listToMenu();
+    List<MenuModel> listTaskToMenu();
 
     @Select("select \n" +
             "\tt4.menu_index as parent_index,\n" +
@@ -46,7 +46,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "  and t1.task_name like #{partten2}\n" +
             "  and t1.is_deleted = 0\n" +
             "order by t1.update_time desc")
-    List<MenuModel> listLikeByOwnerAndTaskNameToMenu(String partten1, String partten2);
+    List<MenuModel> listTaskToMenuByOwnerAndTaskname(String partten1, String partten2);
 
     @Select("select * from caesar_task where task_name = #{taskName}")
     List<CaesarTask> findByName(String taskName);
@@ -111,7 +111,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "where t1.task_name = #{taskName}\n" +
             "  and t1.is_deleted = 0\n" +
             ";")
-    List<CaesarTaskVo> getTaskInfo(String taskName);
+    List<CaesarTaskVo> getTaskInfos(String taskName);
 
     @Select("select max(version) as version from caesar_task")
     Integer getVersion();
@@ -120,9 +120,9 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
     Boolean deleteTaskFromTaskName(String taskName);
 
     @Update("update caesar_task set is_deleted = 1 where task_name = #{taskName}")
-    Boolean markDeleteTaskFromTaskName(String taskName);
+    Boolean markDeletedTaskFromTaskName(String taskName);
 
     @Update("update caesar_task set is_deleted = 0 where task_name = #{taskName}")
-    boolean martDeleteToOnline(String taskName);
+    boolean recoverDeletedTaskFromTaskName(String taskName);
 
 }

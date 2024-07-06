@@ -8,7 +8,7 @@ import com.caesar.mapper.TaskMapper;
 import com.caesar.mapper.TaskTemplateMapper;
 import com.caesar.mapper.UserMapper;
 import com.caesar.model.MenuModel;
-import com.caesar.service.TaskService;
+import com.caesar.service.DevelopCenterService;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.DatasourceUtils;
@@ -20,7 +20,8 @@ import java.util.List;
 
 
 @Service
-public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> implements TaskService {
+public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> implements DevelopCenterService {
+
 
     @Resource
     TaskMapper taskMapper;
@@ -38,18 +39,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
 
 
     @Override
-    public List<MenuModel> listTask(String partten) {
+    public List<MenuModel> listTaskToMenu(String partten) {
         if(null == partten || "".equals(partten.trim())){
-            return taskMapper.listToMenu();
+            return taskMapper.listTaskToMenu();
         }
         String[] parttens = partten.split("\\.");
         if(parttens.length==1){
             String parttenStr = parttens[0].equals("*")?"%%":"%"+parttens[0]+"%";
-            return taskMapper.listLikeByOwnerAndTaskNameToMenu(parttenStr,"%%");
+            return taskMapper.listTaskToMenuByOwnerAndTaskname(parttenStr,"%%");
         } else{
             String parttenStr1 = parttens[0].equals("*")?"%%":"%"+parttens[0]+"%";
             String parttenStr2 = parttens[1].equals("*")?"%%":"%"+parttens[1]+"%";
-            return taskMapper.listLikeByOwnerAndTaskNameToMenu(parttenStr1,parttenStr2);
+            return taskMapper.listTaskToMenuByOwnerAndTaskname(parttenStr1,parttenStr2);
         }
     }
 
@@ -58,16 +59,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
         List<CaesarTask> tasks = taskMapper.findByName(taskDto.getTaskName());
         if(null == tasks || tasks.size() == 0){
             int version = TaskVersionUtils.getInstance(taskMapper).getVersion();
-            int teamGroup = userMapper.getTeamGroup(taskDto.getCreatedUser());
             taskDto.setVersion(version);
-            taskDto.setGroupId(teamGroup);
             taskDto.setIsReleased(0);
             taskDto.setIsOnline(0);
             // datasource ,taskScript
-            String taskScript = taskTemplateMapper.getTaskTemplateScript(taskDto.getCreatedUser(),taskDto.getTaskType());
+            String taskScript = taskTemplateMapper.getTaskTemplateScriptFromOwnerAndTasktype(taskDto.getCreatedUser(),taskDto.getTaskType());
             if(null == taskScript) taskScript="";
             taskDto.setTaskScript(taskScript);
-            String datasourceInfo = DatasourceUtils.getDatasourceInfo(datasourceMapper.getDatasourceInfo(taskDto.getEngine()));
+            String datasourceInfo = DatasourceUtils.getDatasourceInfo(datasourceMapper.getDatasourceInfoFromEngine(taskDto.getEngine()));
             taskDto.setDatasourceInfo(datasourceInfo);
 
             CaesarTask caesarTask = BeanConverterTools.convert(taskDto, CaesarTask.class);
@@ -81,7 +80,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
             }
         }
         if(markDeleted){
-            return taskMapper.martDeleteToOnline(taskDto.getTaskName());
+            return taskMapper.recoverDeletedTaskFromTaskName(taskDto.getTaskName());
         }
 
         return false;
@@ -93,8 +92,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
     }
 
     @Override
-    public List<CaesarTaskVo> getTaskInfo(String taskName) {
-        return taskMapper.getTaskInfo(taskName);
+    public List<CaesarTaskVo> getTaskInfos(String taskName) {
+        return taskMapper.getTaskInfos(taskName);
     }
 
     @Override
@@ -103,8 +102,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impleme
     }
 
     @Override
-    public Boolean markDeleteTaskFromTaskName(String taskName) {
-        return taskMapper.markDeleteTaskFromTaskName(taskName);
+    public Boolean markDeletedTaskFromTaskName(String taskName) {
+        return taskMapper.markDeletedTaskFromTaskName(taskName);
     }
 
 

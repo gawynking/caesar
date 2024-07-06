@@ -4,10 +4,11 @@ import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.vo.request.AddTaskVo;
 import com.caesar.model.JsonResponse;
 import com.caesar.model.MenuModel;
-import com.caesar.service.MenuService;
-import com.caesar.service.TaskService;
+import com.caesar.model.MenuNode;
+import com.caesar.service.MenuManagerService;
+import com.caesar.service.DevelopCenterService;
 import com.caesar.entity.vo.CaesarTaskVo;
-import com.caesar.service.UserService;
+import com.caesar.service.UserManagerService;
 import com.caesar.tool.BeanConverterTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,27 +16,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/develop")
 public class DevelopCenterController {
 
     @Autowired
-    TaskService taskService;
+    DevelopCenterService developCenterService;
 
     @Autowired
-    MenuService menuService;
+    MenuManagerService menuManagerService;
 
     @Autowired
-    UserService userService;
+    UserManagerService userManagerService;
 
 
 
     @GetMapping("/listTask")
-    public JsonResponse<List<MenuModel.MenuNode>> listTask(@RequestParam String partten){
+    public JsonResponse<List<MenuNode>> listTask(@RequestParam String partten){
         List<MenuModel> caesarMenus = new ArrayList<>();
-        caesarMenus.addAll(menuService.listByAside());
-        caesarMenus.addAll(taskService.listTask(partten));
-        List<MenuModel.MenuNode> menuNodes = MenuModel.convert(caesarMenus);
+        caesarMenus.addAll(menuManagerService.listMenuForAside());
+        caesarMenus.addAll(developCenterService.listTaskToMenu(partten));
+        List<MenuNode> menuNodes = MenuModel.convert(caesarMenus);
         return JsonResponse.success(menuNodes);
     }
 
@@ -43,34 +45,34 @@ public class DevelopCenterController {
     @PostMapping("/addTask")
     public JsonResponse<Boolean> addTask(@RequestBody AddTaskVo addTaskVo){
 
-        Integer menuId = menuService.getMenuIdFromMenuIndex(addTaskVo.getMenuIndex());
-        Integer createdUser = userService.getUserIdFromUserName(addTaskVo.getCreatedUserName());
-        Integer updatedUser = userService.getUserIdFromUserName(addTaskVo.getUpdatedUserName());
+        Integer menuId = menuManagerService.getMenuIdFromMenuIndex(addTaskVo.getMenuIndex());
+        Integer createdUser = userManagerService.getUserIdFromUserName(addTaskVo.getCreatedUserName());
+        Integer updatedUser = userManagerService.getUserIdFromUserName(addTaskVo.getUpdatedUserName());
 
         CaesarTaskDto caesarTaskDto = BeanConverterTools.convert(addTaskVo, CaesarTaskDto.class);
         caesarTaskDto.setMenuId(menuId);
         caesarTaskDto.setCreatedUser(createdUser);
         caesarTaskDto.setUpdatedUser(updatedUser);
 
-        return JsonResponse.success(taskService.addTask(caesarTaskDto));
+        return JsonResponse.success(developCenterService.addTask(caesarTaskDto));
     }
 
     @GetMapping("/deleteTask")
     public JsonResponse<Boolean> deleteTask(@RequestParam(value = "taskName",required = false) String taskName){
 //        return JsonResponse.success(taskService.deleteTaskFromTaskName(taskName));
-        return JsonResponse.success(taskService.markDeleteTaskFromTaskName(taskName));
+        return JsonResponse.success(developCenterService.markDeletedTaskFromTaskName(taskName));
     }
 
 
-    @GetMapping("/getTaskInfo")
-    public JsonResponse<List<CaesarTaskVo>> getTaskInfo(@RequestParam String taskName){
-        List<CaesarTaskVo> caesarTaskVos = taskService.getTaskInfo(taskName);
+    @GetMapping("/getTaskInfos")
+    public JsonResponse<List<CaesarTaskVo>> getTaskInfos(@RequestParam String taskName){
+        List<CaesarTaskVo> caesarTaskVos = developCenterService.getTaskInfos(taskName);
         return JsonResponse.success(caesarTaskVos);
     }
 
     @GetMapping("/getCurrentTaskInfo")
     public JsonResponse<CaesarTaskVo> getCurrentTaskInfo(@RequestParam String taskName){
-        CaesarTaskVo caesarTaskVo = taskService.getCurrentTaskInfo(taskName);
+        CaesarTaskVo caesarTaskVo = developCenterService.getCurrentTaskInfo(taskName);
         return JsonResponse.success(caesarTaskVo);
     }
 

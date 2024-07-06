@@ -10,25 +10,22 @@ import java.util.List;
 @Mapper
 public interface MenuMapper extends BaseMapper<CaesarMenu> {
 
-    @Select("select id from caesar_menu where location = 2 and node_type = 1 and parent_id in (5)")
-    List<Integer> allowedSubtask();
-
-    @Insert("insert into caesar_menu(" +
-            "location," +
-            "node_type," +
-            "parent_id," +
-            "menu_type," +
-            "menu_index," +
-            "menu_name" +
-            ")" +
-            "values(" +
-            "#{location}, " +
-            "#{nodeType}, " +
-            "#{parentId}, " +
-            "#{menuType}, " +
-            "#{menuIndex}, " +
-            "#{menuName}" +
-            ");")
+    @Insert("insert into caesar_menu(\n" +
+            "\tparent_id,\n" +
+            "\tmenu_index,\n" +
+            "\tmenu_name,\n" +
+            "\tlocation,\n" +
+            "\tnode_type,\n" +
+            "\tmenu_type\n" +
+            ")\n" +
+            "values(\n" +
+            "\t#{parentId}, \n" +
+            "\t#{menuIndex}, \n" +
+            "\t#{menuName},\n" +
+            "\t#{location}, \n" +
+            "\t#{nodeType}, \n" +
+            "\t#{menuType} \n" +
+            ")")
     boolean addFolder(CaesarMenu menu);
 
     @Select("select * from caesar_menu where id = #{id}")
@@ -37,8 +34,8 @@ public interface MenuMapper extends BaseMapper<CaesarMenu> {
     @Delete("delete from caesar_menu where id = #{id}")
     boolean deleteFolder(Integer id);
 
-    @Select("select sum(1) as subtask_num from caesar_menu where parent_id = #{id}")
-    Integer findSubtask(int id);
+    @Select("select sum(1) as subtask_num from caesar_menu where parent_id = #{parentId}")
+    Integer findSubtaskNumber(int parentId);
 
     @Select("select \n" +
             "\tt2.menu_index as parent_index,\n" +
@@ -48,7 +45,7 @@ public interface MenuMapper extends BaseMapper<CaesarMenu> {
             "from caesar_menu t1 \n" +
             "join caesar_menu t2 on t1.parent_id = t2.id \n" +
             "where t1.location = 2")
-    List<MenuModel> listByAside();
+    List<MenuModel> listMenuForAside();
 
     @Select("select id as menuId\n" +
             "from caesar_menu \n" +
@@ -57,4 +54,13 @@ public interface MenuMapper extends BaseMapper<CaesarMenu> {
 
     @Update("update caesar_menu set menu_name = #{menuName} where menu_index = #{menuIndex}")
     boolean renameFolder(CaesarMenu caesarMenu);
+
+    @Select("select t1.id as id\n" +
+            "from caesar_menu t1 \n" +
+            "left join caesar_menu t2 on t1.parent_id = t2.id  \n" +
+            "where t1.location = 2 \n" +
+            "  and t1.node_type = 1 \n" +
+            "  and t2.node_type = 1")
+    List<Integer> findAllowedSubtaskNodes();
+
 }

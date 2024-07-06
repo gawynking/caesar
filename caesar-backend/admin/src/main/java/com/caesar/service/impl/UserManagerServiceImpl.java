@@ -3,13 +3,13 @@ package com.caesar.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.entity.CaesarUser;
 import com.caesar.mapper.UserMapper;
-import com.caesar.service.UserService;
+import com.caesar.service.UserManagerService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, CaesarUser> implements UserService {
+public class UserManagerServiceImpl extends ServiceImpl<UserMapper, CaesarUser> implements UserManagerService {
 
     @Resource
     UserMapper userMapper;
@@ -19,4 +19,5 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, CaesarUser> impleme
         Integer userId = userMapper.getUserIdFromUserName(userName);
         return userId;
     }
+
 }

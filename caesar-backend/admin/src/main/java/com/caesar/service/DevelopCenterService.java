@@ -10,17 +10,18 @@ import com.caesar.entity.vo.CaesarTaskVo;
 import java.util.List;
 
 
-public interface TaskService extends IService<CaesarTask> {
+public interface DevelopCenterService extends IService<CaesarTask> {
 
-    List<MenuModel> listTask(String partten);
+    List<MenuModel> listTaskToMenu(String partten);
 
     boolean addTask(CaesarTaskDto task);
 
     CaesarTaskVo getCurrentTaskInfo(String taskName);
 
-    List<CaesarTaskVo> getTaskInfo(String taskName);
+    List<CaesarTaskVo> getTaskInfos(String taskName);
 
     Boolean deleteTaskFromTaskName(String taskName);
 
-    Boolean markDeleteTaskFromTaskName(String taskName);
+    Boolean markDeletedTaskFromTaskName(String taskName);
+
 }

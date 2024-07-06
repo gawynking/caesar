@@ -5,7 +5,7 @@ import com.caesar.entity.CaesarMenu;
 import com.caesar.entity.dto.CaesarMenuDto;
 import com.caesar.mapper.MenuMapper;
 import com.caesar.model.MenuModel;
-import com.caesar.service.MenuService;
+import com.caesar.service.MenuManagerService;
 import com.caesar.tool.BeanConverterTools;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +13,11 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-public class MenuServiceImpl extends ServiceImpl<MenuMapper, CaesarMenu> implements MenuService {
+public class MenuManagerServiceImpl extends ServiceImpl<MenuMapper, CaesarMenu> implements MenuManagerService {
 
     @Resource
     MenuMapper menuMapper;
+
 
     @Override
     public boolean addFolder(CaesarMenuDto menu) {
@@ -42,13 +43,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, CaesarMenu> impleme
     }
 
     @Override
-    public List<MenuModel> listByAside() {
-        return menuMapper.listByAside();
+    public List<MenuModel> listMenuForAside() {
+        return menuMapper.listMenuForAside();
     }
 
     @Override
     public boolean existsSubtask(int id){
-        Integer subtaskNum = menuMapper.findSubtask(id);
+        Integer subtaskNum = menuMapper.findSubtaskNumber(id);
         if(null == subtaskNum || subtaskNum == 0){
             return false;
         }else {
@@ -58,7 +59,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, CaesarMenu> impleme
 
     @Override
     public boolean isTaskFolder(int parentId){
-        List<Integer> parentIds = menuMapper.allowedSubtask();
+        List<Integer> parentIds = menuMapper.findAllowedSubtaskNodes();
         if(parentIds.contains(parentId)){
             return true;
         }

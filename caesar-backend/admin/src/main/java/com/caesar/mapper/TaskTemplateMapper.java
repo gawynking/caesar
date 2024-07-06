@@ -13,5 +13,5 @@ public interface TaskTemplateMapper extends BaseMapper<CaesarTaskTemplate> {
             "where task_type = #{taskType}\n" +
             "  and owner_id = #{ownerId}\n" +
             "  and is_default = 1")
-    String getTaskTemplateScript(int ownerId, int taskType);
+    String getTaskTemplateScriptFromOwnerAndTasktype(int ownerId, int taskType);
 }
