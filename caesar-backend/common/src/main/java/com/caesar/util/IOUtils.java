@@ -4,6 +4,37 @@ import java.io.*;
 
 public class IOUtils {
 
+    public static String readFileToBuffer(String file) {
+
+        StringBuilder sb = new StringBuilder();
+
+        BufferedReader objReader = null;
+        try {
+            String strCurrentLine = "";
+            objReader = new BufferedReader(new FileReader(file));
+            while ((strCurrentLine = objReader.readLine()) != null) {
+//                sb.append(strCurrentLine.replaceAll("\\s",""));
+                sb.append(strCurrentLine).append("\n");
+            }
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+                if (objReader != null)
+                    objReader.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return sb.toString();
+
+    }
+
 
     /**
      * copy 文件

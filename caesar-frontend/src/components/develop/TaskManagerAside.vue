@@ -1,4 +1,4 @@
-<!-- src/components/Header.vue -->
+<!-- src/components/TaskManagerAside.vue -->
 <template>
     <fragment class="task-manager-aside">
 
@@ -8,38 +8,31 @@
                 <span>{{ item.menuName }}</span>
             </template>
 
-            <el-submenu v-for="child in item.children" :key="child.menuIndex" :index="child.menuIndex"
-                v-if="!child.isLeaf">
-
-
+            <el-submenu v-for="child in item.children" :key="child.menuIndex" :index="child.menuIndex" v-if="!child.isLeaf">
 
                 <template slot="title">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>{{ child.menuName }}</span>
-                        <el-button type="text" size="mini" style="margin-right: 10px;"
-                            @click.native.prevent="addSubtask($event, child)">
+                        <el-button type="text" size="mini" style="margin-right: 10px;" @click.native.prevent="addSubtask($event, child)">
                             <i class="el-icon-circle-plus-outline"></i>
                         </el-button>
                     </div>
                 </template>
 
-
                 <el-menu-item v-for="grandChild in child.children" :key="grandChild.menuIndex" :index="grandChild.menuIndex">
-                    <!-- {{ grandChild.menuName }} -->
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>{{ grandChild.menuName }}</span>
 
-                        <!-- <el-button type="text" size="mini" style="margin-right: 10px;" @click.native.prevent="deleteSubtask($event, grandChild)">
-                            <i class="el-icon-remove-outline"></i>
-                        </el-button> -->
-
                         <el-popover placement="top" width="160" v-model="grandChild.taskDeleteVisible">
-                            <p>确定删除任务 {{grandChild.menuName}} 吗？</p>
+                            <p>确定删除任务 {{ grandChild.menuName }} 吗？</p>
                             <div style="text-align: right; margin: 0">
-                                <el-button size="mini" type="text" @click="grandChild.taskDeleteVisible = false">取消</el-button>
-                                <el-button type="primary" size="mini" @click="sendDeleteSubtask(grandChild)">确定</el-button>
+                                <el-button size="mini" type="text"
+                                    @click="grandChild.taskDeleteVisible = false">取消</el-button>
+                                <el-button type="primary" size="mini"
+                                    @click="sendDeleteSubtask(grandChild)">确定</el-button>
                             </div>
-                            <el-button size="mini" type="text" slot="reference" @click.native.prevent="deleteSubtask($event, grandChild)">
+                            <el-button size="mini" type="text" slot="reference"
+                                @click.native.prevent="deleteSubtask($event, grandChild)">
                                 <i class="el-icon-remove-outline"></i>
                             </el-button>
                         </el-popover>
@@ -49,15 +42,28 @@
             </el-submenu>
         </el-submenu>
 
-
         <el-dialog title="创建新的ETL任务" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
             <el-form>
                 <el-form-item label="执行引擎">
                     <el-select v-model="engine" placeholder="请选择">
-                        <el-option v-for="item in engines" :key="item.value" :label="item.label" :value="item.value">
+                        <el-option v-for="item in engines" :key="item.id" :label="item.engineType" :value="item.id">
                         </el-option>
                     </el-select>
                 </el-form-item>
+
+                <el-form-item label="用户组">
+                    <el-select v-model="selectedGroup" placeholder="请选择用户组" @change="onGroupChange">
+                    <el-option v-for="group in groups" :key="group.groupId" :label="group.groupName" :value="group.groupId">
+                    </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="数据库名">
+                    <el-select v-model="dbName" placeholder="请选择数据库">
+                    <el-option v-for="item in filteredDbNames" :key="item.id" :label="item.levelTag" :value="item.levelTag">
+                    </el-option>
+                    </el-select>
+                </el-form-item>
+
                 <el-form-item label="任务名称">
                     <el-input v-model="newTaskName"></el-input>
                 </el-form-item>
@@ -68,79 +74,109 @@
             </div>
         </el-dialog>
 
-
     </fragment>
 </template>
 
 
 <script>
-import { EventBus } from '../common/event-bus';
+import { EventBus } from '../../common/event-bus';
 
 export default {
     name: 'TaskManagerAside',
     data() {
         return {
-            currentLoginUser: 'GawynKing',
             asideListData: [],
-            filterText: "",
+            loginUser: 'admin',
+            filterText: '',
             selectedTasks: [],
             dialogVisible: false,
+            dbName: '',
             newTaskName: '',
             currentMenuItem: '',
+            selectedGroup: null,
             engine: 1,
-            engines: [{
-                value: 1,
-                label: 'Hive'
-            }, {
-                value: 2,
-                label: 'Spark'
-            }, {
-                value: 3,
-                label: 'Flink'
-            }, {
-                value: 4,
-                label: 'Doris'
-            }, {
-                value: 5,
-                label: 'MySQL'
-            }, {
-                value: 6,
-                label: 'Hbase'
-            }
-            ],
-            taskDeleteVisible:false
+            engines: [],
+            groups:[],
+            taskDeleteVisible: false
         }
     },
     props: {
-        // handleSelectTask: {
-        //     type: Function,
-        //     required: true
-        // }
     },
     created() {
-        EventBus.$on('tasks-selectedTasks', data => {
-            if (typeof data !== 'string') {
-                // 如果数据不是字符串，将其转换为字符串
-                this.selectedTasks = JSON.stringify(data);
-            } else {
-                this.selectedTasks = data;
-            }
+        EventBus.$on('login-user', data => {
+            this.loginUser = sessionStorage.getItem('loginUser');
         });
+        EventBus.$on('tasks-selectedTasks', data => {
+            this.selectedTasks = data;
+        });
+    },
+    mounted() {
+        this.loginUser = sessionStorage.getItem('loginUser');
+        this.$nextTick(() => {
+            this.syncFilterText();
+            this.loadData(this.filterText);
+        });
+        this.loadEngines();
+        this.loadBbs();
+    },
+    beforeMount() {
+        this.syncFilterText();
+        this.loadData(this.filterText);
+    },
+    watch: {
+        filterText(newFilterText) {
+            this.syncFilterText();
+            this.loadData(newFilterText);
+        },
+        selectedTasks(selectedTasks) {
+            this.selectedTasks = selectedTasks;
+        }
+    },
+    computed: {
+        filteredDbNames() {
+            if (this.selectedGroup === null) {
+                return [];
+            }
+            const group = this.groups.find(g => g.groupId === this.selectedGroup);
+            return group ? group.dbInfos : [];
+        }
     },
     methods: {
         async loadData(filterText) {
             try {
-                const response = await this.$axios.get("/task/listTask", {
+                const response = await this.$axios.get("/develop/listTask", {
                     params: { partten: filterText }
                 });
                 if (response.data && response.data.status === 'success') {
                     this.asideListData = response.data.data.items;
                     EventBus.$emit("asideListData", this.asideListData);
-                    console.log(this.asideListData);
                 }
             } catch (error) {
                 console.error("Failed to load data:", error);
             }
+        },
+        async loadEngines() {
+            try {
+                const response = await this.$axios.get("/develop/getEngines");
+                if (response.data && response.data.status === 'success') {
+                    this.engines = response.data.data.items;
+                }
+            } catch (error) {
+                console.error("Failed to load data:", error);
+            }
+        },
+        async loadBbs() {
+            try {
+                const response = await this.$axios.get("/develop/getDbs");
+                if (response.data && response.data.status === 'success') {
+                    this.groups = response.data.data.items;
+                }
+            } catch (error) {
+                console.error("Failed to load data:", error);
+            }
+        },
+        onGroupChange(groupId) {
+            this.dbName = ''; // 清空之前选择的数据库名
         },
         syncFilterText() {
             EventBus.$on('filterText', data => {
@@ -149,19 +185,16 @@ export default {
         },
         addSubtask(event, child) {
             event.stopPropagation();
-            console.log("添加子任务 " + "     " + JSON.stringify(child))
             this.currentMenuItem = child;
             this.dialogVisible = true;
         },
         deleteSubtask(event, grandChild) {
             event.stopPropagation();
             this.currentMenuItem = grandChild;
-            console.log("删除子任务请求 " + "     " + JSON.stringify(grandChild))
         },
-        async sendDeleteSubtask(grandChild){
-            console.log("删除子任务执行 " + "     " + JSON.stringify(grandChild))
+        async sendDeleteSubtask(grandChild) {
             try {
-                const response = await this.$axios.get("/task/deleteTask", {
+                const response = await this.$axios.get("/develop/deleteTask", {
                     params: { taskName: grandChild.menuName }
                 });
                 if (response.data && response.data.status === 'success') {
@@ -181,18 +214,15 @@ export default {
                 .catch(_ => { });
         },
         async submitTask() {
-            // 在这里处理新任务的逻辑
-            console.log('New task name:', this.newTaskName);
             this.dialogVisible = false;
-            // 调用后端插入数据 
             try {
-                const response = await this.$axios.post("/task/addTask", {
+                const response = await this.$axios.post("/develop/addTask", {
                     menuIndex: this.currentMenuItem.menuIndex,
-                    taskType: 1,
-                    taskName: this.newTaskName,
-                    execEngine: this.engine,
-                    createdUserName: this.currentLoginUser,
-                    updatedUserName: this.currentLoginUser
+                    taskName: this.dbName + '.' + this.newTaskName,
+                    engine: this.engine,
+                    groupId:this.selectedGroup,
+                    createdUserName: this.loginUser,
+                    updatedUserName: this.loginUser
                 });
                 if (response.data && response.data.status === 'success') {
                     console.log('创建新任务成功.')
@@ -207,34 +237,6 @@ export default {
             this.dialogVisible = false;
             this.newTaskName = '';
         }
-    },
-    beforeMount() {
-        this.syncFilterText();
-        this.loadData(this.filterText);
-    },
-    watch: {
-        filterText(newFilterText) {
-            this.syncFilterText();
-            this.loadData(newFilterText);
-        },
-        selectedTasks(newSelectedTasks) {
-            if (typeof newSelectedTasks !== 'string') {
-                // 如果数据不是字符串，将其转换为字符串
-                this.selectedTasks = JSON.stringify(newSelectedTasks);
-            } else {
-                this.selectedTasks = newSelectedTasks;
-            }
-        }
-    },
-    mounted() {
-        // this.syncFilterText();
-        // this.loadData(this.filterText);
-
-        // Wait for next DOM update cycle to ensure filterText is ready
-        this.$nextTick(() => {
-            this.syncFilterText();
-            this.loadData(this.filterText);
-        });
     }
 };
 </script>

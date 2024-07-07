@@ -1,9 +1,8 @@
-<!-- src/components/Header.vue -->
 <template>
     <div>
         <div style="margin-bottom: 20px;">
             <el-button size="small" @click="addTab(editableTabsValue)">
-                add tab
+                添加选项卡
             </el-button>
         </div>
         <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
@@ -20,7 +19,7 @@ export default {
         return {
             editableTabsValue: '2',
             editableTabs: [{
-                title: 'Tab 1',
+                title: '角色',
                 name: '1',
                 content: 'Tab 1 content'
             }, {
@@ -35,14 +34,13 @@ export default {
         addTab(targetName) {
             let newTabName = ++this.tabIndex + '';
             this.editableTabs.push({
-                title: 'New Tab',
+                title: '新选项卡',
                 name: newTabName,
-                content: 'New Tab content'
+                content: '新选项卡内容'
             });
             this.editableTabsValue = newTabName;
         },
         removeTab(targetName) {
-            console.log('aaaaaaaaaa' + targetName)
             let tabs = this.editableTabs;
             let activeName = this.editableTabsValue;
             if (activeName === targetName) {
@@ -62,7 +60,6 @@ export default {
     }
 }
 </script>
-
 
 <style scoped>
 .task-manager-main {

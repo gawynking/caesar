@@ -31,18 +31,17 @@
 
                 <!-- 可以在这里添加你需要的内容 -->
                 <component :is="getAsideComponent()"></component>
-                <!-- <TaskManagerAside></TaskManagerAside> -->
-                <!-- <SystemManagerAside></SystemManagerAside> -->
             </el-menu>
         </el-aside>
     </div>
 </template>
 
-<script>
-import TaskManagerAside from '@/components/TaskManagerAside.vue'; // 引入 TaskManagerAside 组件
-import SystemManagerAside from '@/components/SystemManagerAside.vue';
 
-import { EventBus } from '../common/event-bus';
+<script>
+import TaskManagerAside from '@/components/develop/TaskManagerAside.vue'; // 引入 TaskManagerAside 组件
+import SystemManagerAside from '@/components/system/SystemManagerAside.vue'; // 引入 SystemManagerAside 组件
+
+import { EventBus } from '../../common/event-bus';
 
 export default {
     name: 'Aside',
@@ -57,9 +56,9 @@ export default {
             asideCollapseIcon: "el-icon-s-fold",
             isVisible: true,
 
-            filterText: "GawynKing.*",
-            currentAsideMenu:"task",
-            asideListData:[],
+            loginUser : 'admin',
+            filterText: '',
+            currentHeadMenuIndex:"task",
             tasks: {
                 activeTask:"", // 选中的项 
                 selectedTasks: [] // 用于存储选中的项
@@ -67,17 +66,17 @@ export default {
         }
     },
     created() {
-        EventBus.$on('header-menu-selected', data => {
-            this.currentAsideMenu = data
+        EventBus.$on('login-user', data => {
+            this.loginUser = data;
+            this.filterText = this.loginUser+'.*';
         });
-        EventBus.$on('asideListData', data => {
-            if (typeof data !== 'string') {
-                // 如果数据不是字符串，将其转换为字符串
-                this.asideListData = JSON.stringify(data);
-            } else {
-                this.asideListData = data;
-            }
-        })
+        EventBus.$on('header-menu-selected', data => {
+            this.currentHeadMenuIndex = data
+        });
+    },
+    mounted() {
+        this.loginUser = sessionStorage.getItem('loginUser');
+        this.filterText = this.loginUser+'.*';
     },
     watch: {
         filterText(filterText) {
@@ -98,32 +97,30 @@ export default {
                 this.isVisible = true;
             }
         },
-
         setAsideTitle(){
-            if(this.currentAsideMenu === "task"){
+            if(this.currentHeadMenuIndex === "task"){
                 return '任务管理';
-            }else if(this.currentAsideMenu === "system"){
+            }else if(this.currentHeadMenuIndex === "system"){
                 return "系统管理";
             }
         },
         isShowFilter(){
-            if(this.currentAsideMenu === "task"){
+            if(this.currentHeadMenuIndex === "task"){
                 return true;
             }else{
                 return false;
             }
         },
         getAsideComponent(){
-            if(this.currentAsideMenu === "task"){
+            if(this.currentHeadMenuIndex === "task"){
                 return "TaskManagerAside";
-            }else if(this.currentAsideMenu === "system"){
+            }else if(this.currentHeadMenuIndex === "system"){
                 return "SystemManagerAside";
             }
         },
-        handleSelectTask(index) {
+        handleSelectTask(index) { // 主要方法，这个方法要发射边栏选中内容 
             this.tasks.activeTask = index;
             if(this.tasks.selectedTasks.includes(index)){
-
             }else{
                 this.tasks.selectedTasks.push(index)
             }
@@ -133,6 +130,7 @@ export default {
     }
 };
 </script>
+
 
 <style scoped>
 .aside {

@@ -63,4 +63,6 @@ public interface MenuMapper extends BaseMapper<CaesarMenu> {
             "  and t2.node_type = 1")
     List<Integer> findAllowedSubtaskNodes();
 
+    @Select("select extend_properties from caesar_menu where id = #{id}")
+    String getExtendPropertiesByMenuId(int id);
 }

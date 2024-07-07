@@ -2,6 +2,7 @@
 ### 任务描述
   作   者: {{username}}
   创建时间: {{create_time}}
+  任务属组: {{group_name}}
   任务名称: {{task_name}}
   执行引擎: {{engine}}
   详细说明:

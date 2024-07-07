@@ -13,5 +13,6 @@ public class CaesarMenuDto {
     int location;
     int nodeType;
     int menuType;
+    String extendProperties;
 
 }

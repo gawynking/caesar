@@ -8,10 +8,10 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface TaskTemplateMapper extends BaseMapper<CaesarTaskTemplate> {
 
-    @Select("select task_script \n" +
-            "from caesar_task_template \n" +
-            "where task_type = #{taskType}\n" +
-            "  and owner_id = #{ownerId}\n" +
+    @Select("select task_script " +
+            "from caesar_task_template " +
+            "where task_type = #{taskType} " +
+            "  and owner_id = #{createdUser} " +
             "  and is_default = 1")
-    String getTaskTemplateScriptFromOwnerAndTasktype(int ownerId, int taskType);
+    String getTaskTemplateScriptFromOwnerAndTasktype(int createdUser, int taskType);
 }

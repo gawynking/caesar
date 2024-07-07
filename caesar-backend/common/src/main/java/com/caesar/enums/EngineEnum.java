@@ -6,8 +6,11 @@ public enum EngineEnum {
     SPARK(2, "Spark"),
     FLINK(3, "Flink"),
     DORIS(4, "Doris"),
-    MYSQL(5, "MySQL"),
-    HBASE(6, "Hbase");
+    HUDI(5, "Hudi"),
+    PAIMON(6, "Paimon"),
+    HBASE(7, "Hbase"),
+    KAFKA(8, "Kafka"),
+    STARROCKS(9, "StarRocks");
 
     private final int tag;
     private final String engine;

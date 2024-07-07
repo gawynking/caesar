@@ -13,6 +13,7 @@ public class CaesarTaskVo {
     String datasourceInfo;
     int engine;
     int version;
+    int lastVersion;
     int groupId;
     int isReleased;
     int isOnline;
@@ -21,5 +22,6 @@ public class CaesarTaskVo {
     String checksum;
     int createdUser;
     int updatedUser;
+    Timestamp createTime;
 
 }

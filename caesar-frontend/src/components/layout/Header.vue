@@ -1,4 +1,3 @@
-<!-- src/components/Header.vue -->
 <template>
     <div class="header">
         <el-header height="60px">
@@ -24,11 +23,11 @@
                             <el-menu-item index="task">任务管理</el-menu-item>
                             <el-menu-item index="model">模型管理</el-menu-item>
                             <el-menu-item index="index">指标系统</el-menu-item>
+                            <el-menu-item index="portrait">用户画像</el-menu-item>
                             <el-menu-item index="govern">数仓治理</el-menu-item>
                             <el-menu-item index="system">系统管理</el-menu-item>
                             <el-submenu index="user">
-                                <template slot="title">GawynKing</template>
-                                <!-- <el-menu-item index="info">个人信息</el-menu-item> -->
+                                <template slot="title">{{ loginUser }}</template>
                                 <el-menu-item index="exit">退出登录</el-menu-item>
                             </el-submenu>
 
@@ -43,20 +42,51 @@
 
 
 <script>
-import { EventBus } from '../common/event-bus';
+import { EventBus } from '../../common/event-bus';
 
 export default {
     name: 'Header',
     data() {
         return {
-            activeIndex: 'task'
+            loginUser: '',
+            activeIndex: 'task', 
+            headerMenuList: []
+        }
+    },
+    created() {
+        EventBus.$on('login-user', data => {
+            this.loginUser = sessionStorage.getItem('loginUser');
+        });
+    },
+    mounted() {
+        this.loginUser = sessionStorage.getItem('loginUser');
+    },
+    watch: {
+        loginUser(loginUser) {
+            this.loginUser = loginUser;
         }
     },
     methods: {
-        handleHeaderMenuSelect(index){
-            this.activeIndex=index;
-            // this.$emit('header-menu-selected', index); 
+        handleHeaderMenuSelect(index) {
+            this.activeIndex = index;
             EventBus.$emit('header-menu-selected', index);
+            if (index === 'exit') {
+                this.logout();
+            }
+        },
+        logout() {
+            // 清除本地存储中的认证信息
+            sessionStorage.removeItem('token');
+
+            // 可选：发送请求到后端通知会话撤销
+            this.$axios.post('/auth/logout').then(response => {
+                console.log('Logout successful:', response);
+            }).catch(error => {
+                console.error('Logout failed:', error);
+            });
+
+            // 重定向到登录页面
+            this.$router.push({ name: 'Login' });
         }
     }
 };

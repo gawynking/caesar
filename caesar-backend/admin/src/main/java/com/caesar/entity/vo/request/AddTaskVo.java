@@ -9,6 +9,7 @@ public class AddTaskVo {
     int taskType;
     String taskName;
     int engine;
+    int groupId;
     String createdUserName;
     String updatedUserName;
 

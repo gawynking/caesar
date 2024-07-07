@@ -1,0 +1,11 @@
+package com.caesar.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.caesar.entity.CaesarRole;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface RoleMapper extends BaseMapper<CaesarRole> {
+
+
+}

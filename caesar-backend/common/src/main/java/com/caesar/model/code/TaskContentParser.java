@@ -168,6 +168,7 @@ public class TaskContentParser {
 
         String content = "";
         String author = "";
+        String groupName = "";
         String createTime = "";
         String taskName = "";
         EngineEnum engine = EngineEnum.HIVE;
@@ -184,6 +185,10 @@ public class TaskContentParser {
                 createTime = tuple[1];
             }
 
+            if("任务属组".equals(tuple[0])){
+                groupName = tuple[1];
+            }
+
             if("任务名称".equals(tuple[0])){
                 taskName = tuple[1];
             }
@@ -197,6 +202,7 @@ public class TaskContentParser {
         metaContent.setContent(content);
         metaContent.setAuthor(author);
         metaContent.setCreateTime(createTime);
+        metaContent.setGroupName(groupName);
         metaContent.setTaskName(taskName);
         metaContent.setEngine(engine);
 

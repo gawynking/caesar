@@ -2,7 +2,7 @@
 <template>
     <fragment class="system-manager-aside">
 
-        <el-menu-item index="role-manager">
+        <el-menu-item index="role-manager" disabled>
             <i class="el-icon-menu"></i>
             <span slot="title">角色管理</span>
         </el-menu-item>
@@ -26,7 +26,7 @@
                 <span slot="title">数据源管理</span>
             </el-menu-item>
 
-            <el-menu-item index="data-dev-manager">
+            <el-menu-item index="data-dev-manager" disabled>
                 <i class="el-icon-menu"></i>
                 <span slot="title">数据开发环境管理</span>
             </el-menu-item>
@@ -36,6 +36,7 @@
                 <span slot="title">调度配置</span>
             </el-menu-item>
         </el-submenu>
+        
     </fragment>
 </template>
 

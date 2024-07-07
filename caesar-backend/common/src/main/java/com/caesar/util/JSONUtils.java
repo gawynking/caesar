@@ -47,12 +47,14 @@ public class JSONUtils {
     /**
      * json字符串转JSON对象
      *
+     * 以修复版本，可用
+     *
      * @param jsonStr
      * @return
      */
     public static JSONObject getJSONObjectFromString(String jsonStr){
         try {
-            return JSONObject.parseObject(JSON.toJSONString(jsonStr));
+            return JSONObject.parseObject(jsonStr);
         }catch (Exception e){
             logger.info("String conversion json object failed : " + jsonStr );
             return null;

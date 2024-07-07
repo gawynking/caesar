@@ -2,6 +2,7 @@ package com.caesar.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarTask;
+import com.caesar.entity.vo.CaesarTaskParameterVo;
 import com.caesar.model.MenuModel;
 import com.caesar.entity.vo.CaesarTaskVo;
 import org.apache.ibatis.annotations.*;
@@ -62,6 +63,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tis_released,\n" +
             "\tis_online,\n" +
             "\ttask_script,\n" +
+            "\tchecksum,\n" +
             "\tcreated_user,\n" +
             "\tupdated_user\n" +
             ")values(\n" +
@@ -75,6 +77,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\t#{isReleased},\n" +
             "\t#{isOnline},\n" +
             "\t#{taskScript},\n" +
+            "\t#{checksum},\n" +
             "\t#{createdUser},\n" +
             "\t#{updatedUser}\n" +
             ")")
@@ -125,4 +128,22 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
     @Update("update caesar_task set is_deleted = 0 where task_name = #{taskName}")
     boolean recoverDeletedTaskFromTaskName(String taskName);
 
+    @Select("select checksum \n" +
+            "from caesar_task \n" +
+            "where task_name = #{taskName}\n" +
+            "  and version = #{version}")
+    String getTaskChecksumFromVersion(String taskName, int version);
+
+    @Select("select * \n" +
+            "from caesar_task \n" +
+            "where task_name = #{taskName}\n" +
+            "  and is_deleted = 0 \n" +
+            "order by update_time desc ")
+    List<CaesarTaskVo> getTaskVersions(String taskName);
+
+    @Select("select param_name,param_desc,expression from caesar_task_parameter")
+    List<CaesarTaskParameterVo> getParams();
+
+    @Select("select * from caesar_task where task_name = #{taskName} and version = #{version}")
+    CaesarTaskVo getCurrentTaskInfoWithVersion(String taskName, int version);
 }

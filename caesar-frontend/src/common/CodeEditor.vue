@@ -69,6 +69,11 @@ export default {
         };
     },
     watch: {
+        value(newVal) {
+            if (this.coder && this.coder.getValue() !== newVal) {
+                this.setCodeContent(newVal);
+            }
+        },
         language: {
             handler(language) {
                 this.getCoder().then(() => {

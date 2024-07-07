@@ -7,6 +7,7 @@ public class TaskTemplateDto {
 
     String username;
     String createTime;
+    String groupName;
     String taskName;
     String engine;
 

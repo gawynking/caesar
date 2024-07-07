@@ -1,0 +1,69 @@
+<!-- src/components/Header.vue -->
+<template>
+    <div class="main">
+        <el-main>
+            <!-- 可以在这里添加你需要的内容 -->
+            <component :is="getMainComponent()"></component>
+        </el-main>
+    </div>
+</template>
+
+<script>
+import UserPage from './UserPage.vue';
+import UserGroupPage from './UserGroupPage.vue';
+import RolePage from './RolePage.vue';
+import DatasourcePage from './DatasourcePage.vue';
+import DevelopPage from './DevelopPage.vue';
+import SchedulePage from './SchedulePage.vue';
+
+import { EventBus } from '../../common/event-bus';
+
+export default {
+    name: 'Main',
+    components: {
+        RolePage,
+        UserPage,
+        UserGroupPage,
+        DatasourcePage,
+        DevelopPage,
+        SchedulePage
+    },
+    data() {
+        return {
+            loginUser:'GawynKing',
+            currentSystemAsideMenu : ''
+        }
+    },
+    created() { // tasks-activeTask
+        EventBus.$on('tasks-activeTask', data => {
+            this.currentSystemAsideMenu = data
+        })
+    },
+    methods:{
+        getMainComponent(){
+            if(this.currentSystemAsideMenu === "user-manager"){
+                return "UserPage";
+            }else if(this.currentSystemAsideMenu === "user-group-manager"){
+                return "UserGroupPage";
+            }else if(this.currentSystemAsideMenu == "role-manager"){
+                return "RolePage";
+            }else if(this.currentSystemAsideMenu == "datasource-manager"){
+                return "DatasourcePage";
+            }else if(this.currentSystemAsideMenu == "data-dev-manager"){
+                return "DevelopPage";
+            }else if(this.currentSystemAsideMenu == "schedule-manager"){
+                return "SchedulePage";
+            }
+
+        }
+    }
+};
+</script>
+
+<style scoped>
+.main {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+}
+</style>

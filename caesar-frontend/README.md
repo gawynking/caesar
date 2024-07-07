@@ -12,7 +12,7 @@ npm install element-ui -S
 npm i codemirror@5 -S --save
 npm i vue-codemirror@4.0.6 -S --save
 npm i -s vue-fragment
-nmp install axios --save
+npm install axios --save
 npm install less-loader@6.2.0 --save-dev
 ```
 
