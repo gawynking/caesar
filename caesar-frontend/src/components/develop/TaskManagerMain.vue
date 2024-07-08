@@ -189,13 +189,6 @@
                     </el-tab-pane>
 
 
-
-                    <el-tab-pane label="数据血缘" name="data-dep" disabled>
-
-                    </el-tab-pane>
-
-
-
                     <el-tab-pane label="数据监控" name="dqc" disabled>
 
                     </el-tab-pane>
