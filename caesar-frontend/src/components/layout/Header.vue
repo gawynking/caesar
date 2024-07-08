@@ -21,10 +21,6 @@
                             @select="handleHeaderMenuSelect" 
                         >
                             <el-menu-item index="task">任务管理</el-menu-item>
-                            <el-menu-item index="model">模型管理</el-menu-item>
-                            <el-menu-item index="index">指标系统</el-menu-item>
-                            <el-menu-item index="portrait">用户画像</el-menu-item>
-                            <el-menu-item index="govern">数仓治理</el-menu-item>
                             <el-menu-item index="system">系统管理</el-menu-item>
                             <el-submenu index="user">
                                 <template slot="title">{{ loginUser }}</template>
