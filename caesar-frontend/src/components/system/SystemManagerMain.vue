@@ -2,7 +2,6 @@
 <template>
     <div class="main">
         <el-main>
-            <!-- 可以在这里添加你需要的内容 -->
             <component :is="getMainComponent()"></component>
         </el-main>
     </div>
@@ -19,7 +18,7 @@ import SchedulePage from './SchedulePage.vue';
 import { EventBus } from '../../common/event-bus';
 
 export default {
-    name: 'Main',
+    name: 'SystemManagerMain',
     components: {
         RolePage,
         UserPage,
@@ -30,7 +29,7 @@ export default {
     },
     data() {
         return {
-            loginUser:'GawynKing',
+            loginUser:'',
             currentSystemAsideMenu : ''
         }
     },

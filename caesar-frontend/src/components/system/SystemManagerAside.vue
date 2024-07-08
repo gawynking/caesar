@@ -1,4 +1,4 @@
-<!-- src/components/Header.vue -->
+<!-- src/components/SystemManagerAside.vue -->
 <template>
     <fragment class="system-manager-aside">
 
@@ -48,7 +48,6 @@ export default {
         }
     },
     methods: {
-
     }
 };
 </script>

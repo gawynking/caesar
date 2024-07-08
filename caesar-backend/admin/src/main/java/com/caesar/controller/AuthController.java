@@ -4,7 +4,6 @@ package com.caesar.controller;
 import com.caesar.entity.CaesarTeamGroup;
 import com.caesar.entity.CaesarUser;
 import com.caesar.entity.CaesarUserGroup;
-import com.caesar.entity.vo.CaesarTeamGroupVo;
 import com.caesar.entity.vo.CaesarUserVo;
 import com.caesar.entity.vo.request.JwtRequest;
 import com.caesar.entity.vo.response.JwtResponse;

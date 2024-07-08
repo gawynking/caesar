@@ -3,8 +3,6 @@ package com.caesar.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
-import java.sql.Timestamp;
-
 @Data
 public class CaesarUser extends BaseEntity{
 

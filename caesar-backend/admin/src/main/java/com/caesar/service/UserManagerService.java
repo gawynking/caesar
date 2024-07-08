@@ -3,6 +3,9 @@ package com.caesar.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.caesar.entity.CaesarUser;
 import com.caesar.entity.CaesarUserGroup;
+import com.caesar.entity.vo.CaesarUserVo;
+
+import java.util.List;
 
 public interface UserManagerService extends IService<CaesarUser> {
 
@@ -19,4 +22,6 @@ public interface UserManagerService extends IService<CaesarUser> {
     Boolean addUser(CaesarUser user);
 
     boolean addUserGroup(CaesarUserGroup userGroup);
+
+    List<CaesarUserVo> getUserList();
 }

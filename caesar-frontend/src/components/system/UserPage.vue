@@ -11,11 +11,19 @@
         <el-table-column prop="username" label="用户名"></el-table-column>
         <el-table-column prop="email" label="邮箱"></el-table-column>
         <el-table-column prop="phone" label="电话"></el-table-column>
-        <el-table-column prop="teamGroup" label="所属组"></el-table-column>
-        <el-table-column prop="isEffective" label="是否激活">
+        <!-- <el-table-column prop="groups" label="所属组"></el-table-column> -->
+        <el-table-column label="所属组">
+          <template slot-scope="scope">  
+            <span v-for="(group, index) in scope.row.groups" :key="index">  
+              {{ group.groupName }}
+              <span v-if="index < scope.row.groups.length - 1">, </span>  
+            </span>  
+          </template>  
+        </el-table-column>
+        <el-table-column prop="isActivated" label="是否激活">
           <template slot-scope="scope">
-            <el-tag :type="scope.row.isEffective ? 'success' : 'info'">
-              {{ scope.row.isEffective ? '激活' : '未激活' }}
+            <el-tag :type="scope.row.isActivated ? 'success' : 'info'">
+              {{ scope.row.isActivated ? '激活' : '未激活' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -135,7 +143,7 @@
       // 激活用户
       activateUser(id) {
         // 发送激活用户请求给后端，这里假设使用axios库发送请求
-        this.$axios.get('/user/activateUser', {
+        this.$axios.get('/user/activatedUser', {
             params: { id: id }
           })
           .then(response => {

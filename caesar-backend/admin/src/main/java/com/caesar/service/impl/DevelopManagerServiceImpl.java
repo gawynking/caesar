@@ -1,11 +1,11 @@
 package com.caesar.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.vo.CaesarTaskParameterVo;
+import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.response.CaesarTaskVersionVo;
 import com.caesar.enums.EngineEnum;
 import com.caesar.mapper.*;
@@ -13,9 +13,6 @@ import com.caesar.model.MenuModel;
 import com.caesar.model.code.TemplateAssembler;
 import com.caesar.model.code.model.dto.TaskTemplateDto;
 import com.caesar.service.DevelopCenterService;
-import com.caesar.entity.vo.CaesarTaskVo;
-import com.caesar.service.MenuManagerService;
-import com.caesar.service.TeamGroupService;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.*;
 import org.springframework.stereotype.Service;

@@ -3,8 +3,12 @@ package com.caesar.entity.vo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class CaesarUserVo {
+
+    int id;
     String username;
     String password;
     String email;
@@ -13,5 +17,7 @@ public class CaesarUserVo {
     int isActivated;
 
     int teamGroup;
+
+    List<CaesarUserGroupVo> groups;
 
 }

@@ -7,4 +7,5 @@ public class CaesarTeamGroupVo {
     String groupName;
     String groupDesc;
     int ownerId;
+    String ownerName;
 }

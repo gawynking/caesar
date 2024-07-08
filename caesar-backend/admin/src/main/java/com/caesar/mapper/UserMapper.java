@@ -2,6 +2,7 @@ package com.caesar.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarUser;
+import com.caesar.entity.vo.CaesarUserVo;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -47,4 +48,6 @@ public interface UserMapper extends BaseMapper<CaesarUser> {
     @Delete("delete from caesar_user where id = #{id}")
     boolean deleteUser(int id);
 
+    @Select("select * from caesar_user")
+    List<CaesarUserVo> getUserList();
 }

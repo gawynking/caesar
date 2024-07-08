@@ -10,7 +10,7 @@
         >
             <el-table-column prop="groupName" label="组名称"></el-table-column>
             <el-table-column prop="groupDesc" label="组描述"></el-table-column>
-            <el-table-column prop="ownerId" label="组负责人"></el-table-column>
+            <el-table-column prop="ownerName" label="组负责人"></el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
                     <el-button type="danger" size="small" icon="el-icon-delete" @click="confirmDeleteGroup(scope.row.id)">删除</el-button>

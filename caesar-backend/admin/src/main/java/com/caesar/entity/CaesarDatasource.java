@@ -2,8 +2,6 @@ package com.caesar.entity;
 
 import lombok.Data;
 
-import java.sql.Timestamp;
-
 @Data
 public class CaesarDatasource extends BaseEntity{
 

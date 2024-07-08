@@ -1,6 +1,5 @@
 package com.caesar.entity.vo;
 
-import com.caesar.entity.CaesarGroupService;
 import com.caesar.entity.dto.CaesarGroupServiceDto;
 import lombok.Data;
 

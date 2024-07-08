@@ -3,11 +3,14 @@ package com.caesar.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.entity.CaesarUser;
 import com.caesar.entity.CaesarUserGroup;
+import com.caesar.entity.vo.CaesarUserVo;
 import com.caesar.mapper.UserGroupMapper;
 import com.caesar.mapper.UserMapper;
 import com.caesar.service.UserManagerService;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 public class UserManagerServiceImpl extends ServiceImpl<UserMapper, CaesarUser> implements UserManagerService {
@@ -52,6 +55,11 @@ public class UserManagerServiceImpl extends ServiceImpl<UserMapper, CaesarUser> 
     @Override
     public boolean addUserGroup(CaesarUserGroup userGroup) {
         return userGroupMapper.addUserGroup(userGroup);
+    }
+
+    @Override
+    public List<CaesarUserVo> getUserList() {
+        return userMapper.getUserList();
     }
 
 }

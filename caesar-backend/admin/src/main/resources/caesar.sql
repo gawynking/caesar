@@ -30,7 +30,6 @@ insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_ty
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(6, 5, 'ods', 'ODS', 2, 1, 1,'{"task_type":1}');
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(7, 5, 'dw', 'DW', 2, 1, 1,'{"task_type":1}');
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(8, 5, 'ads', 'ADS', 2, 1, 1,'{"task_type":1}');
-insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(9, 6, 'ingestion', '数据接入', 2, 2, 1,'{"task_type":1}');
 
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(10,2, 'role', '角色管理', 2, 2, 1,null);
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(11,2, 'user-group', '用户组管理', 2, 2, 1,null);
@@ -44,8 +43,6 @@ insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_ty
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(18, 17, 'rt-ods', 'ODS', 2, 1, 1,'{"task_type":2}');
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(19, 17, 'rt-dw', 'DW', 2, 1, 1,'{"task_type":2}');
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(20, 17, 'rt-ads', 'ADS', 2, 1, 1,'{"task_type":2}');
-
-insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(21, 1, 'data-service', '数据服务', 2, 1, 1,'{"task_type":3}');
 
 -- 根节点
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(0, 0, 'root', '根页面', 0, 0, 1,null);
