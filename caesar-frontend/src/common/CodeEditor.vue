@@ -106,7 +106,7 @@ export default {
                 line: true,
                 mode: 'application/json', // json数据高亮
                 theme: 'eclipse', // 设置主题，记得引入对应主题才有显示
-                tabSize: 30,
+                tabSize: 4,
                 lineNumbers: true, // 显示行号
                 cursorHeight: 0.8, // 光标高度，默认是1
                 autoCloseBrackets: true,

@@ -14,13 +14,12 @@
 ## 引擎参数
 
 ## 自定义UDF&参数
-set etl_time = ${etl_time};
+# set etl_time = ${etl_time};
 
 
 ### Part Two ###############################################################################################
 ### Schema定义
-drop table if exists {{task_name}};
-create table {{task_name}}(
+create table if not exists {{task_name}}(
 
 ) comment ''
 stored as parquet

@@ -6,7 +6,8 @@
             当前还没有选择任何任务
         </div>
 
-        <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="clickTab(editableTabsValue)">
+        <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab"
+            @tab-click="clickTab(editableTabsValue)">
 
             <el-tab-pane v-for="(item, index) in editableTabs" :key="item.name" :label="item.title" :name="item.name">
 
@@ -15,9 +16,12 @@
 
                         <div class="main-code-editor-menu">
                             <span class="main-code-editor-menu-left">
-                                <span style="float: right; color: #8492a6; font-size: 13.5px; margin-right: 5px;">Versions:</span>
-                                <el-select v-model="item.defaultVersion" placeholder="请选择" size="mini" style="width: 400px;" @change="handleVersionChange">
-                                    <el-option v-for="ele in item.taskVersions" :key="ele.version" :label="ele.version" :value="ele.version">
+                                <span
+                                    style="float: right; color: #8492a6; font-size: 13.5px; margin-right: 5px;">Versions:</span>
+                                <el-select v-model="item.defaultVersion" placeholder="请选择" size="mini"
+                                    style="width: 400px;" @change="handleVersionChange">
+                                    <el-option v-for="ele in item.taskVersions" :key="ele.version" :label="ele.version"
+                                        :value="ele.version">
                                         <span style="float: left;font-size: 12px">
                                             {{ new Date(ele.createTime).toISOString().replace(/T/, ' ').substr(0, 19) }}
                                         </span>
@@ -42,8 +46,12 @@
                                         <el-dropdown-item v-for="(item, index) in paramList" :key="index">
 
                                             <div style="display: flex;justify-content: space-between; width: 390px;">
-                                                <span style="display: flex; align-items: center;justify-content: left;">{{ item.paramName }}</span>
-                                                <span style="display: flex; align-items: center;justify-content: right;">{{ item.paramDesc }}</span>
+                                                <span
+                                                    style="display: flex; align-items: center;justify-content: left;">{{
+                                                    item.paramName }}</span>
+                                                <span
+                                                    style="display: flex; align-items: center;justify-content: right;">{{
+                                                    item.paramDesc }}</span>
                                             </div>
 
                                         </el-dropdown-item>
@@ -54,7 +62,17 @@
                                 <el-button type="primary" size="mini" plain @click="handleCodeAreaEdit">{{
                                     item.editName }}</el-button>
                                 <el-button type="primary" size="mini" plain @click="handleCodeAreaSave">保存</el-button>
-                                <el-button type="primary" size="mini" plain @click="handleExecute">执行</el-button>
+                                <el-dropdown @command="handleExecute" style="margin-left: 10px; margin-right: 10px;">
+                                    <el-button type="primary" size="mini" plain>
+                                        执行
+                                        <i class="el-icon-arrow-down el-icon--right"></i>
+                                    </el-button>
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item command="test">测试</el-dropdown-item>
+                                        <el-dropdown-item command="staging">预发</el-dropdown-item>
+                                        <el-dropdown-item command="production">生产</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
                                 <el-button type="primary" size="mini" plain @click="handleRefresh">回刷</el-button>
                                 <el-button type="primary" size="mini" plain @click="handlePublish">发布</el-button>
                             </span>
@@ -68,13 +86,9 @@
                         </div> -->
 
                         <div class="main-code-editor-area" style="margin-top: 10px;">
-                            <CodeEditor 
-                                v-model="item.dataDevelop.codeArea" 
-                                :language="item.dataDevelop.language"
-                                :readOnly="item.dataDevelop.isCodeAreaReadOnly"
-                                @input="changeTextarea"
-                                style="height: 100%"
-                            ></CodeEditor>
+                            <CodeEditor v-model="item.dataDevelop.codeArea" :language="item.dataDevelop.language"
+                                :readOnly="item.dataDevelop.isCodeAreaReadOnly" @input="changeTextarea"
+                                style="height: 100%"></CodeEditor>
                         </div>
 
                         <div v-show="item.dataDevelop.isVisibleLogging" style="margin-top: 10px;">
@@ -285,7 +299,7 @@ export default {
                 defaultVersion: taskVersionsInfo.currentVersion,
                 taskVersions: taskVersionsInfo.caesarTaskVos,
                 dataDevelop: {
-                    language:'sql',
+                    language: 'sql',
                     codeArea: taskObject.taskScript,
                     logArea: "",
                     isCodeAreaReadOnly: true,
@@ -295,8 +309,8 @@ export default {
                     labelPosition: 'right',
                     system: "DolphinScheduler",
                     project: "数仓调度项目",
-                    workflowName:'',
-                    taskNodeName:'',
+                    workflowName: '',
+                    taskNodeName: '',
                     taskType: "shell",
                     priority: "low",
                     retryTimes: "3",
@@ -434,7 +448,14 @@ export default {
             const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
             currentTab.dataDevelop.codeArea = code
         },
-        handleExecute() {
+        async handleExecute(environment) {
+            this.handleCodeAreaSave();
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            const response = await this.$axios.post("/develop/execute", {
+                    version:currentTab.taskInfo.version,
+                    taskName:currentTab.taskInfo.taskName,
+                    environment:environment
+                });
 
         },
         handleRefresh() {
@@ -495,5 +516,4 @@ export default {
     height: calc(100vh - 120px);
     text-align: center;
 }
-
 </style>

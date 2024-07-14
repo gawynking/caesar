@@ -1,8 +1,12 @@
 package com.caesar.util;
 
+import org.reflections.Reflections;
+
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 对象通用抽象工具类
@@ -128,5 +132,24 @@ public class ObjectUtils extends org.apache.commons.lang3.ObjectUtils{
 	public static boolean isNotEmpty(Object[] objs) {
 		return !isEmpty(objs);
 	}
+
+
+	/**
+	 * 查找并返回给定类的所有子类
+	 *
+	 * @param clazz 给定的类
+	 * @return 给定类的所有子类
+	 */
+	public static <T> Set<Class<? extends T>> findAllSubclasses(Class<T> clazz) {
+		// 创建一个Reflections对象，扫描指定包和子包
+		Reflections reflections = new Reflections("com.caesar");
+
+		// 使用Reflections对象查找所有子类
+		Set<Class<? extends T>> subclasses = reflections.getSubTypesOf(clazz);
+
+		return subclasses;
+	}
+
+
 
 }

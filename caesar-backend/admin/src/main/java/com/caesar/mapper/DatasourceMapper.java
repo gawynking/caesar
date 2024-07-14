@@ -39,4 +39,7 @@ public interface DatasourceMapper extends BaseMapper<CaesarDatasource> {
     @Delete("delete from caesar_datasource where id = #{id}")
     boolean deleteDatasource(int id);
 
+    @Select("select datasource_info from caesar_datasource where engine = #{engine} and datasource_type = #{datasourceType}")
+    String findDatasourceInfoByEnvAndEngine(int engine, int datasourceType);
+
 }

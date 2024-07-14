@@ -146,4 +146,10 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
 
     @Select("select * from caesar_task where task_name = #{taskName} and version = #{version}")
     CaesarTaskVo getCurrentTaskInfoWithVersion(String taskName, int version);
+
+    @Select("select * from caesar_task where id = #{taskId}")
+    CaesarTask getTaskInfoFromId(int taskId);
+
+    @Select("select 1 from caesar_task where task_id = #{taskId} and is_online = 1")
+    boolean checkOnlineById(int taskId);
 }

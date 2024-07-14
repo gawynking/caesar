@@ -219,11 +219,8 @@ create table caesar_datasource(
     id                int not null auto_increment                                        comment '数据源ID',
     datasource_name   varchar(256)                                                       comment '数据源名称',
     datasource_type   int                                                                comment '数据源类型: 1-测试 2-预发 3-生产',
-    engine            int                                                                comment '执行引擎: 1-Hive 2-Spark 3-Flink 4-Doris 5-MySQL 6-Hbase',
-    url               varchar(256)                                                       comment '数据源URL',
-    username          varchar(256)                                                       comment '用户名',
-    password          varchar(256)                                                       comment '密码',
-    db_name           varchar(256)                                                       comment '默认数据库',
+    engine            int                                                                comment '执行引擎',
+    datasource_info   varchar(2048)                                                      comment '数据源信息JSON',
     owner_id          int                                                                comment '创建人',
     create_time timestamp not null default current_timestamp                             comment '创建时间戳',
     update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
@@ -231,9 +228,10 @@ create table caesar_datasource(
 ) engine = innodb default charset=utf8mb4
 comment '数据源表'
 ;
-insert into caesar_datasource(datasource_name,datasource_type,engine)values("测试数据源",1,1);
-insert into caesar_datasource(datasource_name,datasource_type,engine)values("预发数据源",2,1);
-insert into caesar_datasource(datasource_name,datasource_type,engine)values("生产数据源",3,1);
+insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL测试数据源",1,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
+insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL预发数据源",2,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
+insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL生产数据源",3,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
+
 
 
 -- 任务开发参数表
@@ -266,15 +264,34 @@ create table caesar_engine(
 )engine = innodb default charset=utf8mb4
 comment '数据引擎表'
 ;
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(1,'Hive','hive','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(2,'Spark','spark','3',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(3,'Flink','flink','1.8',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(4,'Doris','doris','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(5,'Hudi','hudi','1',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(6,'Paimon','paimon','0.8',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(7,'Hbase','hbase','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(8,'Kafka','kafka','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(9,'StarRocks','starrocks','2',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(1,'None','none','1',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(101,'Hive','hive','2',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(102,'Spark','spark','3',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(103,'Flink','flink','1.8',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(104,'Kafka','kafka','2',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(201,'Hudi','hudi','1',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(202,'Paimon','paimon','0.8',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(301,'Doris','doris','2',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(302,'StarRocks','starrocks','2',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(401,'MySQL','mysql','8',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(501,'Hbase','hbase','2',1);
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(601,'Redis','redis','2',1);
 
 
-
+-- 任务执行记录
+drop table if exists caesar_task_execute_record;
+create table caesar_task_execute_record(
+	id             int auto_increment                                                       comment '执行ID',
+    task_id        int not null                                                             comment '任务ID',
+    task_name      varchar(256) not null                                                    comment '任务名称',
+    environment    varchar(32)                                                              comment '执行环境: test staging production',
+    begin_time     datetime not null default current_timestamp                              comment '执行开始时间戳',
+    end_time       datetime                                                                 comment '执行结束时间戳',
+    is_success     int not null default 0                                                   comment '是否执行成功: 1-是 0-否',
+    task_log       mediumtext                                                               comment '任务日志',
+    create_time    timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time    timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+)engine = innodb default charset=utf8mb4
+comment '任务执行记录'
+;

@@ -2,11 +2,13 @@ package com.caesar.controller;
 
 import com.caesar.entity.dto.CaesarGroupServiceDto;
 import com.caesar.entity.dto.CaesarTaskDto;
+import com.caesar.entity.dto.CaesarTaskExecuteRecordDto;
 import com.caesar.entity.vo.CaesarEngineVo;
 import com.caesar.entity.vo.CaesarGroupServiceVo;
 import com.caesar.entity.vo.CaesarTaskParameterVo;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.AddTaskVo;
+import com.caesar.entity.vo.request.TaskExecuteVo;
 import com.caesar.entity.vo.response.CaesarTaskVersionVo;
 import com.caesar.model.JsonResponse;
 import com.caesar.model.MenuModel;
@@ -40,6 +42,8 @@ public class DevelopCenterController {
     @Autowired
     GroupServiceService groupServiceService;
 
+    @Autowired
+    TaskExecuteService taskExecuteService;
 
 
     @GetMapping("/listTask")
@@ -128,6 +132,16 @@ public class DevelopCenterController {
         CaesarGroupServiceVo caesarGroupServiceVo = new CaesarGroupServiceVo();
         List<CaesarGroupServiceVo> caesarGroupServiceVos = caesarGroupServiceVo.assembleData(dbs);
         return JsonResponse.success(caesarGroupServiceVos);
+    }
+
+    @PostMapping("/execute")
+    public JsonResponse<Boolean> execute(@RequestBody TaskExecuteVo taskExecuteVo) {
+
+        CaesarTaskExecuteRecordDto taskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+        CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskExecuteVo.getTaskName(), taskExecuteVo.getVersion());
+        taskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
+        taskExecuteRecordDto.setEnvironment(taskExecuteVo.getEnvironment());
+        return JsonResponse.success(taskExecuteService.execute(taskExecuteRecordDto));
     }
 
 }

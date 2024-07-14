@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 @Data
 public class CaesarTaskVo {
 
+    int id;
     int menuId;
     int taskType;
     String taskName;

@@ -13,7 +13,7 @@ public class TaskContentParser {
 
     private TaskContentModel taskContentModel;
 
-    TaskContentParser(String content){
+    public TaskContentParser(String content){
         this.taskContentModel = parseScriptContent(content);
     }
 
@@ -22,10 +22,13 @@ public class TaskContentParser {
         for(String line :list){
             stringBuffer.append(line).append("\n");
         }
-        return stringBuffer.deleteCharAt(stringBuffer.length()-1).toString();
+        if(stringBuffer.length()>=1){
+            return stringBuffer.deleteCharAt(stringBuffer.length()-1).toString();
+        }
+        return stringBuffer.toString();
     }
 
-    private String generateExecuteScript(){
+    public String generateExecuteScript(){
         StringBuffer execScript = new StringBuffer();
         ParamsConfig paramsConfig = this.taskContentModel.getParamsConfig();
         SchemaDefine schemaDefine = this.taskContentModel.getSchemaDefine();
