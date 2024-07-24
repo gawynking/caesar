@@ -1,16 +1,27 @@
 package com.caesar.runner;
 
 
-public class ExecutionResult {
+import com.caesar.shell.ShellTask;
+
+public class ExecutionResult<T> {
     private boolean success;
     private String message;
 
-    private Object data;
+    private T data;
 
-    // 构造器
     public ExecutionResult(boolean success, String message) {
         this.success = success;
         this.message = message;
+    }
+
+    public ExecutionResult(boolean success, String message,T data) {
+        this.success = success;
+        this.message = message;
+        this.data = data;
+    }
+
+    public ExecutionResult(T data) {
+        this.data = data;
     }
 
     // Getter 和 Setter
@@ -30,5 +41,12 @@ public class ExecutionResult {
         this.message = message;
     }
 
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
 }
 

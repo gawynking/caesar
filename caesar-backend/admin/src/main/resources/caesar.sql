@@ -268,14 +268,10 @@ insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(101,'Hive','hive','2',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(102,'Spark','spark','3',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(103,'Flink','flink','1.8',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(104,'Kafka','kafka','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(201,'Hudi','hudi','1',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(202,'Paimon','paimon','0.8',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(301,'Doris','doris','2',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(302,'StarRocks','starrocks','2',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(401,'MySQL','mysql','8',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(501,'Hbase','hbase','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(601,'Redis','redis','2',1);
 
 
 -- 任务执行记录

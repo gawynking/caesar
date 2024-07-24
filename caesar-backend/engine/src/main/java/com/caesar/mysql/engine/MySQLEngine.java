@@ -1,13 +1,20 @@
 package com.caesar.mysql.engine;
 
 import com.caesar.engine.Engine;
+import com.caesar.mysql.shell.MySQLCommand;
 import com.caesar.runner.ExecutionResult;
-import com.caesar.task.Task;
+import com.caesar.params.TaskInfo;
+import com.caesar.shell.Command;
+import com.caesar.shell.Invoker;
+import com.caesar.shell.ShellTask;
+import com.caesar.util.JdbcUrlParserUtils;
+import com.caesar.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 
 public class MySQLEngine implements Engine {
 
@@ -24,7 +31,15 @@ public class MySQLEngine implements Engine {
     }
 
     @Override
-    public ExecutionResult execute(Task task) {
+    public ExecutionResult execute(TaskInfo taskInfo) {
+
+        // 通过指定配置，灵活设置是以JDBC方式执行任务还是以Shell方式执行任务
+        return executeShell(taskInfo);
+
+    }
+
+
+    public ExecutionResult executeJdbc(TaskInfo taskInfo){
         // 显式加载 MySQL JDBC 驱动
         try {
             Class.forName(jdbcDriver);
@@ -34,12 +49,42 @@ public class MySQLEngine implements Engine {
 
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);
              Statement stmt = conn.createStatement()) {
-            String[] codes = task.getCode().split(";");
+            String[] codes = taskInfo.getCode().split(";");
             for(String code:codes){
                 stmt.execute(code);
             }
             return new ExecutionResult(true, "Execution successful.");
         } catch (SQLException e) {
+            e.printStackTrace();
+            return new ExecutionResult(false, e.getMessage());
+        }
+    }
+
+    public ExecutionResult executeShell(TaskInfo taskInfo) {
+        JdbcUrlParserUtils.JdbcUrlInfo jdbcUrlInfo = JdbcUrlParserUtils.parseJdbcUrl(this.jdbcUrl);
+
+        String[] commands = new String[]{
+                "/opt/homebrew/Cellar/mysql@5.7/5.7.32/bin/mysql",
+                "-u"+this.username,
+                "-p"+this.password,
+                "-h"+jdbcUrlInfo.getHostname(),
+                "-P"+jdbcUrlInfo.getPort(),
+                StringUtils.isNotEmpty(jdbcUrlInfo.getDatabase())?jdbcUrlInfo.getDatabase():null,
+                "-e",
+                taskInfo.getCode()
+        };
+
+
+        try {
+            Invoker invoker = new Invoker(new MySQLCommand(commands));
+            ExecutionResult<ShellTask> result = invoker.executeCommand();
+            if (result.isSuccess()) {
+                return new ExecutionResult(true, "Task submit execute.");
+            } else {
+                return new ExecutionResult(false, "Failed to submit task.");
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
             return new ExecutionResult(false, e.getMessage());
         }

@@ -2,7 +2,7 @@ package com.caesar.none.engine;
 
 import com.caesar.engine.Engine;
 import com.caesar.runner.ExecutionResult;
-import com.caesar.task.Task;
+import com.caesar.params.TaskInfo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,7 +22,7 @@ public class TextEngine implements Engine {
     }
 
     @Override
-    public ExecutionResult execute(Task task) {
+    public ExecutionResult execute(TaskInfo task) {
 
         String scriptPath = this.code_dir + task.getDbLevel() + "/" + task.getTaskName() + ".sql";
         File scriptFile = new File(scriptPath);

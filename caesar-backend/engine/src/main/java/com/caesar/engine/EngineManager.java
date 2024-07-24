@@ -1,27 +1,24 @@
 package com.caesar.engine;
 
-import com.caesar.enums.EngineEnum;
 import com.caesar.factory.EngineFactory;
 import com.caesar.factory.EngineFactoryRegistry;
 import com.caesar.runner.ExecutionResult;
-import com.caesar.task.Task;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.caesar.params.TaskInfo;
 
 
 public class EngineManager {
 
-    private EngineFactoryRegistry registry;
+    private static EngineFactoryRegistry registry;
 
+    static {
+        registry = new EngineFactoryRegistry();
+    }
 
     public EngineManager() {
-        this.registry = new EngineFactoryRegistry();
     }
 
 
-
-    public ExecutionResult execute(Task task) {
+    public ExecutionResult execute(TaskInfo task) {
         EngineFactory factory = registry.getEngineFactory(task.getEngine());
         Engine engine = factory.createEngine(task.getConfig());
         if (engine == null) {

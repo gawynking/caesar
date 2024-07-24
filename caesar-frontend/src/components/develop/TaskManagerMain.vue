@@ -70,7 +70,7 @@
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item command="test">测试</el-dropdown-item>
                                         <el-dropdown-item command="staging">预发</el-dropdown-item>
-                                        <el-dropdown-item command="production">生产</el-dropdown-item>
+                                        <!-- <el-dropdown-item command="production">生产</el-dropdown-item> -->
                                     </el-dropdown-menu>
                                 </el-dropdown>
                                 <el-button type="primary" size="mini" plain @click="handleRefresh">回刷</el-button>

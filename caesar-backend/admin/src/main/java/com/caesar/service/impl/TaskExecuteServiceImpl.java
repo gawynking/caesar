@@ -13,7 +13,7 @@ import com.caesar.model.code.TaskContentParser;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.Executor;
 import com.caesar.service.TaskExecuteService;
-import com.caesar.task.Task;
+import com.caesar.params.TaskInfo;
 import com.caesar.util.JSONUtils;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
 
         Environment environment = Environment.fromKey(taskExecuteRecordDto.getEnvironment());
         CaesarTask caesarTask = taskMapper.getTaskInfoFromId(taskExecuteRecordDto.getTaskId());
-        Task task = new Task();
+        TaskInfo task = new TaskInfo();
         Map<String, String> taskConfig = new HashMap<>();
 
 
@@ -97,7 +97,11 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                 }).start();
                 break;
             case STAGING:
-                boolean isTested = taskExecuteMapper.checkTaskExecuteTest(taskExecuteRecord);
+                boolean isTested = false;
+                Integer id = taskExecuteMapper.checkTaskExecuteTest(taskExecuteRecord);
+                if(null != id){
+                    isTested= true;
+                }
                 if(isTested){
                     new Thread(new Runnable() {
                         @Override
@@ -119,8 +123,8 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                 }
                 break;
             case PRODUCTION:
-                boolean isTestedAndStaged = taskExecuteMapper.checkTaskExecuteTestAndStage(taskExecuteRecord);
-                boolean isOnline = taskMapper.checkOnlineById(taskExecuteRecord.getTaskId());
+                boolean isTestedAndStaged = null != taskExecuteMapper.checkTaskExecuteTestAndStage(taskExecuteRecord)?true:false;
+                boolean isOnline = null != taskMapper.checkOnlineById(taskExecuteRecord.getTaskId())?true:false;
                 if(isTestedAndStaged && isOnline){
                     new Thread(new Runnable() {
                         @Override
