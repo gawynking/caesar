@@ -8,7 +8,7 @@ import java.util.List;
 public class ParamsConfig implements CodeModel {
 
     private String content;
-    private List<String> systemParams;
+    private List<Pair> systemParams;
     private List<String> engineParams;
     private List<String> customParams;
 

@@ -5,7 +5,7 @@ import com.caesar.shell.ShellTask;
 import com.caesar.shell.TaskManager;
 import com.caesar.task.Task;
 
-public class MySQLReceiver {
+public class MySQLReceiver{
 
     ExecutionResult<ShellTask> result;
 

@@ -9,6 +9,7 @@ import java.util.Map;
 public class TaskInfo {
 
     private EngineEnum engine;
+    private String systemUser;
     private String dbLevel;
     private String taskName;
     private String code;

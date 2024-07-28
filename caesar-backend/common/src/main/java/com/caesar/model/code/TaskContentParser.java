@@ -17,6 +17,10 @@ public class TaskContentParser {
         this.taskContentModel = parseScriptContent(content);
     }
 
+    public TaskContentModel getTaskContentModel(){
+        return this.taskContentModel;
+    }
+
     private String getString(List<String> list){
         StringBuffer stringBuffer = new StringBuffer();
         for(String line :list){
@@ -123,7 +127,7 @@ public class TaskContentParser {
         ParamsConfig paramsConfig = new ParamsConfig();
 
         String content;
-        List<String> systemParams = new ArrayList<>();
+        List<Pair> systemParams = new ArrayList<>();
         List<String> engineParams = new ArrayList<>();
         List<String> customParams = new ArrayList<>();
 
@@ -145,7 +149,16 @@ public class TaskContentParser {
             }
 
             if(flag==1){
-                systemParams.add(line);
+                String[] pairArray = line
+                        .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
+                        .replaceAll("\\s","")
+                        .replaceAll(";","")
+                        .trim()
+                        .split(";");
+                Pair pair = new Pair();
+                pair.setKey(pairArray[0]);
+                pair.setValue(pairArray[1]);
+                systemParams.add(pair);
             }
             if(flag==2){
                 engineParams.add(line);

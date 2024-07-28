@@ -10,11 +10,16 @@ import com.caesar.mapper.DatasourceMapper;
 import com.caesar.mapper.TaskExecuteMapper;
 import com.caesar.mapper.TaskMapper;
 import com.caesar.model.code.TaskContentParser;
+import com.caesar.model.code.TemplateUtils;
+import com.caesar.model.code.model.Pair;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.Executor;
+import com.caesar.service.DevelopCenterService;
 import com.caesar.service.TaskExecuteService;
 import com.caesar.params.TaskInfo;
+import com.caesar.util.DateUtils;
 import com.caesar.util.JSONUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,6 +30,8 @@ import java.util.Map;
 
 @Service
 public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, CaesarTaskExecuteRecord> implements TaskExecuteService {
+
+    private static final Logger logger = Logger.getLogger(TaskExecuteServiceImpl.class);
 
     @Resource
     TaskExecuteMapper taskExecuteMapper;
@@ -43,14 +50,22 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         TaskInfo task = new TaskInfo();
         Map<String, String> taskConfig = new HashMap<>();
 
-
         EngineEnum engine = EngineEnum.fromTag(caesarTask.getEngine());
         String[] taskTags = caesarTask.getTaskName().split("\\.");
         TaskContentParser taskContentParser = new TaskContentParser(caesarTask.getTaskScript());
+        String script = TemplateUtils.transformSqlTemplate(taskContentParser);
+        for(Pair systemParam:taskContentParser.getTaskContentModel().getParamsConfig().getSystemParams()){
+            if("system_user".equals(systemParam.getKey())){
+                task.setSystemUser(systemParam.getValue());
+                break;
+            }
+        }
         task.setEngine(engine);
         task.setDbLevel(taskTags[0]);
         task.setTaskName(taskTags[1]);
-        task.setCode(taskContentParser.generateExecuteScript());
+        task.setCode(script);
+
+        logger.info(String.format("Caesar -> Begin Execute Code: \n %s \n\n\n", script));
 
         int datasourceType = -1;
         switch (environment){

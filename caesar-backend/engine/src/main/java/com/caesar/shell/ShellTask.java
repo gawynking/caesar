@@ -3,13 +3,18 @@ package com.caesar.shell;
 
 import com.caesar.runner.ExecutionResult;
 import com.caesar.task.Task;
+import com.caesar.util.StringUtils;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ShellTask extends Task {
+
+    protected String systemUser;
 
     @Override
     public List<String> getCommandList(){
@@ -70,6 +75,50 @@ public class ShellTask extends Task {
             this.setRunning(false);
         }
         return new ExecutionResult<>(this);
+    }
+
+
+    protected List<String> getJobPrefix() {
+        ArrayList<String> commands = new ArrayList<>();
+        String loginUser = getOSLoginUser();
+        if (StringUtils.isEmpty(loginUser)) {
+            return commands;
+        }
+        if(StringUtils.isEmpty(systemUser)){
+            return commands;
+        }
+        if(!loginUser.equals(systemUser.toLowerCase())){
+            commands.add("sudo");
+            commands.add("-s");
+            commands.add("-E");
+            commands.add("-u");
+            commands.add(systemUser);
+            return commands;
+        }
+        return commands;
+    }
+
+
+    private String getOSLoginUser(){
+        String loginUser = null;
+        String osName = System.getProperty("os.name").toLowerCase();
+        if(osName.indexOf("linux")>0){
+            try {
+                String command = "whoami";
+                Process process = Runtime.getRuntime().exec(command);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                loginUser = reader.readLine();
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return loginUser;
+    }
+
+
+    protected String dosToUnix(String script) {
+        return script.replaceAll("\r\n", "\n");
     }
 
 }

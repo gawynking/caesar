@@ -4,7 +4,6 @@ import com.caesar.engine.Engine;
 import com.caesar.mysql.shell.MySQLCommand;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.params.TaskInfo;
-import com.caesar.shell.Command;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
 import com.caesar.util.JdbcUrlParserUtils;
@@ -14,9 +13,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class MySQLEngine implements Engine {
+public class MySQLEngine extends ShellTask implements Engine {
 
     private String jdbcDriver;
     private String jdbcUrl;
@@ -61,22 +62,39 @@ public class MySQLEngine implements Engine {
     }
 
     public ExecutionResult executeShell(TaskInfo taskInfo) {
+
+
+        super.systemUser = taskInfo.getSystemUser();
+        List<String> commands = super.getJobPrefix();
+
         JdbcUrlParserUtils.JdbcUrlInfo jdbcUrlInfo = JdbcUrlParserUtils.parseJdbcUrl(this.jdbcUrl);
 
-        String[] commands = new String[]{
-                "/opt/homebrew/Cellar/mysql@5.7/5.7.32/bin/mysql",
-                "-u"+this.username,
-                "-p"+this.password,
-                "-h"+jdbcUrlInfo.getHostname(),
-                "-P"+jdbcUrlInfo.getPort(),
-                StringUtils.isNotEmpty(jdbcUrlInfo.getDatabase())?jdbcUrlInfo.getDatabase():null,
-                "-e",
-                taskInfo.getCode()
-        };
+        commands.add("/opt/homebrew/Cellar/mysql@5.7/5.7.32/bin/mysql");
+        commands.add("-u"+this.username);
+        commands.add("-p"+this.password);
+        commands.add("-h"+jdbcUrlInfo.getHostname());
+        commands.add("-P"+jdbcUrlInfo.getPort());
+        if(StringUtils.isNotEmpty(jdbcUrlInfo.getDatabase())){
+            commands.add(jdbcUrlInfo.getDatabase());
+        }
+        commands.add("-e");
+        commands.add(taskInfo.getCode());
+
+
+//        String[] commands = new String[]{
+//                "/opt/homebrew/Cellar/mysql@5.7/5.7.32/bin/mysql",
+//                "-u"+this.username,
+//                "-p"+this.password,
+//                "-h"+jdbcUrlInfo.getHostname(),
+//                "-P"+jdbcUrlInfo.getPort(),
+//                StringUtils.isNotEmpty(jdbcUrlInfo.getDatabase())?jdbcUrlInfo.getDatabase():null,
+//                "-e",
+//                taskInfo.getCode()
+//        };
 
 
         try {
-            Invoker invoker = new Invoker(new MySQLCommand(commands));
+            Invoker invoker = new Invoker(new MySQLCommand(commands.toArray(new String[0])));
             ExecutionResult<ShellTask> result = invoker.executeCommand();
             if (result.isSuccess()) {
                 return new ExecutionResult(true, "Task submit execute.");
