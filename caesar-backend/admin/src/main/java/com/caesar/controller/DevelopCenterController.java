@@ -9,17 +9,20 @@ import com.caesar.entity.vo.CaesarTaskParameterVo;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.AddTaskVo;
 import com.caesar.entity.vo.request.TaskExecuteVo;
+import com.caesar.entity.vo.request.TaskRefreshVo;
 import com.caesar.entity.vo.response.CaesarTaskVersionVo;
 import com.caesar.model.JsonResponse;
 import com.caesar.model.MenuModel;
 import com.caesar.model.MenuNode;
 import com.caesar.service.*;
 import com.caesar.tool.BeanConverterTools;
+import com.caesar.util.DateUtils;
 import com.caesar.util.HashUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -144,4 +147,42 @@ public class DevelopCenterController {
         return JsonResponse.success(taskExecuteService.execute(taskExecuteRecordDto));
     }
 
+
+    @PostMapping("/refresh")
+    public JsonResponse<Boolean> refresh(@RequestBody TaskRefreshVo taskRefreshVo) {
+
+        List<CaesarTaskExecuteRecordDto> taskExecuteRecordDtos = new ArrayList<>();
+        CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskRefreshVo.getTaskName(), taskRefreshVo.getVersion());
+
+        try {
+            Date startDate = DateUtils.dateParse(taskRefreshVo.getStartDate(), "yyyy-MM-dd");
+            Date endDate = DateUtils.dateParse(taskRefreshVo.getEndDate(), "yyyy-MM-dd");
+
+            if ("day".equals(taskRefreshVo.getPeriod().toLowerCase())) {
+                while (DateUtils.dateCompare(startDate,endDate)==-1){
+                    CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+                    caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
+                    caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
+                    taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
+                    startDate = DateUtils.dateAdd(startDate,1,false);
+                }
+            } else if ("month".equals(taskRefreshVo.getPeriod().toLowerCase())) {
+                while (DateUtils.dateCompare(startDate,endDate)==-1){
+                    CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+                    caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
+                    caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
+                    taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
+                    startDate = DateUtils.addMonth(startDate,1);
+                }
+            } else {
+                return JsonResponse.success();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return JsonResponse.success(taskExecuteService.refresh(taskExecuteRecordDtos));
+
+    }
 }

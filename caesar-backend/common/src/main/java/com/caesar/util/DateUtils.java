@@ -359,4 +359,22 @@ public class DateUtils {
     }
 
 
+    /**
+     * 给指定的日期增加指定的月份数。
+     *
+     * @param date 原始日期（这里假设它是有效的，并且已经以某种方式设置）
+     * @param monthsToAdd 要增加的月份数
+     * @return 增加月份后的日期
+     */
+    public static Date addMonth(Date date, int monthsToAdd) {
+        // 创建一个Calendar实例，并将时间设置为date的时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        // 增加月份
+        calendar.add(Calendar.MONTH, monthsToAdd);
+
+        // 返回修改后的日期
+        return calendar.getTime();
+    }
 }

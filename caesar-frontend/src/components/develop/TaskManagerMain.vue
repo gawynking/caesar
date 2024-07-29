@@ -48,10 +48,10 @@
                                             <div style="display: flex;justify-content: space-between; width: 390px;">
                                                 <span
                                                     style="display: flex; align-items: center;justify-content: left;">{{
-                                                    item.paramName }}</span>
+                                                        item.paramName }}</span>
                                                 <span
                                                     style="display: flex; align-items: center;justify-content: right;">{{
-                                                    item.paramDesc }}</span>
+                                                        item.paramDesc }}</span>
                                             </div>
 
                                         </el-dropdown-item>
@@ -73,7 +73,40 @@
                                         <!-- <el-dropdown-item command="production">生产</el-dropdown-item> -->
                                     </el-dropdown-menu>
                                 </el-dropdown>
-                                <el-button type="primary" size="mini" plain @click="handleRefresh">回刷</el-button>
+
+                                <!-- <el-button type="primary" size="mini" plain @click="handleRefresh">回刷</el-button> -->
+                                <div>
+                                    <el-button 
+                                        type="primary" 
+                                        size="mini" 
+                                        :disabled="isOnlineTask"
+                                        style="margin-right: 10px;"
+                                        plain 
+                                        @click="handleRefresh"
+                                    >回刷</el-button>
+                                    <el-dialog :visible.sync="dialogVisible" title="数据回刷">
+                                        <el-form :model="form">
+                                            <el-form-item label="回刷周期">
+                                                <el-select v-model="form.period" placeholder="请选择回刷周期">
+                                                    <el-option label="按日" value="day"></el-option>
+                                                    <el-option label="按月" value="month"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                            <el-form-item label="开始日期">
+                                                <el-date-picker v-model="form.startDate" type="date"
+                                                    placeholder="选择开始日期"></el-date-picker>
+                                            </el-form-item>
+                                            <el-form-item label="结束日期">
+                                                <el-date-picker v-model="form.endDate" type="date"
+                                                    placeholder="选择结束日期"></el-date-picker>
+                                            </el-form-item>
+                                        </el-form>
+                                        <div slot="footer" class="dialog-footer">
+                                            <el-button @click="dialogVisible = false">取消</el-button>
+                                            <el-button type="primary" @click="submitRefresh">确定</el-button>
+                                        </div>
+                                    </el-dialog>
+                                </div>
                                 <el-button type="primary" size="mini" plain @click="handlePublish">发布</el-button>
                             </span>
                         </div>
@@ -239,7 +272,13 @@ export default {
             editableTabs: [],
             tabIndex: 1,
             currentSelectedTab: {},
-            paramList: []
+            paramList: [],
+            dialogVisible: false,
+            form: {
+                period: '',
+                startDate: '',
+                endDate: ''
+            }
         }
     },
     created() {
@@ -452,17 +491,72 @@ export default {
             this.handleCodeAreaSave();
             const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
             const response = await this.$axios.post("/develop/execute", {
-                    version:currentTab.taskInfo.version,
-                    taskName:currentTab.taskInfo.taskName,
-                    environment:environment
-                });
+                version: currentTab.taskInfo.version,
+                taskName: currentTab.taskInfo.taskName,
+                environment: environment
+            });
 
         },
         handleRefresh() {
+            this.dialogVisible = true;
+        },
+        validateForm() {
+            if (!this.form.period || !this.form.startDate || !this.form.endDate) {
+                this.$message.error('请完整填写表单');
+                return false;
+            }
 
+            const start = new Date(this.form.startDate);
+            const end = new Date(this.form.endDate);
+
+            if (end < start) {
+                this.$message.error('结束日期不能小于开始日期');
+                return false;
+            }
+
+            if (this.form.period === 'month') {
+                if (start.getDate() !== end.getDate()) {
+                    this.$message.error('对于月粒度，开始日期和结束日期的日必须相同');
+                    return false;
+                }
+            }
+
+            return true;
+        },
+        async submitRefresh() {
+            if (!this.validateForm()) {
+                return;
+            }
+
+            try {
+                const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+                const response = await this.$axios.post('/develop/refresh', {
+                    version: currentTab.taskInfo.version,
+                    taskName: currentTab.taskInfo.taskName,
+                    environment: 'production',
+                    period: this.form.period,
+                    startDate: this.form.startDate,
+                    endDate: this.form.endDate
+                });
+                if (response.data.status === 'success') {
+                    this.$message.success('回刷请求已发送');
+                } else {
+                    this.$message.error('回刷请求失败');
+                }
+            } catch (error) {
+                this.$message.error('回刷请求失败');
+            } finally {
+                this.dialogVisible = false;
+            }
         },
         handlePublish() {
 
+        }
+    },
+    computed: { 
+        isOnlineTask(){
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            return !(currentTab.taskInfo.isOnline === 1);
         }
     }
 }

@@ -14,10 +14,8 @@ import com.caesar.model.code.TemplateUtils;
 import com.caesar.model.code.model.Pair;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.Executor;
-import com.caesar.service.DevelopCenterService;
 import com.caesar.service.TaskExecuteService;
 import com.caesar.params.TaskInfo;
-import com.caesar.util.DateUtils;
 import com.caesar.util.JSONUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -160,6 +159,16 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                     }).start();
                 }
                 break;
+        }
+
+        return true;
+    }
+
+    @Override
+    public Boolean refresh(List<CaesarTaskExecuteRecordDto> taskExecuteRecordDtos) {
+
+        for(CaesarTaskExecuteRecordDto taskExecuteRecordDto:taskExecuteRecordDtos){
+            this.execute(taskExecuteRecordDto);
         }
 
         return true;
