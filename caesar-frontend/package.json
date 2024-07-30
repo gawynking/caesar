@@ -11,6 +11,7 @@
     "codemirror": "^5.65.16",
     "core-js": "^3.6.5",
     "element-ui": "^2.15.14",
+    "moment-timezone": "^0.5.45",
     "vue": "^2.6.11",
     "vue-codemirror": "^4.0.6",
     "vue-fragment": "^1.6.0",

@@ -377,4 +377,43 @@ public class DateUtils {
         // 返回修改后的日期
         return calendar.getTime();
     }
+
+
+    // 方法1：输入字符串格式的日期，返回月初一号日期
+    public static String getMonthStart(String dateStr) {
+        try {
+            Date date = DATE_FORMAT.parse(dateStr);
+            return getMonthStart(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // 方法2：输入Date类型的日期，返回月初一号日期
+    public static String getMonthStart(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        return DATE_FORMAT.format(calendar.getTime());
+    }
+
+    // 方法3：输入字符串格式的日期，返回月末日期
+    public static String getMonthEnd(String dateStr) {
+        try {
+            Date date = DATE_FORMAT.parse(dateStr);
+            return getMonthEnd(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // 方法4：输入Date类型的日期，返回月末日期
+    public static String getMonthEnd(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return DATE_FORMAT.format(calendar.getTime());
+    }
 }

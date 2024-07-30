@@ -23,4 +23,7 @@ public interface TaskExecuteMapper extends BaseMapper<CaesarTaskExecuteRecord> {
 
     @Update("update caesar_task_execute_record set is_success=#{isSuccess},end_time=#{endTime} where id=#{id}")
     boolean updateExecuteState(int isSuccess, LocalDateTime endTime, int id);
+
+    @Select("select id from caesar_task_execute_record where task_id = #{taskId} and environment = #{environment} and uuid = #{uuid}")
+    int findIdFromUUID(CaesarTaskExecuteRecord taskExecuteRecord);
 }

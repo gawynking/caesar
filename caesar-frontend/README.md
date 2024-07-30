@@ -14,6 +14,7 @@ npm i vue-codemirror@4.0.6 -S --save
 npm i -s vue-fragment
 npm install axios --save
 npm install less-loader@6.2.0 --save-dev
+npm install moment-timezone
 ```
 
 ### Compiles and hot-reloads for development

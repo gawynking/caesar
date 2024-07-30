@@ -1,5 +1,6 @@
 package com.caesar.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.caesar.entity.dto.CaesarGroupServiceDto;
 import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.dto.CaesarTaskExecuteRecordDto;
@@ -18,6 +19,7 @@ import com.caesar.service.*;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.DateUtils;
 import com.caesar.util.HashUtils;
+import com.caesar.util.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -159,16 +161,24 @@ public class DevelopCenterController {
             Date endDate = DateUtils.dateParse(taskRefreshVo.getEndDate(), "yyyy-MM-dd");
 
             if ("day".equals(taskRefreshVo.getPeriod().toLowerCase())) {
-                while (DateUtils.dateCompare(startDate,endDate)==-1){
+                while (DateUtils.dateCompare(startDate,endDate)<=0){
                     CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+                    JSONObject parameter = JSONUtils.getJSONObject();
+                    parameter.put("start_date",DateUtils.dateFormat(startDate,"yyyy-MM-dd"));
+                    parameter.put("end_date",DateUtils.dateFormat(startDate,"yyyy-MM-dd"));
+                    caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                     caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                     caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
                     taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
                     startDate = DateUtils.dateAdd(startDate,1,false);
                 }
             } else if ("month".equals(taskRefreshVo.getPeriod().toLowerCase())) {
-                while (DateUtils.dateCompare(startDate,endDate)==-1){
+                while (DateUtils.dateCompare(startDate,endDate)<=0){
                     CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+                    JSONObject parameter = JSONUtils.getJSONObject();
+                    parameter.put("start_date",DateUtils.getMonthStart(startDate));
+                    parameter.put("end_date",DateUtils.getMonthEnd(startDate));
+                    caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                     caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                     caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
                     taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
@@ -182,6 +192,7 @@ public class DevelopCenterController {
             e.printStackTrace();
         }
 
+        System.out.println(taskExecuteRecordDtos);
         return JsonResponse.success(taskExecuteService.refresh(taskExecuteRecordDtos));
 
     }

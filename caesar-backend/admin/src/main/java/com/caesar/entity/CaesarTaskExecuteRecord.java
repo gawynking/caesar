@@ -7,8 +7,10 @@ import java.time.LocalDateTime;
 @Data
 public class CaesarTaskExecuteRecord extends BaseEntity{
 
+    String uuid;
     int taskId;
     String taskName;
+    String parameter;
     String environment;
     LocalDateTime beginTime;
     LocalDateTime endTime;
@@ -16,3 +18,4 @@ public class CaesarTaskExecuteRecord extends BaseEntity{
     String taskLog;
 
 }
+

@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Service
@@ -85,10 +86,12 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
 
         CaesarTaskExecuteRecord taskExecuteRecord = new CaesarTaskExecuteRecord();
         taskExecuteRecord.setTaskId(caesarTask.getId());
+        taskExecuteRecord.setUuid(UUID.randomUUID().toString().toLowerCase().replaceAll("-",""));
         taskExecuteRecord.setTaskName(caesarTask.getTaskName());
         taskExecuteRecord.setEnvironment(environment.getKey());
         taskExecuteRecord.setBeginTime(LocalDateTime.now());
         taskExecuteRecord.setIsSuccess(0);
+        taskExecuteRecord.setParameter(taskExecuteRecordDto.getParameter());
 
         switch (environment){
             case TEST:
@@ -96,7 +99,8 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                     @Override
                     public void run() {
                         taskExecuteMapper.insert(taskExecuteRecord);
-                        int id = taskExecuteMapper.findIdFromNow(taskExecuteRecord);
+//                        int id = taskExecuteMapper.findIdFromNow(taskExecuteRecord);
+                        int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
                         taskExecuteRecord.setId(id);
                         try {
                             ExecutionResult execute = Executor.execute(task);
@@ -121,7 +125,8 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                         @Override
                         public void run() {
                             taskExecuteMapper.insert(taskExecuteRecord);
-                            int id = taskExecuteMapper.findIdFromNow(taskExecuteRecord);
+//                            int id = taskExecuteMapper.findIdFromNow(taskExecuteRecord);
+                            int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
                             taskExecuteRecord.setId(id);
                             try {
                                 ExecutionResult execute = Executor.execute(task);
@@ -144,7 +149,8 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                         @Override
                         public void run() {
                             taskExecuteMapper.insert(taskExecuteRecord);
-                            int id = taskExecuteMapper.findIdFromNow(taskExecuteRecord);
+//                            int id = taskExecuteMapper.findIdFromNow(taskExecuteRecord);
+                            int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
                             taskExecuteRecord.setId(id);
                             try {
                                 ExecutionResult execute = Executor.execute(task);

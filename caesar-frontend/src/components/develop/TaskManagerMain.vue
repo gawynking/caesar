@@ -70,20 +70,21 @@
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item command="test">测试</el-dropdown-item>
                                         <el-dropdown-item command="staging">预发</el-dropdown-item>
-                                        <!-- <el-dropdown-item command="production">生产</el-dropdown-item> -->
+                                        <el-dropdown-item :disabled="isOnlineTask"
+                                            command="production">生产</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
 
                                 <!-- <el-button type="primary" size="mini" plain @click="handleRefresh">回刷</el-button> -->
                                 <div>
-                                    <el-button 
+                                    <!-- <el-button 
                                         type="primary" 
                                         size="mini" 
                                         :disabled="isOnlineTask"
                                         style="margin-right: 10px;"
                                         plain 
                                         @click="handleRefresh"
-                                    >回刷</el-button>
+                                    >回刷</el-button> -->
                                     <el-dialog :visible.sync="dialogVisible" title="数据回刷">
                                         <el-form :model="form">
                                             <el-form-item label="回刷周期">
@@ -257,6 +258,7 @@
 <script>
 import CodeEditor from '../../common/CodeEditor.vue';
 import { EventBus } from '../../common/event-bus';
+import moment from 'moment-timezone';
 
 export default {
     name: 'TaskManagerMain',
@@ -273,6 +275,7 @@ export default {
             tabIndex: 1,
             currentSelectedTab: {},
             paramList: [],
+            environment: '',
             dialogVisible: false,
             form: {
                 period: '',
@@ -488,18 +491,15 @@ export default {
             currentTab.dataDevelop.codeArea = code
         },
         async handleExecute(environment) {
-            this.handleCodeAreaSave();
-            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
-            const response = await this.$axios.post("/develop/execute", {
-                version: currentTab.taskInfo.version,
-                taskName: currentTab.taskInfo.taskName,
-                environment: environment
-            });
-
-        },
-        handleRefresh() {
             this.dialogVisible = true;
+            this.environment = environment;
+            // this.handleCodeAreaSave();
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            this.submitRefresh(environment);
         },
+        // handleRefresh() {
+        //     this.dialogVisible = true;
+        // },
         validateForm() {
             if (!this.form.period || !this.form.startDate || !this.form.endDate) {
                 this.$message.error('请完整填写表单');
@@ -523,20 +523,25 @@ export default {
 
             return true;
         },
-        async submitRefresh() {
+        async submitRefresh(environment) {
             if (!this.validateForm()) {
                 return;
             }
 
             try {
+                const format = 'YYYY-MM-DD';
+                const timezone = 'Asia/Shanghai';
+                const startDate = moment(this.form.startDate).tz(timezone).format(format);
+                const endDate = moment(this.form.endDate).tz(timezone).format(format);
+
                 const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
                 const response = await this.$axios.post('/develop/refresh', {
                     version: currentTab.taskInfo.version,
                     taskName: currentTab.taskInfo.taskName,
-                    environment: 'production',
+                    environment: environment,
                     period: this.form.period,
-                    startDate: this.form.startDate,
-                    endDate: this.form.endDate
+                    startDate: startDate,
+                    endDate: endDate
                 });
                 if (response.data.status === 'success') {
                     this.$message.success('回刷请求已发送');
@@ -553,8 +558,8 @@ export default {
 
         }
     },
-    computed: { 
-        isOnlineTask(){
+    computed: {
+        isOnlineTask() {
             const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
             return !(currentTab.taskInfo.isOnline === 1);
         }

@@ -247,7 +247,8 @@ create table caesar_task_parameter(
 ) engine = innodb default charset=utf8mb4
 comment '任务开发参数表'
 ;
-insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{etl_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd','getYestodayDate');
+insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{start_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd','getStartDate');
+insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{end_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd','getEndDate');
 
 
 -- 数据引擎表
@@ -278,8 +279,10 @@ insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated
 drop table if exists caesar_task_execute_record;
 create table caesar_task_execute_record(
 	id             int auto_increment                                                       comment '执行ID',
+	uuid           varchar(64)                                                              comment 'UUID',
     task_id        int not null                                                             comment '任务ID',
     task_name      varchar(256) not null                                                    comment '任务名称',
+    parameter      varchar(512)                                                             comment '预定义参数,JSON格式',
     environment    varchar(32)                                                              comment '执行环境: test staging production',
     begin_time     datetime not null default current_timestamp                              comment '执行开始时间戳',
     end_time       datetime                                                                 comment '执行结束时间戳',
