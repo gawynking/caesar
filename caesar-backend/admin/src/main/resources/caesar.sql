@@ -294,3 +294,42 @@ create table caesar_task_execute_record(
 )engine = innodb default charset=utf8mb4
 comment '任务执行记录'
 ;
+
+
+-- 任务审核流程表
+drop table if exists caesar_task_review_config;
+create table caesar_task_review_config(
+    id             int auto_increment                                                       comment 'ID',
+    group_id       int not null                                                             comment '组ID',
+    task_type      int not null                                                             comment '任务类型: 1-离线任务 2-实时任务',
+    review_level   int not null                                                             comment '审核级别: 1-initial 2-secondary 3-final',
+    review_user    int not null                                                             comment '审核员',
+    review_desc    varchar(128)                                                             comment '审核节点描述',
+    create_time    timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time    timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+)engine = innodb default charset=utf8mb4
+comment '任务审核流程表'
+;
+insert into caesar_task_review_config(group_id,task_type,review_level,review_user,review_desc)values(1,1,1,1,'代码审核');
+insert into caesar_task_review_config(group_id,task_type,review_level,review_user,review_desc)values(1,1,3,1,'调度审核');
+
+
+-- 任务审核记录表
+drop table if exists caesar_task_review_record;
+create table caesar_task_review_record(
+    id             int auto_increment                                                       comment 'ID',
+    uuid           varchar(64)                                                              comment 'UUID',
+    task_id        int not null                                                             comment '任务ID',
+    review_level   int not null                                                             comment '审核级别: 1-initial 2-secondary 3-final',
+    review_user    int not null                                                             comment '审核员',
+    review_status  int not null                                                             comment '审核状态: 1-审核中 2-已撤回 3-已驳回 4-系统驳回 5-成功'，
+    review_result  int not null                                                             comment '是否通过: 1-通过 0-拒绝',
+    create_time    timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time    timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+)engine = innodb default charset=utf8mb4
+comment '任务审核流程表'
+;
+
+

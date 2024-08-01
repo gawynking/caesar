@@ -26,4 +26,10 @@ public interface TaskExecuteMapper extends BaseMapper<CaesarTaskExecuteRecord> {
 
     @Select("select id from caesar_task_execute_record where task_id = #{taskId} and environment = #{environment} and uuid = #{uuid}")
     int findIdFromUUID(CaesarTaskExecuteRecord taskExecuteRecord);
+
+    @Select("select max(1) as is_tested \n" +
+            "from caesar_task_execute_record \n" +
+            "where task_id = #{taskId} \n" +
+            "  and is_success = 1")
+    Boolean validateTaskIsPassedTest(int taskId);
 }

@@ -180,4 +180,9 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         return true;
     }
 
+    @Override
+    public Boolean validateTaskIsPassedTest(int taskId) {
+        return taskExecuteMapper.validateTaskIsPassedTest(taskId);
+    }
+
 }

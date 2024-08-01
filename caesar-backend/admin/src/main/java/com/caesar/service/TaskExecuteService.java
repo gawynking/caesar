@@ -12,4 +12,6 @@ public interface TaskExecuteService extends IService<CaesarTaskExecuteRecord> {
     Boolean execute(CaesarTaskExecuteRecordDto taskExecuteRecordDto);
 
     Boolean refresh(List<CaesarTaskExecuteRecordDto> taskExecuteRecordDto);
+
+    Boolean validateTaskIsPassedTest(int taskId);
 }
