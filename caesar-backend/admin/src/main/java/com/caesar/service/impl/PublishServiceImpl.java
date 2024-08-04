@@ -2,19 +2,24 @@ package com.caesar.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.core.CodeReviewProcess;
+import com.caesar.core.cache.Cache;
 import com.caesar.core.review.ReviewHandler;
+import com.caesar.core.review.ReviewLevel;
 import com.caesar.core.review.ReviewRequest;
 import com.caesar.entity.CaesarTask;
-import com.caesar.entity.CaesarTaskReviewConfig;
 import com.caesar.entity.CaesarTaskReviewRecord;
-import com.caesar.entity.dto.TaskPublishDto;
+import com.caesar.entity.dto.CaesarGroupReviewConfig;
+import com.caesar.entity.dto.CaesarTaskPublishDto;
+import com.caesar.entity.state.ReviewState;
 import com.caesar.mapper.TaskMapper;
 import com.caesar.mapper.TaskReviewConfigMapper;
 import com.caesar.mapper.TaskReviewRecordMapper;
+import com.caesar.mapper.UserMapper;
 import com.caesar.service.PublishService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,49 +36,76 @@ public class PublishServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impl
     @Resource
     TaskReviewRecordMapper taskReviewRecordMapper;
 
+    @Resource
+    UserMapper userMapper;
+
+
     @Override
-    public Boolean publishTask(TaskPublishDto publishDto) {
+    public Boolean publishTask(CaesarTaskPublishDto publishDto) {
         try {
 
             /**
              * 如果任务已经上线则无需重复发布
              */
-            if(taskMapper.checkTaskVersionIsOnline(publishDto.getTaskId())){
-                return false;
+            if(null == taskMapper.checkTaskVersionIsOnline(publishDto.getTaskId()) || !taskMapper.checkTaskVersionIsOnline(publishDto.getTaskId())) {
+
+                /**
+                 * 如果任务在审核中，不能重复提交
+                 */
+                if (
+                    null == taskReviewRecordMapper.taskAlreadySubmitted(publishDto.getTaskId()) ||
+                    !taskReviewRecordMapper.taskAlreadySubmitted(publishDto.getTaskId()) ||
+                    null != Cache.codeReviewCache.get(publishDto.getTaskId())
+                ) {
+                    List<CaesarGroupReviewConfig> taskReviewConfigList = taskReviewConfigMapper.getCodeReviewConfig(publishDto.getGroupId(), publishDto.getTaskType());
+
+                    String reviewBatch = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
+                    for (CaesarGroupReviewConfig taskReviewConfig : taskReviewConfigList) {
+                        CaesarTaskReviewRecord taskReviewRecord = new CaesarTaskReviewRecord();
+                        taskReviewRecord.setUuid(UUID.randomUUID().toString().toLowerCase().replaceAll("-", ""));
+                        taskReviewRecord.setTaskId(publishDto.getTaskId());
+                        taskReviewRecord.setTaskName(publishDto.getTaskName());
+                        taskReviewRecord.setReviewBatch(reviewBatch);
+                        taskReviewRecord.setVersion(publishDto.getVersion());
+                        taskReviewRecord.setSubmitUserId(userMapper.getUserIdFromUserName(publishDto.getSubmitUsername()));
+                        taskReviewRecord.setCodeDesc(publishDto.getCodeDesc());
+                        taskReviewRecord.setReviewLevel(taskReviewConfig.getReviewLevel());
+                        taskReviewRecord.setReviewStatus(1);
+                        taskReviewRecord.setReviewResult(0);
+
+                        List<Integer> reviewUserList = new ArrayList<>();
+                        List<CaesarGroupReviewConfig.UserMapper> userList = taskReviewConfig.getReviewUserList();
+                        for(CaesarGroupReviewConfig.UserMapper user:userList){
+                            reviewUserList.add(user.getUserId());
+                        }
+                        taskReviewRecord.setReviewUsers(reviewUserList.toString().replaceAll("\\[","").replaceAll("\\]","").replaceAll("\\s",""));
+
+                        taskReviewRecordMapper.insert(taskReviewRecord);
+                        taskReviewConfig.setTaskId(publishDto.getTaskId());
+                        taskReviewConfig.setUuid(taskReviewRecord.getUuid());
+                        taskReviewConfig.setReviewBatch(reviewBatch);
+                    }
+
+                    ReviewHandler reviewHandler = CodeReviewProcess.generalCodeReviewChain(taskReviewConfigList);
+                    ReviewRequest reviewRequest = new ReviewRequest(
+                            publishDto.getTaskId(),
+                            publishDto.getTaskName(),
+                            publishDto.getVersion(),
+                            publishDto.getSubmitUsername(),
+                            publishDto.getCodeDesc()
+                    );
+                    CodeReviewProcess.handleRequest(reviewHandler, reviewRequest);
+                    Cache.codeReviewCache.put(
+                            publishDto.getTaskId(),
+                            new ReviewState(
+                                    publishDto.getTaskId(),
+                                    reviewBatch,
+                                    ReviewLevel.fromKey(reviewHandler.getReviewLevelKey()),
+                                    reviewHandler
+                            )
+                    );
+                }
             }
-
-            /**
-             * 如果任务在审核中，不能重复提交
-             */
-            if(taskReviewRecordMapper.taskAlreadySubmitted(publishDto.getTaskId())){
-                return false;
-            }
-
-            List<CaesarTaskReviewConfig> taskReviewConfigList = taskReviewConfigMapper.getCodeReviewConfig(publishDto.getGroupId(), publishDto.getTaskType());
-
-            for(CaesarTaskReviewConfig taskReviewConfig:taskReviewConfigList){
-                CaesarTaskReviewRecord taskReviewRecord = new CaesarTaskReviewRecord();
-                taskReviewRecord.setUuid(UUID.randomUUID().toString().toLowerCase().replaceAll("-",""));
-                taskReviewRecord.setTaskId(publishDto.getTaskId());
-                taskReviewRecord.setReviewLevel(taskReviewConfig.getReviewLevel());
-                taskReviewRecord.setReviewUser(taskReviewConfig.getReviewUserId());
-                taskReviewRecord.setReviewStatus(1);
-                taskReviewRecord.setReviewResult(0);
-                taskReviewRecordMapper.insert(taskReviewRecord);
-                taskReviewConfig.setUuid(taskReviewRecord.getUuid());
-            }
-
-            ReviewHandler reviewHandler = CodeReviewProcess.generalCodeReviewChain(taskReviewConfigList);
-            ReviewRequest reviewRequest = new ReviewRequest(
-                    publishDto.getTaskId(),
-                    publishDto.getTaskName(),
-                    publishDto.getVersion(),
-                    publishDto.getSubmitUsername(),
-                    publishDto.getCodeDesc()
-            );
-            CodeReviewProcess.handleRequest(reviewHandler,reviewRequest);
-//            Cache.codeReviewCache.put(publishDto.getTaskId(), reviewHandler);
-
         }catch (Exception e){
             e.printStackTrace();
             return false;

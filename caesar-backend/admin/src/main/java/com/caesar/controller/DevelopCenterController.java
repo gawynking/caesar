@@ -4,14 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.caesar.entity.dto.CaesarGroupServiceDto;
 import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.dto.CaesarTaskExecuteRecordDto;
-import com.caesar.entity.dto.TaskPublishDto;
 import com.caesar.entity.vo.CaesarEngineVo;
 import com.caesar.entity.vo.CaesarGroupServiceVo;
 import com.caesar.entity.vo.CaesarTaskParameterVo;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.AddTaskVo;
+import com.caesar.entity.vo.request.TaskCompareVo;
 import com.caesar.entity.vo.request.TaskExecuteVo;
-import com.caesar.entity.vo.request.TaskPublishVo;
 import com.caesar.entity.vo.request.TaskRefreshVo;
 import com.caesar.entity.vo.response.CaesarTaskVersionVo;
 import com.caesar.model.JsonResponse;
@@ -52,8 +51,6 @@ public class DevelopCenterController {
     @Autowired
     TaskExecuteService taskExecuteService;
 
-    @Autowired
-    PublishService publishService;
 
 
     @GetMapping("/listTask")
@@ -203,20 +200,9 @@ public class DevelopCenterController {
     }
 
 
-    @PostMapping("/publish")
-    public JsonResponse<Boolean> publish(@RequestBody TaskPublishVo publishVo) {
-
-        CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(publishVo.getTaskName(), publishVo.getVersion());
-        Boolean isPassedTest = taskExecuteService.validateTaskIsPassedTest(currentTaskInfo.getId());
-        if(!isPassedTest){
-            return JsonResponse.success();
-        }
-        TaskPublishDto publishDto = BeanConverterTools.convert(currentTaskInfo, TaskPublishDto.class);
-        publishDto.setTaskId(currentTaskInfo.getId());
-        publishDto.setSubmitUsername(publishVo.getSubmitUsername());
-        publishDto.setCodeDesc(publishVo.getCodeDesc());
-        return JsonResponse.success(publishService.publishTask(publishDto));
-
+    @PostMapping("/codeCompare")
+    public JsonResponse codeCompare(@RequestBody TaskCompareVo taskCompareVo) {
+        return null;
     }
 
 }

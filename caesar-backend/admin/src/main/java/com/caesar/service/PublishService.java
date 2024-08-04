@@ -2,14 +2,13 @@ package com.caesar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.caesar.entity.CaesarTask;
-import com.caesar.entity.dto.TaskPublishDto;
-import com.caesar.entity.vo.CaesarTaskVo;
+import com.caesar.entity.dto.CaesarTaskPublishDto;
 
 
 public interface PublishService extends IService<CaesarTask> {
 
 
-    Boolean publishTask(TaskPublishDto publishDto);
+    Boolean publishTask(CaesarTaskPublishDto publishDto);
 
 
 }

@@ -188,5 +188,10 @@ public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTas
         return taskMapper.getCurrentTaskInfoWithVersion(taskName,version);
     }
 
+    @Override
+    public Boolean taskPassReview2Online(int taskId) {
+        return taskMapper.taskPassReview2Online(taskId);
+    }
+
 
 }

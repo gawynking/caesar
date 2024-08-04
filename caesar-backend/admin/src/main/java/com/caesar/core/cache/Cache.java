@@ -1,19 +1,19 @@
 package com.caesar.core.cache;
 
-import com.caesar.core.review.ReviewHandler;
+import com.caesar.entity.state.ReviewState;
+import com.caesar.mapper.TaskReviewRecordMapper;
 
-import java.util.LinkedList;
+import javax.annotation.Resource;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Cache {
+public class Cache{
+
 
     /**
      * 审核流程缓存
      */
-    public static final Map<Integer,ReviewHandler> codeReviewCache = new ConcurrentHashMap();
-
-
+    public static final Map<Integer, ReviewState> codeReviewCache = new ConcurrentHashMap();
 
 
 

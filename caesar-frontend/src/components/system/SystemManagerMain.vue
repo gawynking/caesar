@@ -14,6 +14,7 @@ import RolePage from './RolePage.vue';
 import DatasourcePage from './DatasourcePage.vue';
 import DevelopPage from './DevelopPage.vue';
 import SchedulePage from './SchedulePage.vue';
+import CodeReview from './CodeReview.vue';
 
 import { EventBus } from '../../common/event-bus';
 
@@ -25,7 +26,8 @@ export default {
         UserGroupPage,
         DatasourcePage,
         DevelopPage,
-        SchedulePage
+        SchedulePage,
+        CodeReview
     },
     data() {
         return {
@@ -52,6 +54,8 @@ export default {
                 return "DevelopPage";
             }else if(this.currentSystemAsideMenu == "schedule-manager"){
                 return "SchedulePage";
+            }else if(this.currentSystemAsideMenu == "code-review"){
+                return "CodeReview";
             }
 
         }

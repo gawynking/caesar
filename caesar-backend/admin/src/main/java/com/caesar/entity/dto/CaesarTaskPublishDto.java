@@ -4,7 +4,7 @@ import lombok.Data;
 
 
 @Data
-public class TaskPublishDto {
+public class CaesarTaskPublishDto {
 
     int taskId;
     int version;

@@ -108,7 +108,27 @@
                                         </div>
                                     </el-dialog>
                                 </div>
-                                <el-button type="primary" size="mini" plain @click="handlePublish">发布</el-button>
+                                <!-- <el-button type="primary" size="mini" plain @click="handlePublish">发布</el-button> -->
+                                <div>
+                                    <!-- 发布按钮 -->
+                                    <el-button type="primary" size="mini" plain @click="showPublishDialog">发布</el-button>
+                                    
+                                    <!-- 弹出框 -->
+                                    <el-dialog
+                                    title="代码上线变更理由"
+                                    :visible.sync="publishDialogVisible"
+                                    width="30%">
+                                    <el-form :model="publishForm">
+                                        <el-form-item label="变更理由">
+                                        <el-input type="textarea" v-model="publishForm.reason" rows="4"></el-input>
+                                        </el-form-item>
+                                    </el-form>
+                                    <div slot="footer" class="dialog-footer">
+                                        <el-button @click="publishDialogVisible = false">取消</el-button>
+                                        <el-button type="primary" @click="handlePublish">确认</el-button>
+                                    </div>
+                                    </el-dialog>
+                                </div>
                             </span>
                         </div>
 
@@ -242,7 +262,7 @@
                     </el-tab-pane>
 
 
-                    <el-tab-pane label="执行日志" name="running-log" disabled>
+                    <el-tab-pane label="任务管理" name="subtask-manager" disabled>
 
                     </el-tab-pane>
 
@@ -267,6 +287,7 @@ export default {
     },
     data() {
         return {
+            loginUser:"",
             selectedTasks: [],
             activeTask: "",
             activeTabs: [],
@@ -281,10 +302,17 @@ export default {
                 period: '',
                 startDate: '',
                 endDate: ''
+            },
+            publishDialogVisible: false,
+            publishForm: {
+                reason: ''
             }
         }
     },
     created() {
+        EventBus.$on('login-user', data => {
+            this.loginUser = sessionStorage.getItem('loginUser');
+        });
         EventBus.$on('tasks-activeTask', data => {
             this.activeTask = data;
         });
@@ -293,6 +321,7 @@ export default {
         });
     },
     mounted() {
+        this.loginUser = sessionStorage.getItem('loginUser');
         this.loadParams();
         // 设置定时器，每6小时（即6 * 60 * 60 * 1000毫秒）执行一次方法  
         setInterval(this.loadParams, 6 * 60 * 60 * 1000);
@@ -554,9 +583,25 @@ export default {
                 this.dialogVisible = false;
             }
         },
-        handlePublish() {
+        showPublishDialog() {
+            this.publishDialogVisible = true;
+        },
+        async handlePublish() {
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            const response = await this.$axios.post('/review/publish', {
 
+                version: currentTab.taskInfo.version,
+                taskName: currentTab.taskInfo.taskName,
+                submitUsername: this.loginUser,
+                codeDesc: this.publishForm.reason
+
+            });
+
+            // 发送代码上线请求的逻辑，例如调用API
+            this.$message.success('代码上线请求已发送');
+            this.publishDialogVisible = false;
         }
+        
     },
     computed: {
         isOnlineTask() {

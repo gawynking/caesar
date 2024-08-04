@@ -55,4 +55,6 @@ public interface DevelopCenterService extends IService<CaesarTask> {
     List<CaesarTaskParameterVo> getParams();
 
     CaesarTaskVo getCurrentTaskInfoWithVersion(String taskName, int version);
+
+    Boolean taskPassReview2Online(int taskId);
 }

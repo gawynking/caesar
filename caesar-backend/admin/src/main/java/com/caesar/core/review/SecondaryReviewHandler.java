@@ -1,17 +1,21 @@
 package com.caesar.core.review;
 
+import com.caesar.core.cache.Cache;
+import com.caesar.entity.dto.CaesarGroupReviewConfig;
+
 public class SecondaryReviewHandler extends ReviewHandler {
-    public SecondaryReviewHandler(ReviewLevel level) {
-        super(level);
+    public SecondaryReviewHandler(ReviewLevel level, CaesarGroupReviewConfig taskReviewConfig) {
+        super(level,taskReviewConfig);
     }
 
     @Override
     public void handleRequest(ReviewRequest request) {
-        if (super.level == ReviewLevel.SECONDARY) {
-            // 处理复审逻辑
-            System.out.println("Secondary review completed.");
-        }
-        if (nextHandler != null) {
+        super.request = request;
+        if (super.level == Cache.codeReviewCache.get(request.getTaskId()).getStep()) {
+
+
+
+        }else if (nextHandler != null) {
             nextHandler.handleRequest(request);
         }
     }
