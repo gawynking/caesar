@@ -87,6 +87,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tt1.menu_id         as menu_id,\n" +
             "\tt1.task_type       as task_type,\n" +
             "\tt1.task_name       as task_name,\n" +
+            "\tt1.group_id        as group_id,\n" +
             "\tt1.datasource_info as datasource_info,\n" +
             "\tt1.engine          as engine,\n" +
             "\tt1.version         as version,\n" +
@@ -106,6 +107,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tt1.menu_id         as menu_id,\n" +
             "\tt1.task_type       as task_type,\n" +
             "\tt1.task_name       as task_name,\n" +
+            "\tt1.group_id        as group_id,\n" +
             "\tt1.datasource_info as datasource_info,\n" +
             "\tt1.engine          as engine,\n" +
             "\tt1.version         as version,\n" +
