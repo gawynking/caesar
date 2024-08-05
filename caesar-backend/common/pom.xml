@@ -5,7 +5,7 @@
     <parent>
         <artifactId>caesar-backend</artifactId>
         <groupId>com.caesar</groupId>
-        <version>1.0</version>
+        <version>0.1</version>
     </parent>
 
     <artifactId>common</artifactId>

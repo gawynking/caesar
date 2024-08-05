@@ -5,7 +5,7 @@
     <parent>
         <artifactId>caesar-backend</artifactId>
         <groupId>com.caesar</groupId>
-        <version>1.0</version>
+        <version>0.1</version>
     </parent>
 
     <artifactId>admin</artifactId>
@@ -27,14 +27,8 @@
 
         <dependency>
             <groupId>com.caesar</groupId>
-            <artifactId>core</artifactId>
-            <version>${caesar.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.caesar</groupId>
             <artifactId>engine</artifactId>
-            <version>1.0</version>
+            <version>${caesar.version}</version>
         </dependency>
 
         <dependency>

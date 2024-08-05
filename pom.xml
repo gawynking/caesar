@@ -12,19 +12,18 @@
 
 	<modules>
 		<module>caesar-backend</module>
-        <module>caesar-backend/engine</module>
     </modules>
 
 	<groupId>com.caesar</groupId>
 	<artifactId>caesar</artifactId>
-	<version>1.0</version>
+	<version>0.1</version>
 	<name>caesar</name>
 	<packaging>pom</packaging>
 	<description>A Data Development Platform Project</description>
 
 	<properties>
 		<java.version>1.8</java.version>
-		<caesar.version>1.0</caesar.version>
+		<caesar.version>${version}</caesar.version>
 	</properties>
 
 	<dependencies>
