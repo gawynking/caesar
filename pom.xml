@@ -16,7 +16,7 @@
 
 	<groupId>com.caesar</groupId>
 	<artifactId>caesar</artifactId>
-	<version>0.1</version>
+	<version>0.1.0</version>
 	<name>caesar</name>
 	<packaging>pom</packaging>
 	<description>A Data Development Platform Project</description>
