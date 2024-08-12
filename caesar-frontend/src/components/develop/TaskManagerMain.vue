@@ -169,9 +169,6 @@
                                 <el-form-item label="调度项目">
                                     <el-input v-model="item.scheduleConfig.project" disabled></el-input>
                                 </el-form-item>
-                                <el-form-item label="工作流名称">
-                                    <el-input v-model="item.scheduleConfig.workflowName" disabled></el-input>
-                                </el-form-item>
                                 <el-form-item label="节点名称">
                                     <el-input v-model="item.scheduleConfig.taskNodeName" disabled></el-input>
                                 </el-form-item>
@@ -380,7 +377,6 @@ export default {
                     labelPosition: 'right',
                     system: "DolphinScheduler",
                     project: "数仓调度项目",
-                    workflowName: '',
                     taskNodeName: '',
                     taskType: "shell",
                     priority: "low",

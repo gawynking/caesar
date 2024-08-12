@@ -26,6 +26,7 @@
         <jedis.version>3.7.0</jedis.version>
         <redisson.version>3.7.0</redisson.version>
         <roaringbitmap.version>0.9.13</roaringbitmap.version>
+        <httpclient.version>4.5.13</httpclient.version>
     </properties>
 
     <dependencies>
@@ -145,5 +146,11 @@
             <version>0.10.2</version>
         </dependency>
 
+        <!-- Http Client -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
     </dependencies>
 </project>

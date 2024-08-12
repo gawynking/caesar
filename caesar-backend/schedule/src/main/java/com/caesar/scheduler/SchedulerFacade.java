@@ -29,8 +29,12 @@ public class SchedulerFacade {
     }
 
     public void createTask(SchedulerModel schedulerModel) {
-        SchedulerInstance instance = schedulerFactory.createScheduler();
-        instance.createTask(schedulerModel);
+        try {
+            SchedulerInstance instance = schedulerFactory.createScheduler();
+            instance.createTask(schedulerModel);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void updateTask(String taskId, SchedulerModel schedulerModel) {

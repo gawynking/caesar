@@ -68,7 +68,7 @@ public class JSONUtils {
      * @param <T>
      * @return
      */
-    public static <T> JSONObject getJSONObjectFromJavabean(Class<T> javaBean){
+    public static <T> JSONObject getJSONObjectFromJavabean(Class<?> javaBean){
         try{
             return JSONObject.parseObject(JSON.toJSONString(javaBean));
         }catch (Exception e){

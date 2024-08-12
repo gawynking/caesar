@@ -17,9 +17,6 @@ public class SchedulerModel {
     // 调度项目
     String project;
 
-    // 工作流名称
-    String workFlowName;
-
     // 节点名称
     String taskNodeName;
 
@@ -42,6 +39,18 @@ public class SchedulerModel {
     List<String> dependency;
 
     // 参数
-    String params;
+    String globalParams = "[]";
+
+    // 超时时间
+    int timeout = 0;
+
+    // 描述
+    String description = "";
+
+    // 执行类型
+    String executionType = "PARALLEL";
+
+    // 脚本
+    String taskScript;
 
 }
