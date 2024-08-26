@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.caesar.util.JSONUtils;
 import lombok.Data;
 
+@Deprecated
 @Data
 public class TaskDefinitionModel extends BaseModel {
 

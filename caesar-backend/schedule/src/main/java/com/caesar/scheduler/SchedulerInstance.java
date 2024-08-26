@@ -7,8 +7,8 @@ import com.caesar.model.SchedulerModel;
 public interface SchedulerInstance {
 
     void deployTask(SchedulerModel schedulerModel);
-    void createTask(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException;
-    void updateTask(String taskId, SchedulerModel schedulerModel);
+    String createTask(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException;
+    String updateTask(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException;
     void deleteTask(String taskId);
     String queryTask(String taskId);
     void pauseTask(String taskId);

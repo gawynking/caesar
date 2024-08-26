@@ -36,7 +36,7 @@ public class SchedulerModel {
     String beginTime;
 
     // 依赖任务
-    List<String> dependency;
+    List<DependencyModel> dependency;
 
     // 参数
     String globalParams = "[]";

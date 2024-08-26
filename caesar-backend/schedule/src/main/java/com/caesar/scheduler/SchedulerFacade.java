@@ -39,7 +39,11 @@ public class SchedulerFacade {
 
     public void updateTask(String taskId, SchedulerModel schedulerModel) {
         SchedulerInstance instance = schedulerFactory.createScheduler();
-        instance.updateTask(taskId, schedulerModel);
+        try {
+            instance.updateTask(schedulerModel);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void deleteTask(String taskId) {

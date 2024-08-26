@@ -27,6 +27,7 @@ public abstract class DolphinSchedulerAPI {
 
     /**
      * 生成任务唯一编码
+     * GET
      * http://localhost:12345/dolphinscheduler/projects/14576322429504/task-definition/gen-task-codes?genNum=1
      *
      * @param genNum
@@ -40,6 +41,7 @@ public abstract class DolphinSchedulerAPI {
 
     /**
      * 查询项目列表
+     * GET
      * http://localhost:12345/dolphinscheduler/projects/list
      *
      * @return
@@ -56,7 +58,7 @@ public abstract class DolphinSchedulerAPI {
 
     /**
      * 创建工作流
-     * <p>
+     * POST
      * http://localhost:12345/dolphinscheduler/projects/14576322429504/process-definition
      *
      * @param projectCode
@@ -97,28 +99,94 @@ public abstract class DolphinSchedulerAPI {
         return JSONUtils.getJSONObjectFromString(HttpUtils.doPostForm(url, params, token));
     }
 
-    public JSONObject createProcessDefinition(long projectCode, String name, String locations, String taskRelationJson, String taskDefinitionJson) throws IOException {
-        return createProcessDefinition(projectCode, name, null, "[]", locations, 0, taskRelationJson, taskDefinitionJson, null, "PARALLEL");
+    public JSONObject createProcessDefinition(
+            long projectCode,
+            String name,
+            String locations,
+            String taskRelationJson,
+            String taskDefinitionJson
+    ) throws IOException {
+        return createProcessDefinition(
+                projectCode,
+                name,
+                "",
+                "[]",
+                locations,
+                0,
+                taskRelationJson,
+                taskDefinitionJson,
+                null,
+                "PARALLEL"
+        );
     }
 
 
     /**
      * 查询工作流信息
-     * <p>
-     * Get
+     * GET
      * http://localhost:12345/dolphinscheduler/projects/14576322429504/process-definition/14581385154880
      *
      * @return
      * @throws IOException
      */
-    public JSONObject queryProcessDefinitionByCode(Long projectCode, Long code) throws IOException {
+    public JSONObject queryProcessDefinitionByCode(long projectCode,long code) throws IOException {
         String url = baseUrl + String.format("/projects/%d/process-definition/%d", projectCode, code);
         String processDefinition = HttpUtils.doGet(url, null, token);
         return JSONUtils.getJSONObjectFromString(processDefinition);
     }
 
     /**
+     * 根据名称查询工作流信息
+     * GET
+     *  http://localhost:12345/dolphinscheduler/projects/14576322429504/process-definition?pageSize=10&pageNo=1&searchVal=start
+     * @return
+     * @throws IOException
+     */
+    public JSONObject queryProcessDefinitionListPaging(
+            long projectCode,
+            Integer pageNo,
+            Integer pageSize,
+            String searchVal
+    ) throws IOException{
+        if(null == pageNo || pageNo == 0){
+            pageNo = 1;
+        }
+        if(null == pageSize || 0 == pageSize){
+            pageSize = 100;
+        }
+        String url = baseUrl + String.format("/projects/%d/process-definition?pageSize=%d&pageNo=%d&searchVal=%s", projectCode, pageSize, pageNo,searchVal);
+        String processDefinition = HttpUtils.doGet(url, null, token);
+        return JSONUtils.getJSONObjectFromString(processDefinition);
+    }
+
+
+    public JSONObject queryProcessDefinitionListPaging(
+            long projectCode,
+            String searchVal
+    ) throws IOException{
+        return queryProcessDefinitionListPaging(projectCode,null,null,searchVal);
+    }
+
+
+    /**
+     * 查询任务定义
+     * GET
+     * http://localhost:12345/dolphinscheduler/projects/14576322429504/task-definition/14583311968576
+     *
+     * @param projectCode
+     * @param code
+     * @return
+     * @throws IOException
+     */
+    public JSONObject queryTaskDefinitionDetail(long projectCode,long code) throws IOException{
+        String url = baseUrl + String.format("/projects/%d/task-definition/%d",projectCode,code);
+        return JSONUtils.getJSONObjectFromString(HttpUtils.doGet(url,null,token));
+    }
+
+
+    /**
      * 更新工作流信息
+     * - update process definition, with whole process definition object including task definition, task relation and location.
      * PUT
      * http://localhost:12345/dolphinscheduler/projects/14576322429504/process-definition/14581385154880
      *
@@ -127,13 +195,18 @@ public abstract class DolphinSchedulerAPI {
      * @return
      * @throws IOException
      */
-    public JSONObject updateProcessDefinition(long projectCode, // *
-                                              String name, // *
-                                              long code, // *
-                                              String description, String globalParams, String locations, // *
-                                              int timeout, String taskRelationJson, // *
-                                              String taskDefinitionJson, // *
-                                              String otherParamsJson, String executionType, String releaseState) throws IOException {
+    public JSONObject updateProcessDefinition(long projectCode, // required = true
+                                              String name, // required = true
+                                              long code, // required = true
+                                              String description,
+                                              String globalParams,
+                                              String locations,
+                                              int timeout,
+                                              String taskRelationJson, // required = true
+                                              String taskDefinitionJson, // required = true
+                                              String otherParamsJson,
+                                              String executionType,
+                                              String releaseState) throws IOException {
         String url = baseUrl + String.format("/projects/%d/process-definition/%d", projectCode, code);
         Map<String, String> params = new HashMap<>();
         params.put("projectCode", String.valueOf(projectCode));
@@ -152,20 +225,37 @@ public abstract class DolphinSchedulerAPI {
         return JSONUtils.getJSONObjectFromString(result);
     }
 
-
-    public JSONObject updateProcessDefinition(long projectCode, // *
-                                              String name, // *
-                                              long code, // *
-                                              String locations, String taskRelationJson, // *
-                                              String taskDefinitionJson // *
+    public JSONObject updateProcessDefinition(long projectCode, // required = true
+                                              String name, // required = true
+                                              long code, // required = true
+                                              String locations,
+                                              String taskRelationJson, // required = true
+                                              String taskDefinitionJson // required = true
     ) throws IOException {
-        return updateProcessDefinition(projectCode, name, code, null, "[]", locations, 0, taskRelationJson, taskDefinitionJson, null, "PARALLEL", "OFFLINE");
+        String url = baseUrl + String.format("/projects/%d/process-definition/%d", projectCode, code);
+        Map<String, String> params = new HashMap<>();
+        params.put("projectCode", String.valueOf(projectCode));
+        params.put("name", name);
+        params.put("code", String.valueOf(code));
+        params.put("locations", locations);
+        params.put("taskRelationJson", taskRelationJson);
+        params.put("taskDefinitionJson", taskDefinitionJson);
+        // default
+        params.put("executionType","PARALLEL");
+        params.put("description","");
+        params.put("globalParams","[]");
+        params.put("timeout","0");
+        params.put("releaseState","OFFLINE");
+        params.put("otherParamsJson",null);
+        String result = HttpUtils.doPut(url, params, token);
+        return JSONUtils.getJSONObjectFromString(result);
     }
+
 
 
     /**
      * 删除工作流
-     * Delete
+     * DELETE
      * http://localhost:12345/dolphinscheduler/projects/14576322429504/process-definition/14581385154880
      *
      * @param projectCode
@@ -182,7 +272,7 @@ public abstract class DolphinSchedulerAPI {
 
     /**
      * 工作流上线/下线
-     * post
+     * POST
      * http://localhost:12345/dolphinscheduler/projects/14576322429504/process-definition/14579673180864/release
      *
      * @param projectCode
@@ -196,6 +286,37 @@ public abstract class DolphinSchedulerAPI {
         params.put("releaseState", releaseState);
         return JSONUtils.getJSONObjectFromString(HttpUtils.doPostForm(url, params, token));
     }
+
+
+    /**
+     * 查询指定工作流关系
+     * GET
+     * http://localhost:12345/dolphinscheduler/projects/14576322429504/lineages/list
+     *
+     * @param projectCode
+     * @return
+     * @throws IOException
+     */
+    public JSONObject queryWorkFlowLineage(long projectCode) throws IOException {
+        String url = baseUrl + String.format("/projects/%d/lineages/list",projectCode);
+        return JSONUtils.getJSONObjectFromString(HttpUtils.doGet(url,null,token));
+    }
+
+
+    /**
+     * 根据名称查询指定工作流关系
+     * GET
+     * http://localhost:12345/dolphinscheduler/projects/14576322429504/lineages/14576351243712
+     *
+     * @param projectCode
+     * @return
+     * @throws IOException
+     */
+    public JSONObject queryWorkFlowLineageByCode(long projectCode,long workFlowCode) throws IOException {
+        String url = baseUrl + String.format("/projects/%d/lineages/%d",projectCode,workFlowCode);
+        return JSONUtils.getJSONObjectFromString(HttpUtils.doGet(url,null,token));
+    }
+
 
 
     /**
@@ -306,18 +427,6 @@ public abstract class DolphinSchedulerAPI {
     public JSONObject offlineSchedule(long projectCode, int id) throws IOException {
         String url = baseUrl + String.format("/projects/%d/schedules/%d/offline", projectCode, id);
         return JSONUtils.getJSONObjectFromString(HttpUtils.doPostForm(url, null, token));
-    }
-
-
-    /**
-     * Get
-     * http://localhost:12345/dolphinscheduler/projects/14576322429504/lineages/list
-     *
-     * @return
-     */
-    public JSONObject queryWorkFlowLineage(long projectCode) throws IOException {
-        String url = baseUrl + String.format("/projects/%d/lineages/list", projectCode);
-        return JSONUtils.getJSONObjectFromString(HttpUtils.doGet(url, null, token));
     }
 
 

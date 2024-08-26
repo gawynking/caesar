@@ -4,18 +4,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.caesar.util.JSONUtils;
 import lombok.Data;
 
+import java.util.Random;
+
 @Data
 public class Location extends BaseModel{
 
     long taskCode;
-    int x = 100;
-    int y = 50;
+    int x = new Random().nextInt(100);
+    int y = new Random().nextInt(100);
 
     @Override
     protected BaseModel cloneSelf() {
 
         try{
             Location location = (Location)super.clone();
+            location.x = new Random().nextInt(100);
+            location.y = new Random().nextInt(100);
             return location;
         }catch (Exception e){
             e.printStackTrace();

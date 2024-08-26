@@ -1,11 +1,13 @@
 package com.caesar.scheduler.dolphin.model;
 
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.caesar.util.JSONUtils;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -120,6 +122,15 @@ public class DependenceModel extends BaseModel{
 
         @Override
         protected BaseModel cloneSelf() {
+            try{
+                TaskParams taskParams = (TaskParams)super.clone();
+                taskParams.localParams = new ArrayList<>();
+                taskParams.resourceList = new ArrayList<>();
+                taskParams.dependence = new Dependence();
+                return taskParams;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             return null;
         }
 
@@ -142,10 +153,19 @@ public class DependenceModel extends BaseModel{
 
         // 关系 AND | OR
         String relation = "AND";
-        List<DependTask> dependTaskList = new ArrayList<>();
+        List<DependTask> dependTaskList = Arrays.asList(new DependTask());
+
 
         @Override
         protected BaseModel cloneSelf() {
+            try{
+                Dependence dependence = (Dependence)super.clone();
+                dependence.dependTaskList = new ArrayList<>();
+                dependence.dependTaskList.add(new DependTask());
+                return dependence;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             return null;
         }
 
@@ -155,7 +175,11 @@ public class DependenceModel extends BaseModel{
             jsonObject.put("checkInterval",checkInterval);
             jsonObject.put("failurePolicy",failurePolicy);
             jsonObject.put("relation",relation);
-            jsonObject.put("dependTaskList",JSONUtils.getJSONArrayFromList(dependTaskList));
+            JSONArray dependTaskListJSONArray = JSONUtils.getJSONArray();
+            for(DependTask dependTask:dependTaskList){
+                dependTaskListJSONArray.add(dependTask.toJSONObject());
+            }
+            jsonObject.put("dependTaskList",dependTaskListJSONArray);
             return jsonObject;
         }
     }
@@ -169,6 +193,13 @@ public class DependenceModel extends BaseModel{
 
         @Override
         protected BaseModel cloneSelf() {
+            try{
+                DependTask dependTask = (DependTask)super.clone();
+                dependTask.dependItemList = new ArrayList<>();
+                return dependTask;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             return null;
         }
 
@@ -176,7 +207,11 @@ public class DependenceModel extends BaseModel{
         public JSONObject toJSONObject() {
             JSONObject jsonObject = JSONUtils.getJSONObject();
             jsonObject.put("relation",relation);
-            jsonObject.put("dependItemList",JSONUtils.getJSONArrayFromList(dependItemList));
+            JSONArray dependItemListJSONArray = JSONUtils.getJSONArray();
+            for(DependItem dependItem:dependItemList){
+                dependItemListJSONArray.add(dependItem.toJSONObject());
+            }
+            jsonObject.put("dependItemList",dependItemListJSONArray);
             return jsonObject;
         }
     }
@@ -198,6 +233,11 @@ public class DependenceModel extends BaseModel{
 
         @Override
         protected BaseModel cloneSelf() {
+            try{
+                return (DependItem)super.clone();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             return null;
         }
 

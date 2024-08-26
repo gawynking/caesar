@@ -11,11 +11,13 @@ public class HeraSchedulerInstance implements SchedulerInstance {
     }
 
     @Override
-    public void createTask(SchedulerModel schedulerModel) {
+    public String createTask(SchedulerModel schedulerModel) {
+        return null;
     }
 
     @Override
-    public void updateTask(String taskId, SchedulerModel schedulerModel) {
+    public String updateTask(SchedulerModel schedulerModel) {
+        return null;
     }
 
     @Override

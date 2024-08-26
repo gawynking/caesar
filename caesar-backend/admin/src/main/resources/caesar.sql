@@ -324,6 +324,7 @@ create table caesar_task_review_record(
     task_id         int not null                                                             comment '任务ID',
     task_name       varchar(128) not null                                                    comment '任务名称',
     version         int not null                                                             comment '版本号',
+    pre_version     int                                                                      comment '上一个版本号',
     submit_user_id  varchar(32)                                                              comment '提交用户ID',
     code_desc       varchar(512)                                                             comment '任务描述',
     review_level    int not null                                                             comment '审核级别: 1-initial 2-secondary 3-final',
