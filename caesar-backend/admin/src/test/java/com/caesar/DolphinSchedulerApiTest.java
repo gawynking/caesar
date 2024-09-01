@@ -3,12 +3,15 @@ package com.caesar;
 import com.alibaba.fastjson.JSONObject;
 import com.caesar.enums.SchedulingPeriod;
 import com.caesar.model.DependencyModel;
+import com.caesar.model.ScheduleResponse;
 import com.caesar.model.SchedulerModel;
-import com.caesar.scheduler.dolphin.DolphinSchedulerInstance;
+import com.caesar.scheduler.SchedulerFacade;
+import com.caesar.scheduler.dolphin.DolphinSchedulerProjectInstance;
+import com.caesar.scheduler.dolphin.DolphinSchedulerWorkflowInstance;
 import com.caesar.scheduler.dolphin.model.*;
 import com.caesar.scheduler.dolphin.process.DolphinSchedulerAPI;
 import com.caesar.scheduler.dolphin.process.DolphinSchedulerAPI320;
-import com.caesar.util.JSONUtils;
+import com.caesar.util.SchedulerUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -79,16 +82,16 @@ public class DolphinSchedulerApiTest {
 
         String locations = "[{\"taskCode\":14588264479296,\"x\":289,\"y\":46},{\"taskCode\":14588264479299,\"x\":66,\"y\":118}]";
 
-        JSONObject jsonObject = schedulerAPI.updateProcessDefinition(
-                projectCode,
-                name,
-                code,
-                locations,
-                taskRelationJson,
-                taskDefinitionJson
-        );
+//        JSONObject jsonObject = schedulerAPI.updateProcessDefinition(
+//                projectCode,
+//                name,
+//                code,
+//                locations,
+//                taskRelationJson,
+//                taskDefinitionJson
+//        );
 
-        System.out.println(jsonObject);
+//        System.out.println(jsonObject);
     }
 
     @Test
@@ -181,7 +184,7 @@ public class DolphinSchedulerApiTest {
      */
     @Test
     public void test16() throws Exception{
-        DolphinSchedulerInstance dolphinSchedulerInstance = new DolphinSchedulerInstance();
+        DolphinSchedulerProjectInstance dolphinSchedulerInstance = new DolphinSchedulerProjectInstance();
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
@@ -192,15 +195,14 @@ public class DolphinSchedulerApiTest {
         dependency.add(dependencyModel);
         schedulerModel.setDependency(dependency);
 
-        String task = dolphinSchedulerInstance.createTask(schedulerModel);
-        System.out.println("=============== " + task);
+        JSONObject task = dolphinSchedulerInstance.createTask(schedulerModel);
 
     }
 
 
     @Test
     public void test17() throws Exception{
-        DolphinSchedulerInstance dolphinSchedulerInstance = new DolphinSchedulerInstance();
+        DolphinSchedulerProjectInstance dolphinSchedulerInstance = new DolphinSchedulerProjectInstance();
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
@@ -211,8 +213,221 @@ public class DolphinSchedulerApiTest {
         dependency.add(dependencyModel);
         schedulerModel.setDependency(dependency);
 
-        String s = dolphinSchedulerInstance.updateTask(schedulerModel);
+        JSONObject s = dolphinSchedulerInstance.updateTask(schedulerModel);
         System.out.println("----------------- " + s);
 
     }
+
+
+    @Test
+    public void test18() throws Exception{
+        DolphinSchedulerProjectInstance dolphinSchedulerInstance = new DolphinSchedulerProjectInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar");
+        schedulerModel.setTaskNodeName("gawyn-test15");
+        schedulerModel.setTaskScript("echo test15-update");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel);
+        schedulerModel.setDependency(dependency);
+
+        JSONObject s = dolphinSchedulerInstance.deleteTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+    @Test
+    public void test19() throws Exception{
+        DolphinSchedulerProjectInstance dolphinSchedulerInstance = new DolphinSchedulerProjectInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar");
+        schedulerModel.setTaskNodeName("gawyn-test15");
+        schedulerModel.setTaskScript("echo test15-update");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel);
+        schedulerModel.setDependency(dependency);
+        schedulerModel.setReleaseState(1);
+
+//        String s = dolphinSchedulerInstance.deployTask(schedulerModel);
+//        System.out.println("----------------- " + s);
+        JSONObject release = dolphinSchedulerInstance.release(schedulerModel);
+        System.out.println(release);
+
+    }
+
+
+    @Test
+    public void test20() throws Exception{
+        DolphinSchedulerProjectInstance dolphinSchedulerInstance = new DolphinSchedulerProjectInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar");
+        schedulerModel.setTaskNodeName("gawyn-test15");
+        schedulerModel.setTaskScript("echo test15-update");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel);
+        schedulerModel.setDependency(dependency);
+
+        JSONObject s = dolphinSchedulerInstance.timingTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+
+    @Test
+    public void test21() throws Exception{
+        DolphinSchedulerProjectInstance dolphinSchedulerInstance = new DolphinSchedulerProjectInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar");
+        schedulerModel.setTaskNodeName("gawyn-test15");
+        schedulerModel.setTaskScript("echo test15-15-15");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel);
+        schedulerModel.setDependency(dependency);
+
+        JSONObject s = dolphinSchedulerInstance.deployTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+    @Test
+    public void test22() throws Exception{
+        DolphinSchedulerProjectInstance dolphinSchedulerInstance = new DolphinSchedulerProjectInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar");
+        schedulerModel.setTaskNodeName("gawyn-test15");
+        schedulerModel.setTaskScript("echo test15-update");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel);
+        schedulerModel.setDependency(dependency);
+
+        JSONObject s = dolphinSchedulerInstance.deleteTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+
+
+    @Test
+    public void test31() throws Exception{
+        DolphinSchedulerWorkflowInstance dolphinSchedulerInstance = new DolphinSchedulerWorkflowInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar___caesar");
+        schedulerModel.setTaskNodeName("idea-001");
+        schedulerModel.setTaskScript("echo idea-001");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
+        DependencyModel dependencyModel2 = new DependencyModel("level1-2", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel1);
+        dependency.add(dependencyModel2);
+        schedulerModel.setDependency(dependency);
+
+        JSONObject s = dolphinSchedulerInstance.createTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+    @Test
+    public void test32() throws Exception{
+        DolphinSchedulerWorkflowInstance dolphinSchedulerInstance = new DolphinSchedulerWorkflowInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar___caesar");
+        schedulerModel.setTaskNodeName("idea-001");
+        schedulerModel.setTaskScript("echo idea-001-update");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
+        DependencyModel dependencyModel2 = new DependencyModel("level1-2", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel1);
+        dependency.add(dependencyModel2);
+        schedulerModel.setDependency(dependency);
+
+        JSONObject s = dolphinSchedulerInstance.updateTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+    @Test
+    public void test33() throws Exception{
+        DolphinSchedulerWorkflowInstance dolphinSchedulerInstance = new DolphinSchedulerWorkflowInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar___caesar");
+        schedulerModel.setTaskNodeName("idea-001");
+        schedulerModel.setTaskScript("echo idea-001-update");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
+        DependencyModel dependencyModel2 = new DependencyModel("level1-2", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel1);
+        dependency.add(dependencyModel2);
+        schedulerModel.setDependency(dependency);
+
+        JSONObject s = dolphinSchedulerInstance.deleteTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+
+    @Test
+    public void test34() throws Exception{
+        DolphinSchedulerWorkflowInstance dolphinSchedulerInstance = new DolphinSchedulerWorkflowInstance();
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar___caesar");
+        schedulerModel.setTaskNodeName("idea-001");
+        schedulerModel.setTaskScript("echo idea-001-update1");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
+        DependencyModel dependencyModel2 = new DependencyModel("level1-2", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel1);
+        dependency.add(dependencyModel2);
+        schedulerModel.setDependency(dependency);
+
+        schedulerModel.setDelete(true);
+        JSONObject s = dolphinSchedulerInstance.deployTask(schedulerModel);
+        System.out.println("----------------- " + s);
+
+    }
+
+
+
+    @Test
+    public void test35() throws Exception{
+
+        SchedulerFacade schedulerFacade = SchedulerUtils.getScheduler(SchedulerUtils.getSchedulerEnumFromString("dolphin"));
+
+        SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setProject("caesar___caesar");
+        schedulerModel.setTaskNodeName("idea-001");
+        schedulerModel.setTaskScript("echo idea-001-update1-update");
+
+        List<DependencyModel> dependency = new ArrayList<>();
+        DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
+        DependencyModel dependencyModel2 = new DependencyModel("level1-2", SchedulingPeriod.DAY, "today");
+        dependency.add(dependencyModel1);
+        dependency.add(dependencyModel2);
+        schedulerModel.setDependency(dependency);
+
+        schedulerModel.setDelete(true);
+        ScheduleResponse response = schedulerFacade.deployTask(schedulerModel);
+        System.out.println("----------------- " + response);
+
+    }
+
 }

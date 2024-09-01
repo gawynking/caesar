@@ -19,7 +19,7 @@ public class Location extends BaseModel{
         try{
             Location location = (Location)super.clone();
             location.x = new Random().nextInt(100);
-            location.y = new Random().nextInt(100);
+            location.y = new Random().nextInt(500);
             return location;
         }catch (Exception e){
             e.printStackTrace();

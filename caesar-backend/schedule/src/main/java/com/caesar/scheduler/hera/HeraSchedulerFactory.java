@@ -13,7 +13,7 @@ public class HeraSchedulerFactory extends SchedulerType implements SchedulerFact
 
     @Override
     public SchedulerInstance createScheduler() {
-        return new HeraSchedulerInstance();
+        return null;
     }
 
     @Override

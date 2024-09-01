@@ -1,19 +1,26 @@
 package com.caesar.scheduler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.caesar.exception.GenTaskCodeFaildException;
 import com.caesar.exception.ProjectNotExistsException;
+import com.caesar.exception.TaskCodeNotNullException;
 import com.caesar.model.SchedulerModel;
+
 
 public interface SchedulerInstance {
 
-    void deployTask(SchedulerModel schedulerModel);
-    String createTask(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException;
-    String updateTask(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException;
-    void deleteTask(String taskId);
-    String queryTask(String taskId);
-    void pauseTask(String taskId);
-    void resumeTask(String taskId);
-    String queryTaskLogs(String taskId);
-    void addTaskDependency(String taskId, SchedulerModel schedulerModel);
+    JSONObject deployTask(SchedulerModel schedulerModel)throws ProjectNotExistsException,GenTaskCodeFaildException,TaskCodeNotNullException;
+
+    JSONObject createTask(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException;
+
+    JSONObject updateTask(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException, TaskCodeNotNullException;
+
+    JSONObject deleteTask(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException,TaskCodeNotNullException;
+
+    JSONObject release(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException;
+
+    JSONObject timingTask(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException;
+
+    JSONObject deleteTiming(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException;
 
 }

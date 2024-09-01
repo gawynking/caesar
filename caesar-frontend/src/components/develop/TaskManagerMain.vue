@@ -254,10 +254,11 @@
                     </el-tab-pane>
 
 
+                    <!--
                     <el-tab-pane label="数据监控" name="dqc" disabled>
 
                     </el-tab-pane>
-
+                    -->
 
                     <el-tab-pane label="任务管理" name="subtask-manager" disabled>
 

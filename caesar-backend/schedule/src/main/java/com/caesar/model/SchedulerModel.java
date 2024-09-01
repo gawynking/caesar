@@ -21,19 +21,19 @@ public class SchedulerModel {
     String taskNodeName;
 
     // 任务类型
-    TaskTypeEnum taskType;
+    TaskTypeEnum taskType = TaskTypeEnum.SHELL;
 
     // 优先级
     String priority;
 
     // 重试次数
-    int retryTimes;
+    int retryTimes = 5;
 
     // 重试间隔
-    int retryInterval;
+    int retryInterval = 1;
 
     // 开始时间
-    String beginTime;
+    String beginTime = "00:15:00";
 
     // 依赖任务
     List<DependencyModel> dependency;
@@ -52,5 +52,10 @@ public class SchedulerModel {
 
     // 脚本
     String taskScript;
+
+    // 任务上下线
+    int ReleaseState = 0;
+
+    boolean isDelete = false;
 
 }

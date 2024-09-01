@@ -122,7 +122,8 @@ public class ShellModel extends BaseModel{
 
         @Override
         protected BaseModel cloneSelf() {
-            return null;
+            TaskParams taskParams = new TaskParams();
+            return taskParams;
         }
 
         @Override
