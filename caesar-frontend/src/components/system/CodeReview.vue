@@ -84,8 +84,8 @@ export default {
 
       this.oldCode = task.lastCode;
       this.newCode = task.currentCode;
-      this.lastVersion = task.version;
-      this.currentVersion = task.preVersion;
+      this.lastVersion = task.preVersion;
+      this.currentVersion = task.version;
     },
     // 重置审核表单
     resetReviewForm() {
