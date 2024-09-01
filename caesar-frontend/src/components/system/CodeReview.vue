@@ -3,6 +3,7 @@
     <el-table :data="reviewTasks" style="width: 100%" border stripe highlight-current-row>
       <el-table-column prop="taskName" label="任务名称"></el-table-column>
       <el-table-column prop="version" label="版本号"></el-table-column>
+      <el-table-column prop="preVersion" label="上一个版本号"></el-table-column>
       <el-table-column prop="submitUsername" label="提交用户"></el-table-column>
       <el-table-column prop="codeDesc" label="代码描述"></el-table-column>
       <el-table-column prop="reviewStatus" label="审核状态" :formatter="formatReviewStatus"></el-table-column>
@@ -15,7 +16,12 @@
     </el-table>
 
     <!-- 审核对话框 -->
-    <el-dialog title="代码审核" :visible.sync="reviewDialogVisible" width="30%" @close="resetReviewForm">
+    <el-dialog title="代码审核" :visible.sync="reviewDialogVisible" width="85%" @close="resetReviewForm">
+      <el-row style="margin-bottom: 5px;">
+        <el-col :span="13"><span>Version(旧): {{ lastVersion }}</span></el-col>
+        <el-col :span="11"><span>Version(新): {{ currentVersion }}</span></el-col>
+      </el-row>
+      <CodeCompare :oldValue="oldCode" :newValue="newCode" :isReadOnly="true" style="margin-bottom: 30px;"/>
       <el-form ref="reviewForm" :model="reviewForm" label-width="80px">
         <el-form-item label="审核建议" prop="auditMessage">
           <el-input type="textarea" v-model="reviewForm.auditMessage"></el-input>
@@ -27,12 +33,17 @@
         <el-button type="danger" @click="submitReview(-1)">驳回</el-button>
       </span>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
 import { EventBus } from '../../common/event-bus';
+import CodeCompare from "../../common/CodeCompare.vue"; // 路径代入
 export default {
+  components: {
+        CodeCompare,
+    },
   data() {
     return {
       loginUser: "",
@@ -45,7 +56,11 @@ export default {
         taskId: null,
         reviewLevel: null,
         reviewStatus: null
-      }
+      },
+      oldCode:"",
+      newCode:"",
+      lastVersion:"",
+      currentVersion:""
     };
   },
   created() {
@@ -66,6 +81,11 @@ export default {
       this.reviewForm.reviewLevel = task.reviewLevel;
       this.reviewForm.reviewStatus = task.reviewStatus;
       this.reviewDialogVisible = true;
+
+      this.oldCode = task.lastCode;
+      this.newCode = task.currentCode;
+      this.lastVersion = task.version;
+      this.currentVersion = task.preVersion;
     },
     // 重置审核表单
     resetReviewForm() {

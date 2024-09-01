@@ -10,6 +10,7 @@ public class CaesarTaskReviewRecord extends BaseEntity{
     String reviewBatch;
     String taskName;
     int version;
+    int preVersion;
     int submitUserId;
     String codeDesc;
     int reviewLevel;

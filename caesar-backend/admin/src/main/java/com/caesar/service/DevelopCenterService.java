@@ -7,9 +7,9 @@ import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.vo.CaesarTaskParameterVo;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.response.CaesarTaskVersionVo;
+import com.caesar.enums.EngineEnum;
 import com.caesar.model.MenuModel;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -25,7 +25,7 @@ public interface DevelopCenterService extends IService<CaesarTask> {
     String defaultTaskScript = readTaskTemplate();
 
     static String readTaskTemplate() {
-        Resource resource = new ClassPathResource("TaskTemplate.code");
+        Resource resource = new ClassPathResource("template/DefaultTemplate.code");
         try {
             return IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
         } catch (IOException e) {
@@ -33,6 +33,8 @@ public interface DevelopCenterService extends IService<CaesarTask> {
             return null;
         }
     }
+
+    String getCodeTemplate(EngineEnum engine);
 
     List<MenuModel> listTaskToMenu(String partten);
 
@@ -57,4 +59,8 @@ public interface DevelopCenterService extends IService<CaesarTask> {
     CaesarTaskVo getCurrentTaskInfoWithVersion(String taskName, int version);
 
     Boolean taskPassReview2Online(int taskId);
+
+    Boolean currentVersionTaskOffline(int taskId);
+
+    CaesarTask getTaskOnlineVersionInfoFromReviewTaskId(int taskId);
 }

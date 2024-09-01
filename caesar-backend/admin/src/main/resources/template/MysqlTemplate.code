@@ -14,20 +14,23 @@
 ## 引擎参数
 
 ## 自定义UDF&参数
-# set etl_time = ${etl_time};
-
+set start_date = ${etl_date};
+set end_date = ${etl_date};
 
 ### Part Two ###############################################################################################
 ### Schema定义
 create table if not exists {{task_name}}(
+    id int not null auto_increment comment 'ID',
 
-) comment ''
-stored as parquet
+    etl_time timestamp not null default current_timestamp on update current_timestamp comment 'ETL加工时间: yyyy-MM-dd HH:mm:ss', -- 审计数据、必须存在
+    primary key(id)
+) engine = innodb default charset=utf8mb4
+comment ''
 ;
 
 ### Part Three #############################################################################################
 ### ETL处理
-insert overwrite table {{task_name}}
+insert into {{task_name}}() -- field list
 select
 
 from

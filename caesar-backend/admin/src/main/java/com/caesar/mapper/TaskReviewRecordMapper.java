@@ -32,13 +32,15 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             "\tt1.task_id,\n" +
             "\tt1.task_name,\n" +
             "\tt1.version,\n" +
+            "\tt1.pre_version,\n" +
             "\tt1.submit_username,\n" +
             "\tt1.code_desc,\n" +
             "\tt1.review_level,\n" +
             "\tt1.review_status,\n" +
             "\tt1.review_result,\n" +
-            "\tt1.create_time\n" +
-            "\t\n" +
+            "\tt1.create_time,\n" +
+            "\tt1.current_code,\n" +
+            "\tt1.last_code \n" +
             "from (\n" +
             "\tselect \n" +
             "\t\tt1.id,\n" +
@@ -46,14 +48,19 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             "\t\tt1.task_id,\n" +
             "\t\tt1.task_name,\n" +
             "\t\tt1.version,\n" +
+            "\t\tt1.pre_version,\n" +
             "\t\tt2.username as submit_username,\n" +
             "\t\tt1.code_desc,\n" +
             "\t\tt1.review_level,\n" +
             "\t\tt1.review_status,\n" +
             "\t\tt1.review_result,\n" +
-            "\t\tt1.create_time \n" +
+            "\t\tt1.create_time,\n" +
+            "\t\tt3.task_script as current_code,\n" +
+            "\t\tt4.task_script as last_code \n" +
             "\tfrom caesar_task_review_record t1 \n" +
             "\tjoin caesar_user t2 on t1.submit_user_id = t2.id \n" +
+            "\tjoin caesar_task t3 on t1.task_name = t3.task_name and t1.version = t3.version \n" +
+            "\tjoin caesar_task t4 on t1.task_name = t4.task_name and t1.pre_version = t4.version \n" +
             "\twhere find_in_set(#{loginUserId},review_users)\n" +
             "\t  and review_result = 0 -- 处理中 \n" +
             "\t  and review_status = 1 -- 处理中 \n" +
@@ -68,12 +75,15 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             "\tt1.task_id,\n" +
             "\tt1.task_name,\n" +
             "\tt1.version,\n" +
+            "\tt1.pre_version,\n" +
             "\tt1.submit_username,\n" +
             "\tt1.code_desc,\n" +
             "\tt1.review_level,\n" +
             "\tt1.review_status,\n" +
             "\tt1.review_result,\n" +
-            "\tt1.create_time\n" +
+            "\tt1.create_time,\n" +
+            "\tt1.current_code,\n" +
+            "\tt1.last_code\n" +
             "\t\n" +
             "having max(if(t2.review_level < t1.review_level,1,0)) != 1")
     List<CaesarReviewTaskDto> getReviewTaskListByUserId(int loginUserId);

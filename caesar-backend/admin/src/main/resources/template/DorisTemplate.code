@@ -1,0 +1,38 @@
+### Meta ###################################################################################################
+### 任务描述
+  作   者: {{username}}
+  创建时间: {{create_time}}
+  任务属组: {{group_name}}
+  任务名称: {{task_name}}
+  执行引擎: {{engine}}
+  详细说明:
+
+### Part One ###############################################################################################
+### 参数配置
+## 系统参数
+
+## 引擎参数
+
+## 自定义UDF&参数
+set start_date = ${etl_date};
+set end_date = ${etl_date};
+
+
+### Part Two ###############################################################################################
+### Schema定义
+create table if not exists {{task_name}}(
+    id int not null auto_increment comment 'ID',
+
+    etl_time timestamp not null default current_timestamp on update current_timestamp comment 'ETL加工时间: yyyy-MM-dd HH:mm:ss' -- 审计数据、必须存在
+) engine = innodb default charset=utf8mb4
+comment ''
+;
+
+### Part Three #############################################################################################
+### ETL处理
+insert into {{task_name}}
+select
+
+from
+where
+;

@@ -59,6 +59,11 @@ public class PublishServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impl
                 ) {
                     List<CaesarGroupReviewConfig> taskReviewConfigList = taskReviewConfigMapper.getCodeReviewConfig(publishDto.getGroupId(), publishDto.getTaskType());
 
+                    Integer preVersion = null;
+                    CaesarTask caesarTask = taskMapper.getOnlineTaskInfo(publishDto.getTaskName());
+                    preVersion = null == caesarTask?null:caesarTask.getVersion();
+
+
                     String reviewBatch = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
                     for (CaesarGroupReviewConfig taskReviewConfig : taskReviewConfigList) {
                         CaesarTaskReviewRecord taskReviewRecord = new CaesarTaskReviewRecord();
@@ -67,6 +72,9 @@ public class PublishServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impl
                         taskReviewRecord.setTaskName(publishDto.getTaskName());
                         taskReviewRecord.setReviewBatch(reviewBatch);
                         taskReviewRecord.setVersion(publishDto.getVersion());
+                        if(null != preVersion){
+                            taskReviewRecord.setPreVersion(preVersion);
+                        }
                         taskReviewRecord.setSubmitUserId(userMapper.getUserIdFromUserName(publishDto.getSubmitUsername()));
                         taskReviewRecord.setCodeDesc(publishDto.getCodeDesc());
                         taskReviewRecord.setReviewLevel(taskReviewConfig.getReviewLevel());

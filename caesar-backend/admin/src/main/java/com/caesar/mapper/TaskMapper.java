@@ -161,6 +161,33 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "  and is_online = 1")
     Boolean checkTaskVersionIsOnline(int taskId);
 
-    @Update("update caesar_task set is_online = 1 where id = #{taskId}")
+    @Update("update caesar_task set is_released = 1,is_online = 1 where id = #{taskId}")
     Boolean taskPassReview2Online(int taskId);
+
+    @Select("select * \n" +
+            "from caesar_task \n" +
+            "where task_name = #{taskName}\n" +
+            "  and version < #{version}\n" +
+            "order by version desc \n" +
+            "limit 1")
+    CaesarTask getPreVersionTaskInfo(String taskName, int version);
+
+    @Select("select * \n" +
+            "from caesar_task \n" +
+            "where task_name = #{taskName}\n" +
+            "  and is_online = 1")
+    CaesarTask getOnlineTaskInfo(String taskName);
+
+    @Update("update caesar_task set is_online = 0 where id = #{taskId} and is_online = 1")
+    Boolean currentVersionTaskOffline(int taskId);
+
+    @Select("select t1.* \n" +
+            "from caesar_task t1 \n" +
+            "join (\n" +
+            "\tselect task_name \n" +
+            "\tfrom caesar_task \n" +
+            "\twhere id = #{taskId} \n" +
+            ") t2 on t1.task_name = t2.task_name \n" +
+            "where t1.is_online = 1")
+    CaesarTask getTaskOnlineVersionInfoFromReviewTaskId(int taskId);
 }

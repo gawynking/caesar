@@ -2,7 +2,9 @@ package com.caesar.controller;
 
 import com.caesar.core.cache.Cache;
 import com.caesar.core.review.ReviewLevel;
+import com.caesar.entity.CaesarTask;
 import com.caesar.entity.dto.CaesarReviewTaskDto;
+import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.dto.CaesarTaskPublishDto;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.TaskPublishVo;
@@ -75,6 +77,10 @@ public class CodeReviewCenterController {
     ) {
         Boolean review = reviewService.review(id, taskId, reviewStatus, reviewResult, auditMessage);
         if(ReviewLevel.FINAL == ReviewLevel.fromKey(reviewLevel)) {
+            CaesarTask onlineTask = developCenterService.getTaskOnlineVersionInfoFromReviewTaskId(taskId);
+            if(null != onlineTask && onlineTask.getId() > 0) {
+                developCenterService.currentVersionTaskOffline(onlineTask.getId());
+            }
             developCenterService.taskPassReview2Online(taskId);
             Cache.codeReviewCache.remove(taskId);
         }

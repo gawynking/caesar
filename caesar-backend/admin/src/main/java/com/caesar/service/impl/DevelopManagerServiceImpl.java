@@ -2,6 +2,7 @@ package com.caesar.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.caesar.config.TemplateMapping;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.vo.CaesarTaskParameterVo;
@@ -15,9 +16,13 @@ import com.caesar.model.code.model.dto.TaskTemplateDto;
 import com.caesar.service.DevelopCenterService;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.*;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -44,6 +49,20 @@ public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTas
     TeamGroupMapper teamGroupMapper;
 
 
+    @Override
+    public String getCodeTemplate(EngineEnum engine){
+        if(null == engine){
+            return defaultTaskScript;
+        }
+        String path = TemplateMapping.getTemplatePath(engine);
+        org.springframework.core.io.Resource resource = new ClassPathResource(path);
+        try {
+            return IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return defaultTaskScript;
+    }
 
     @Override
     public List<MenuModel> listTaskToMenu(String partten) {
@@ -97,7 +116,7 @@ public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTas
             taskTemplateDto.setGroupName(groupName);
 
             String taskScript = taskTemplateMapper.getTaskTemplateScriptFromOwnerAndTasktype(taskDto.getCreatedUser(),taskDto.getTaskType());
-            if(null == taskScript) taskScript = defaultTaskScript;
+            if(null == taskScript) taskScript = this.getCodeTemplate(EngineEnum.fromEngine(engine));
             taskScript = TemplateAssembler.taskTemplateAssembler(taskScript, taskTemplateDto);
             taskDto.setTaskScript(taskScript);
             String checksum = HashUtils.getMD5Hash(taskScript);
@@ -191,6 +210,16 @@ public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTas
     @Override
     public Boolean taskPassReview2Online(int taskId) {
         return taskMapper.taskPassReview2Online(taskId);
+    }
+
+    @Override
+    public Boolean currentVersionTaskOffline(int taskId) {
+        return taskMapper.currentVersionTaskOffline(taskId);
+    }
+
+    @Override
+    public CaesarTask getTaskOnlineVersionInfoFromReviewTaskId(int taskId) {
+        return taskMapper.getTaskOnlineVersionInfoFromReviewTaskId(taskId);
     }
 
 
