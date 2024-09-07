@@ -1,6 +1,7 @@
 package com.caesar.scheduler.dolphin.process;
 
 import com.caesar.config.SchedulerConfig;
+import com.caesar.config.SchedulerConstant;
 
 import java.lang.reflect.Constructor;
 
@@ -9,9 +10,9 @@ public class DolphinSchedulerAPIFactory {
 
     public static DolphinSchedulerAPI getDolphinSchedulerAPI(){
 
-        String version = SchedulerConfig.VERSION;
-        String baseUrl = SchedulerConfig.BASE_URL;
-        String token = SchedulerConfig.TOKEN;
+        String version = SchedulerConfig.getString(SchedulerConstant.SCHEDULER_VERSION);
+        String baseUrl = SchedulerConfig.getString(SchedulerConstant.SCHEDULER_BASE_URL);
+        String token = SchedulerConfig.getString(SchedulerConstant.SCHEDULER_TOKEN);
         Object[] params = new Object[] { baseUrl, token };
 
         Class<?>[] paramTypes = new Class<?>[] { String.class, String.class };

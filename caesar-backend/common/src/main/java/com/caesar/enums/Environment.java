@@ -39,13 +39,4 @@ public enum Environment {
         throw new IllegalArgumentException("No enum constant with key " + key);
     }
 
-    public static void main(String[] args) {
-        // 示例使用
-        System.out.println(Environment.TEST); // 输出: Environment{key='test', value='Test Environment'}
-        System.out.println(Environment.TEST.getKey()); // 输出: test
-        System.out.println(Environment.TEST.getValue()); // 输出: Test Environment
-
-        // 从key获取枚举常量
-        System.out.println(Environment.fromKey("staging")); // 输出: Environment{key='staging', value='Staging Environment'}
-    }
 }

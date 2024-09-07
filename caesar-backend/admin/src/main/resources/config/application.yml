@@ -1,0 +1,25 @@
+server:
+  port: 8369
+  servlet:
+    context-path: /caesar
+
+
+spring:
+  application:
+    name: caesar
+  datasource:
+    url: jdbc:mysql://localhost:3306/caesar?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: mysql
+
+
+schedule:
+  type: dolphinscheduler
+  system: dolphinscheduler
+  project: caesar___caesar
+  base-url: http://localhost:12345/dolphinscheduler
+  version: 3.2.0
+  token: 86c184558e3e773655504a39e01a1eb6
+  level: workflow
+

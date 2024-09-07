@@ -1,5 +1,6 @@
 package com.caesar.scheduler.dolphin;
 
+import com.caesar.config.SchedulerConstant;
 import com.caesar.config.SchedulerConfig;
 import com.caesar.exception.NotExistsDolphinLevelException;
 import com.caesar.factory.SchedulerFactory;
@@ -16,9 +17,9 @@ public class DolphinSchedulerFactory extends SchedulerType implements SchedulerF
 
     @Override
     public SchedulerInstance createScheduler() throws NotExistsDolphinLevelException {
-        if(DolphinLevel.PROJECT == DolphinLevel.getByCode(SchedulerConfig.DOLPHIN_LEVEL)){
+        if(DolphinLevel.PROJECT == DolphinLevel.getByCode(SchedulerConfig.getString(SchedulerConstant.SCHEDULER_LEVEL))){
             return new DolphinSchedulerProjectInstance();
-        }else if(DolphinLevel.WORKFLOW == DolphinLevel.getByCode(SchedulerConfig.DOLPHIN_LEVEL)){
+        }else if(DolphinLevel.WORKFLOW == DolphinLevel.getByCode(SchedulerConfig.getString(SchedulerConstant.SCHEDULER_LEVEL))){
             return new DolphinSchedulerWorkflowInstance();
         }
         throw new NotExistsDolphinLevelException("指定了不被支持 Dolphin 调度级别，必须指定 dolphin_level in (project,workflow) 内");

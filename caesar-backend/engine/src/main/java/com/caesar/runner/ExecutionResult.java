@@ -1,8 +1,6 @@
 package com.caesar.runner;
 
 
-import com.caesar.shell.ShellTask;
-
 public class ExecutionResult<T> {
     private boolean success;
     private String message;

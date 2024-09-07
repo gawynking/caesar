@@ -1,4 +1,4 @@
-package com.caesar.sql.visitor;
+package com.caesar.sql.parse.visitor;
 
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.*;

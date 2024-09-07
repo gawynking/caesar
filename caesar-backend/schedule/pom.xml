@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>schedule</artifactId>
-<!--    <packaging>jar</packaging>-->
+    <packaging>jar</packaging>
     <name>schedule</name>
     <url>http://maven.apache.org</url>
 
@@ -33,4 +33,5 @@
         </dependency>
 
     </dependencies>
+
 </project>

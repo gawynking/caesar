@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>common</artifactId>
-<!--    <packaging>jar</packaging>-->
+    <packaging>jar</packaging>
     <name>common</name>
     <url>http://maven.apache.org</url>
 
@@ -27,6 +27,7 @@
         <redisson.version>3.7.0</redisson.version>
         <roaringbitmap.version>0.9.13</roaringbitmap.version>
         <httpclient.version>4.5.13</httpclient.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
     </properties>
 
     <dependencies>
@@ -152,5 +153,13 @@
             <artifactId>httpclient</artifactId>
             <version>${httpclient.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
+
     </dependencies>
+
 </project>

@@ -6,7 +6,7 @@ import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.util.JdbcConstants;
 import com.alibaba.druid.sql.SQLUtils;
-import com.caesar.sql.CaesarSQLUtils;
+import com.caesar.sql.parse.CaesarSQLUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

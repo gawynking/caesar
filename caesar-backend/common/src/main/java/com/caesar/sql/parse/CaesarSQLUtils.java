@@ -1,4 +1,4 @@
-package com.caesar.sql;
+package com.caesar.sql.parse;
 
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
@@ -10,7 +10,7 @@ import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
 import com.alibaba.druid.sql.visitor.VisitorFeature;
-import com.caesar.sql.visitor.DruidSQLOutputVisitor;
+import com.caesar.sql.parse.visitor.DruidSQLOutputVisitor;
 
 import java.util.List;
 
