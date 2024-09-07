@@ -5,4 +5,4 @@ pid=`ps aux | grep java | grep caesar | awk '{print $2}'`
 
 res=`kill -9 $pid`
 
-echo 关闭caesar成功,pid:$pid
+echo 关闭Caesar成功,pid:$pid

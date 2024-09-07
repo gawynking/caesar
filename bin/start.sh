@@ -1,7 +1,7 @@
 #!/bin/bash
-workDir=$(cd "$(dirname $0)";cd ..;pwd)
+work_dir=$(cd "$(dirname $0)";cd ..;pwd)
 JAVA_OPTS="-server -Xms4G -Xmx4G -Xmn2G -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -XX:CMSFullGCsBeforeCompaction=5 -XX:+CMSParallelInitialMarkEnabled -XX:CMSInitiatingOccupancyFraction=80  -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -Xloggc:/opt/logs/spring-boot/gc.log -XX:MetaspaceSize=128m -XX:+UseCMSCompactAtFullCollection -XX:MaxMetaspaceSize=128m -XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${workDir}/dump"
-log_dir="${workDir}/logs"
+log_dir="${work_dir}/logs"
 log_file="${log_dir}/all.log"
 
 
@@ -12,7 +12,7 @@ if [[ ! -d "${log_dir}" ]]; then
     echo "创建日志目录完成:${log_dir}"
 fi
 
-jar_file=`find ${workDir} -maxdepth 1 -name "caesar-*.jar"`
+jar_file=`find ${work_dir} -maxdepth 1 -name "caesar-*.jar"`
 
 echo ${jar_file}
 
@@ -23,6 +23,6 @@ if [[ -f "${jar_file}" ]]; then
     echo "启动完成,日志路径:${log_dir}"
     exit 0
 else
-    echo -e "\033[31m启动失败！！！无法在${workDir}目录找不到Caesar启动jar文件！\033[0m"
+    echo -e "\033[31m启动失败！！！无法在${work_dir}目录找不到Caesar启动jar文件！\033[0m"
     exit 1
 fi
