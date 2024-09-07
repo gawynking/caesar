@@ -6,3 +6,9 @@
 
 ## 系列作者：
 - GawynKing
+
+## 编译命令
+```shell
+mvn clean install package -Dmaven.test.skip=true
+```
+

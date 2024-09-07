@@ -1,3 +1,4 @@
+# Exclude files
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -55,3 +56,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# jar
+*.jar
+*.tar.gz

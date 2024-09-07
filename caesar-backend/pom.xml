@@ -10,10 +10,10 @@
     </parent>
 
     <modules>
-        <module>admin</module>
         <module>common</module>
         <module>schedule</module>
         <module>engine</module>
+        <module>admin</module>
     </modules>
 
     <artifactId>caesar-backend</artifactId>

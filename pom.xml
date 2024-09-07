@@ -24,6 +24,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<caesar.version>${version}</caesar.version>
+		<final-name>caesar-${name}-${version}</final-name>
 	</properties>
 
 	<dependencies>
@@ -54,18 +55,45 @@
 
 	</dependencies>
 
+
+	<!-- 使用spring打包插件打包 -->
+<!--	<build>-->
+<!--		<finalName>${final-name}</finalName>-->
+<!--		<plugins>-->
+<!--			<plugin>-->
+<!--				<groupId>org.springframework.boot</groupId>-->
+<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--				<configuration>-->
+<!--					<excludes>-->
+<!--						<exclude>-->
+<!--							<groupId>org.projectlombok</groupId>-->
+<!--							<artifactId>lombok</artifactId>-->
+<!--						</exclude>-->
+<!--					</excludes>-->
+<!--					<mainClass>com.caesar.CaesarApplication</mainClass>-->
+<!--					<classifier>runner</classifier>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
+<!--		</plugins>-->
+<!--	</build>-->
+
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.20</version>
+				<configuration>
+					<skipTests>false</skipTests>
+					<argLine>-Xmx2048m -Xms1024m -XX:MetaspaceSize=256m</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
