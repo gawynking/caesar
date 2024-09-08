@@ -1,7 +1,9 @@
 package com.caesar.config;
 
+import com.caesar.constant.EngineConfig;
 import com.caesar.util.JSONUtils;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
@@ -9,12 +11,12 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 
+@Component
 @Configuration
 public class publishConfig {
 
     private static final Logger LOGGER = Logger.getLogger(publishConfig.class.getName());
 
-//    private publishConfig(){}
 
     private static Map<String, Object> caesarConfig;
 
@@ -27,33 +29,55 @@ public class publishConfig {
                 throw new IllegalArgumentException("File not found: config/application.yml");
             }
             caesarConfig = yaml.load(inputStream);
+            LOGGER.info("Caesar full Configuration info: " + caesarConfig);
         } catch (Exception e) {
+            LOGGER.warning("Scheduler Initializing faild");
             e.printStackTrace();
         }
         // 分发配置
         publishCommon();
+        publishEngine();
         publishSchedule();
 
         LOGGER.info("Distribution of Caesar configuration ended");
     }
 
-    private static void publishSchedule(){
-        Map<String, Object> scheduleConfig = null;
-        if (caesarConfig == null || !caesarConfig.containsKey("schedule")) {
-            scheduleConfig = (Map<String, Object>)caesarConfig.get("schedule");
-        }
-        SchedulerConfig.setConfigMap(scheduleConfig);
-    }
 
     private static void publishCommon(){
         Map<String, Object> config = null;
-        if (caesarConfig == null) {
+        if (null != caesarConfig && caesarConfig.containsKey("spring")) {
             Map<String, Object> tmpConfig = (Map<String, Object>)caesarConfig.get("spring");
-            config = (Map<String, Object>) tmpConfig.get("datasource");
+            if(tmpConfig.containsKey("datasource")){
+                config = (Map<String, Object>) tmpConfig.get("datasource");
+            }
         }
         CommonConfig.setConfigMap(config);
+        LOGGER.info("Common Configuration: " + config);
     }
 
+
+    private static void publishEngine(){
+        Map<String, Object> engineConfig = null;
+        if (null != caesarConfig && caesarConfig.containsKey("engine")) {
+            engineConfig = (Map<String, Object>)caesarConfig.get("engine");
+        }
+        EngineConfig.setConfigMap(engineConfig);
+        LOGGER.info("Engine Configuration: " + engineConfig);
+    }
+
+
+    private static void publishSchedule(){
+        Map<String, Object> scheduleConfig = null;
+        if (null != caesarConfig && caesarConfig.containsKey("schedule")) {
+            scheduleConfig = (Map<String, Object>)caesarConfig.get("schedule");
+        }
+        SchedulerConfig.setConfigMap(scheduleConfig);
+        LOGGER.info("Schedule Configuration: " + scheduleConfig);
+    }
+
+    public Map<String, Object> getCaesarConfig(){
+        return caesarConfig;
+    }
 
     public static void main(String[] args) {
         System.out.println(JSONUtils.getJSONObjectFromMap(caesarConfig));

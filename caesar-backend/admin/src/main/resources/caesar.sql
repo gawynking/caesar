@@ -39,11 +39,6 @@ insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_ty
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(15,13,'schedule', '调度管理', 2, 2, 1,null);
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(16,13,'engine', '引擎管理', 2, 2, 1,null);
 
-insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(17, 1, 'realtime', '实时任务', 2, 1, 1,'{"task_type":2}');
-insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(18, 17, 'rt-ods', 'ODS', 2, 1, 1,'{"task_type":2}');
-insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(19, 17, 'rt-dw', 'DW', 2, 1, 1,'{"task_type":2}');
-insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(20, 17, 'rt-ads', 'ADS', 2, 1, 1,'{"task_type":2}');
-
 -- 根节点
 insert into caesar_menu (id, parent_id, menu_index, menu_name, location, node_type, menu_type,extend_properties) values(0, 0, 'root', '根页面', 0, 0, 1,null);
 update caesar_menu set id = 0 where menu_index = 'root';

@@ -13,18 +13,18 @@ import java.nio.file.Paths;
 
 public class TextEngine implements Engine {
 
-    private String code_dir;
+    private String codeDir;
 
     public TextEngine(String dir){
         if(!dir.endsWith("/")){
-            this.code_dir = dir + "/";
+            this.codeDir = dir + "/";
         }
     }
 
     @Override
     public ExecutionResult execute(TaskInfo task) {
 
-        String scriptPath = this.code_dir + task.getDbLevel() + "/" + task.getTaskName() + ".sql";
+        String scriptPath = this.codeDir + task.getDbLevel() + "/" + task.getTaskName() + ".sql";
         File scriptFile = new File(scriptPath);
 
         try {
@@ -39,7 +39,7 @@ public class TextEngine implements Engine {
                 writer.write(task.getCode());
             }
 
-            return new ExecutionResult(true, "File written successfully.");
+            return new ExecutionResult(true, "File written successfully.", scriptPath);
         } catch (IOException e) {
             e.printStackTrace();
             return new ExecutionResult(false, "Error writing file: " + e.getMessage());

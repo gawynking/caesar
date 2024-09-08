@@ -1,9 +1,9 @@
-package com.caesar.config;
+package com.caesar.constant;
 
 
 import java.util.Map;
 
-public class SchedulerConfig {
+public class EngineConfig {
 
     private static Map<String, ?> configMap;
 
@@ -17,6 +17,14 @@ public class SchedulerConfig {
 
     public static Map<String, ?> getScheduleProperties() {
         return configMap;
+    }
+
+    public static Map<String, ?> getMap(String key) {
+        Map<String, ?> scheduleProps = getScheduleProperties();
+        if (scheduleProps != null && scheduleProps.containsKey(key)) {
+            return (Map<String, ?>) scheduleProps.get(key);
+        }
+        return null;
     }
 
     public static String getString(String key) {

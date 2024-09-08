@@ -1,5 +1,7 @@
 package com.caesar.mysql.engine;
 
+import com.caesar.constant.EngineConfig;
+import com.caesar.constant.EngineConstant;
 import com.caesar.engine.Engine;
 import com.caesar.mysql.shell.MySQLCommand;
 import com.caesar.runner.ExecutionResult;
@@ -34,8 +36,12 @@ public class MySQLEngine extends ShellTask implements Engine {
     @Override
     public ExecutionResult execute(TaskInfo taskInfo) {
 
-        // 通过指定配置，灵活设置是以JDBC方式执行任务还是以Shell方式执行任务
-        return executeShell(taskInfo);
+        String priority = EngineConfig.getString(EngineConstant.PRIORITY);
+        if("jdbc".equals(priority)){
+            return executeJdbc(taskInfo);
+        }else {
+            return executeShell(taskInfo);
+        }
 
     }
 
@@ -69,7 +75,7 @@ public class MySQLEngine extends ShellTask implements Engine {
 
         JdbcUrlParserUtils.JdbcUrlInfo jdbcUrlInfo = JdbcUrlParserUtils.parseJdbcUrl(this.jdbcUrl);
 
-        commands.add("/opt/homebrew/Cellar/mysql@5.7/5.7.32/bin/mysql");
+        commands.add("mysql");
         commands.add("-u"+this.username);
         commands.add("-p"+this.password);
         commands.add("-h"+jdbcUrlInfo.getHostname());

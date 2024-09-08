@@ -10,6 +10,7 @@ import com.caesar.factory.SchedulerFactoryManager;
 import com.caesar.enums.SchedulerEnum;
 import com.caesar.model.ScheduleResponse;
 import com.caesar.model.SchedulerModel;
+import com.caesar.util.SchedulerUtils;
 
 
 public class SchedulerFacade {
@@ -24,6 +25,9 @@ public class SchedulerFacade {
 
 
     public SchedulerFacade(SchedulerEnum type) {
+        if(null == type){
+            type = SchedulerUtils.getSchedulerEnum();
+        }
         this.schedulerFactory = schedulerFactoryManager.getEngineFactory(type);
     }
 

@@ -1,25 +1,24 @@
-package com.caesar.none.factory;
+package com.caesar.hive.factory;
 
-import com.caesar.constant.EngineConfig;
 import com.caesar.constant.EngineConstant;
 import com.caesar.engine.Engine;
 import com.caesar.enums.EngineEnum;
 import com.caesar.factory.EngineFactory;
 import com.caesar.factory.EngineFactoryType;
-import com.caesar.none.engine.TextEngine;
+import com.caesar.hive.engine.HiveEngine;
+import com.caesar.mysql.engine.MySQLEngine;
 
 import java.util.Map;
 
-public class TextEngineFactory extends EngineFactoryType implements EngineFactory {
+public class HiveEngineFactory extends EngineFactoryType implements EngineFactory {
 
-    public TextEngineFactory(){
+    public HiveEngineFactory(){
         this.setEngineEnum();
     }
 
     @Override
     public Engine createEngine(Map<String, String> config) {
-        String codeDir = (String) EngineConfig.getMap("node").get(EngineConstant.CODE_DIR);
-        return new TextEngine(codeDir);
+        return new HiveEngine();
     }
 
     @Override
@@ -29,7 +28,7 @@ public class TextEngineFactory extends EngineFactoryType implements EngineFactor
 
     @Override
     public void setEngineEnum() {
-        engineEnum = EngineEnum.NONE;
+        this.engineEnum = EngineEnum.HIVE;
     }
 
 }

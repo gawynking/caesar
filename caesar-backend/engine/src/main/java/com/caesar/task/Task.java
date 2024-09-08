@@ -1,11 +1,14 @@
 package com.caesar.task;
 
+import com.caesar.constant.EngineConfig;
+import com.caesar.constant.EngineConstant;
 import com.caesar.runner.ExecutionResult;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public abstract class Task {
@@ -65,5 +68,11 @@ public abstract class Task {
         }
         return commands.toArray(new String[0]);
     }
+
+    public Map<String,String> genEnvironment(){
+        Map<String, String> envMap = (Map<String, String>) EngineConfig.getMap(EngineConstant.ENVIRONMENT);
+        return envMap;
+    }
+
 
 }

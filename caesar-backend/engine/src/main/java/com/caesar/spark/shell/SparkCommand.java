@@ -6,20 +6,20 @@ import com.caesar.task.Task;
 
 public class SparkCommand implements Command {
     private SparkReceiver receiver;
-    private String command = "spark-submit --master";
+    private String[] command;
 
-    public SparkCommand() {
+    public SparkCommand(String[] command) {
         this.receiver = new SparkReceiver();
     }
 
     @Override
     public ExecutionResult execute() {
-        return receiver.runSparkJob(command);
+        return receiver.runSparkQuery(command);
     }
 
     @Override
     public ExecutionResult cancel(Task task) {
-        return receiver.cancelSparkJob(command);
+        return receiver.cancelSparkQuery(task.getId());
     }
 
 }

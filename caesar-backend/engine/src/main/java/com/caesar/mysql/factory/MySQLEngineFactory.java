@@ -1,6 +1,6 @@
 package com.caesar.mysql.factory;
 
-import com.caesar.constant.Constant;
+import com.caesar.constant.EngineConstant;
 import com.caesar.engine.Engine;
 import com.caesar.enums.EngineEnum;
 import com.caesar.factory.EngineFactory;
@@ -17,10 +17,10 @@ public class MySQLEngineFactory extends EngineFactoryType implements EngineFacto
 
     @Override
     public Engine createEngine(Map<String, String> config) {
-        String jdbcDriver = config.get(Constant.DRIVER);
-        String jdbcUrl = config.get(Constant.URL);
-        String username = config.get(Constant.USERNAME);
-        String password = config.get(Constant.PASSWORD);
+        String jdbcDriver = config.get(EngineConstant.DRIVER);
+        String jdbcUrl = config.get(EngineConstant.URL);
+        String username = config.get(EngineConstant.USERNAME);
+        String password = config.get(EngineConstant.PASSWORD);
         return new MySQLEngine(jdbcDriver,jdbcUrl,username,password);
     }
 

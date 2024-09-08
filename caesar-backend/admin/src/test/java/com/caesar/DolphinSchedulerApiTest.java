@@ -410,7 +410,7 @@ public class DolphinSchedulerApiTest {
     @Test
     public void test35() throws Exception{
 
-        SchedulerFacade schedulerFacade = SchedulerUtils.getScheduler(SchedulerUtils.getSchedulerEnumFromString("dolphin"));
+        SchedulerFacade schedulerFacade = SchedulerUtils.getScheduler();
 
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar___caesar");

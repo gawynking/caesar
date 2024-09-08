@@ -1,6 +1,8 @@
 package com.caesar.shell;
 
 
+import com.caesar.constant.EngineConfig;
+import com.caesar.constant.EngineConstant;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.task.Task;
 import com.caesar.util.StringUtils;
@@ -11,8 +13,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class ShellTask extends Task {
+
+    private static final Logger LOGGER = Logger.getLogger(ShellTask.class.getName());
 
     protected String systemUser;
 
@@ -28,17 +33,20 @@ public class ShellTask extends Task {
         return commandList;
     }
 
+
     @Override
     public ExecutionResult<Task> run() throws Exception {
 
         String[] commands = this.getCommand();
 
-
-
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
 
         try {
             Map<String, String> environment = processBuilder.environment();
+            environment.putAll(this.genEnvironment());
+
+            LOGGER.info("Environment: " + environment);
+
             Process process = processBuilder.start();
 //            long pid = process.pid();
             this.setProcess(process);

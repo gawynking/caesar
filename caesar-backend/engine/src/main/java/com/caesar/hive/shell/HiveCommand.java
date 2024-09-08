@@ -6,9 +6,9 @@ import com.caesar.task.Task;
 
 public class HiveCommand implements Command {
     private HiveReceiver receiver;
-    private String command = "hive -e ";
+    private String[] command;
 
-    public HiveCommand() {
+    public HiveCommand(String[] command) {
         this.receiver = new HiveReceiver();
     }
 
@@ -19,7 +19,7 @@ public class HiveCommand implements Command {
 
     @Override
     public ExecutionResult cancel(Task task) {
-        return receiver.cancelHiveQuery(command);
+        return receiver.cancelHiveQuery(task.getId());
     }
 
 }

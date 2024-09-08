@@ -1,6 +1,6 @@
 package com.caesar.constant;
 
-public interface Constant {
+public interface EngineConstant {
 
 
     public static final String DRIVER = "driver";
@@ -9,7 +9,10 @@ public interface Constant {
     public static final String PASSWORD = "password";
 
 
-    public static final String CODE_DIR = "code_dir";
+    public static final String PRIORITY = "priority";
 
+    public static final String CODE_DIR = "code-dir";
+
+    public static final String ENVIRONMENT = "environment";
 
 }
