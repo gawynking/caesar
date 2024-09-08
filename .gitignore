@@ -60,3 +60,5 @@ pnpm-debug.log*
 # jar
 *.jar
 *.tar.gz
+
+dist
