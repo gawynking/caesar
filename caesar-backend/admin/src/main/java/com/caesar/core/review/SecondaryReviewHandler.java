@@ -1,10 +1,10 @@
 package com.caesar.core.review;
 
 import com.caesar.core.cache.Cache;
-import com.caesar.entity.dto.CaesarGroupReviewConfig;
+import com.caesar.entity.dto.CaesarGroupReviewConfigDto;
 
 public class SecondaryReviewHandler extends ReviewHandler {
-    public SecondaryReviewHandler(ReviewLevel level, CaesarGroupReviewConfig taskReviewConfig) {
+    public SecondaryReviewHandler(ReviewLevel level, CaesarGroupReviewConfigDto taskReviewConfig) {
         super(level,taskReviewConfig);
     }
 

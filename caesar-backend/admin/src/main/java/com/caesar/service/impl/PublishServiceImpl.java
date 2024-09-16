@@ -8,7 +8,7 @@ import com.caesar.core.review.ReviewLevel;
 import com.caesar.core.review.ReviewRequest;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.CaesarTaskReviewRecord;
-import com.caesar.entity.dto.CaesarGroupReviewConfig;
+import com.caesar.entity.dto.CaesarGroupReviewConfigDto;
 import com.caesar.entity.dto.CaesarTaskPublishDto;
 import com.caesar.entity.state.ReviewState;
 import com.caesar.mapper.TaskMapper;
@@ -57,7 +57,7 @@ public class PublishServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impl
                     !taskReviewRecordMapper.taskAlreadySubmitted(publishDto.getTaskId()) ||
                     null != Cache.codeReviewCache.get(publishDto.getTaskId())
                 ) {
-                    List<CaesarGroupReviewConfig> taskReviewConfigList = taskReviewConfigMapper.getCodeReviewConfig(publishDto.getGroupId(), publishDto.getTaskType());
+                    List<CaesarGroupReviewConfigDto> taskReviewConfigList = taskReviewConfigMapper.getCodeReviewConfig(publishDto.getGroupId(), publishDto.getTaskType());
 
                     Integer preVersion = null;
                     CaesarTask caesarTask = taskMapper.getOnlineTaskInfo(publishDto.getTaskName());
@@ -65,7 +65,7 @@ public class PublishServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impl
 
 
                     String reviewBatch = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
-                    for (CaesarGroupReviewConfig taskReviewConfig : taskReviewConfigList) {
+                    for (CaesarGroupReviewConfigDto taskReviewConfig : taskReviewConfigList) {
                         CaesarTaskReviewRecord taskReviewRecord = new CaesarTaskReviewRecord();
                         taskReviewRecord.setUuid(UUID.randomUUID().toString().toLowerCase().replaceAll("-", ""));
                         taskReviewRecord.setTaskId(publishDto.getTaskId());
@@ -82,8 +82,8 @@ public class PublishServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impl
                         taskReviewRecord.setReviewResult(0);
 
                         List<Integer> reviewUserList = new ArrayList<>();
-                        List<CaesarGroupReviewConfig.UserMapper> userList = taskReviewConfig.getReviewUserList();
-                        for(CaesarGroupReviewConfig.UserMapper user:userList){
+                        List<CaesarGroupReviewConfigDto.UserMapper> userList = taskReviewConfig.getReviewUserList();
+                        for(CaesarGroupReviewConfigDto.UserMapper user:userList){
                             reviewUserList.add(user.getUserId());
                         }
                         taskReviewRecord.setReviewUsers(reviewUserList.toString().replaceAll("\\[","").replaceAll("\\]","").replaceAll("\\s",""));

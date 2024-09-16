@@ -8,7 +8,6 @@ import com.caesar.model.DependencyModel;
 import com.caesar.model.SchedulerModel;
 import com.caesar.scheduler.SchedulerInstance;
 import com.caesar.scheduler.dolphin.model.BaseModel;
-import com.caesar.scheduler.dolphin.model.Location;
 import com.caesar.scheduler.dolphin.model.ShellModel;
 import com.caesar.util.StringUtils;
 
@@ -64,7 +63,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         if(null == taskDefinitionCode){
             result = this.createTask(schedulerModel);
         }else{
-            if(schedulerModel.isDelete()){
+            if(schedulerModel.getIsDelete()){
                 result = deleteTask(schedulerModel);
             }else{
                 result = updateTask(schedulerModel);
@@ -115,7 +114,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         ShellModel shellModel = (ShellModel) BaseModel.getModelMapper().get(ShellModel.class.getName()).getModel();
         shellModel.setCode(taskCode);
         shellModel.setName(schedulerModel.getTaskNodeName());
-        shellModel.getTaskParams().setRawScript(schedulerModel.getTaskScript());
+        shellModel.getTaskParams().setRawScript(schedulerModel.getExecTaskScript());
 
         taskDefinitionJsonObj = shellModel.toJSONObject().toString();
 
@@ -192,7 +191,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         ShellModel shellModel = (ShellModel) BaseModel.getModelMapper().get(ShellModel.class.getName()).getModel();
         shellModel.setCode(taskDefinitionCode);
         shellModel.setName(schedulerModel.getTaskNodeName());
-        shellModel.getTaskParams().setRawScript(schedulerModel.getTaskScript());
+        shellModel.getTaskParams().setRawScript(schedulerModel.getExecTaskScript());
 
         taskDefinitionJsonObj = shellModel.toJSONObject().toString();
 

@@ -3,11 +3,10 @@ package com.caesar.entity.dto;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Data
-public class CaesarGroupReviewConfig {
+public class CaesarGroupReviewConfigDto {
 
     int taskId;
     String uuid;

@@ -124,7 +124,7 @@ create table caesar_user(
 ) engine = innodb default charset=utf8mb4
 comment '用户表'
 ;
-insert into caesar_user(id,username,password,email,phone,is_activated)values(1,'GawynKing','123','gawynking@gmail.com','15999998888',1);
+insert into caesar_user(id,username,password,email,phone,is_activated)values(1,'admin','admin','gawynking@gmail.com','15999998888',1);
 
 
 -- 用户组表
@@ -334,3 +334,49 @@ create table caesar_task_review_record(
 )engine = innodb default charset=utf8mb4
 comment '任务审核流程表'
 ;
+
+-- 调度配置表
+drop table if exists caesar_schedule_config;
+create table caesar_schedule_config(
+    id                  int auto_increment                                                       comment 'ID',
+    task_name           varchar(128) not null                                                    comment '调度对应任务名称',
+    task_version        int not null                                                             comment '调度对应任务版本',
+    schedule_category   int not null                                                             comment '调度类别: 1-DolphinScheduler 2-Hera',
+    schedule_level      int default 1 not null                                                   comment '调度部署级别: 1-workflow 2-project',
+    project             varchar(64) not null                                                     comment '项目名称',
+    schedule_code       varchar(64) not null                                                     comment '调度唯一编码',
+    schedule_name       varchar(128) not null                                                    comment '调度名称',
+    release_status      int not null                                                             comment '在线状态: 1-在线 2-离线',
+    task_type           int not null default 1                                                   comment '调度类型: 1-shell',
+    schedule_params     varchar(512)                                                             comment '任务参数',
+    task_priority       int default 2                                                            comment '调度优先级',
+    fail_retry_times    int default null                                                         comment '失败重试次数',
+    fail_retry_interval int default null                                                         comment '失败重试间隔',
+    begin_time          varchar(32) default '00:15:00'                                           comment '任务启动时间',
+    period              varchar(32) default 'day'                                                comment '调度周期',
+    date_value          varchar(32) default 'today'                                              comment '依赖日期',
+    owner_id            int                                                                      comment '创建人',
+    version             int not null                                                             comment '版本号',
+    create_time         timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time         timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+)engine = innodb default charset=utf8mb4
+comment '调度配置表'
+;
+
+
+-- 调度依赖关系表
+drop table if exists caesar_schedule_dependency;
+create table caesar_schedule_dependency(
+    id                  int auto_increment                                                       comment 'ID',
+    schedule_code       varchar(32) not null                                                     comment '调度唯一编码',
+    pre_schedule_code   varchar(32) not null                                                     comment '依赖任务唯一编码',
+    join_type           int default 1 not null                                                   comment '加入方式: 1-自动识别 2-人工加入',
+    owner_id            int                                                                      comment '创建人ID',
+    create_time         timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time         timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+)engine = innodb default charset=utf8mb4
+comment '调度依赖关系表'
+;
+

@@ -72,7 +72,7 @@ public class DolphinSchedulerProjectInstance extends DolphinSchedulerBaseInstanc
             resultData.add(schedule);
             return result;
         }else {
-            if(schedulerModel.isDelete()){
+            if(schedulerModel.getIsDelete()){
                 result = deleteTask(schedulerModel);
                 return result;
             }else {
@@ -197,7 +197,7 @@ public class DolphinSchedulerProjectInstance extends DolphinSchedulerBaseInstanc
 
         taskDefinitionTask.setCode(taskCode);
         taskDefinitionTask.setName(name);
-        taskDefinitionTask.getTaskParams().setRawScript(schedulerModel.getTaskScript());
+        taskDefinitionTask.getTaskParams().setRawScript(schedulerModel.getExecTaskScript());
 
         taskDefinitionDepend.setCode(dependenceCode);
         taskDefinitionDepend.setName(name+".scheduler");
@@ -369,7 +369,7 @@ public class DolphinSchedulerProjectInstance extends DolphinSchedulerBaseInstanc
                 tmpTask.put("dependence",taskParams.toJSONObject().toString());
             }else {
                 JSONObject taskParams = (JSONObject)tmptaskDefinition.getJSONObject("taskParams").clone();
-                taskParams.put("rawScript",schedulerModel.getTaskScript());
+                taskParams.put("rawScript",schedulerModel.getExecTaskScript());
                 tmpTask.put("taskParams",taskParams);
             }
             taskDefinition.add(tmpTask);

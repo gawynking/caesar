@@ -2,7 +2,7 @@ package com.caesar.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarTaskReviewConfig;
-import com.caesar.entity.dto.CaesarGroupReviewConfig;
+import com.caesar.entity.dto.CaesarGroupReviewConfigDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -19,5 +19,5 @@ public interface TaskReviewConfigMapper extends BaseMapper<CaesarTaskReviewConfi
             "  and t1.task_type = #{taskType} \n" +
             "group by \n" +
             "\tt1.review_level")
-    List<CaesarGroupReviewConfig> getCodeReviewConfig(int groupId, int taskType);
+    List<CaesarGroupReviewConfigDto> getCodeReviewConfig(int groupId, int taskType);
 }

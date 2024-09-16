@@ -1,8 +1,6 @@
 package com.caesar.core.review;
 
-import com.caesar.core.cache.Cache;
-import com.caesar.entity.CaesarTaskReviewConfig;
-import com.caesar.entity.dto.CaesarGroupReviewConfig;
+import com.caesar.entity.dto.CaesarGroupReviewConfigDto;
 import com.caesar.mapper.TaskReviewRecordMapper;
 
 import javax.annotation.Resource;
@@ -18,11 +16,11 @@ public abstract class ReviewHandler implements Serializable {
 
     protected ReviewHandler nextHandler;
 
-    protected CaesarGroupReviewConfig taskReviewConfig;
+    protected CaesarGroupReviewConfigDto taskReviewConfig;
 
     ReviewRequest request;
 
-    public ReviewHandler(ReviewLevel level, CaesarGroupReviewConfig taskReviewConfig) {
+    public ReviewHandler(ReviewLevel level, CaesarGroupReviewConfigDto taskReviewConfig) {
         this.level = level;
         this.taskReviewConfig = taskReviewConfig;
     }

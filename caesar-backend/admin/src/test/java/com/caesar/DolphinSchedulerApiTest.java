@@ -188,7 +188,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
-        schedulerModel.setTaskScript("echo test15");
+        schedulerModel.setExecTaskScript("echo test15");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
@@ -206,7 +206,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
-        schedulerModel.setTaskScript("echo test15-update");
+        schedulerModel.setExecTaskScript("echo test15-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
@@ -225,7 +225,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
-        schedulerModel.setTaskScript("echo test15-update");
+        schedulerModel.setExecTaskScript("echo test15-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
@@ -244,7 +244,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
-        schedulerModel.setTaskScript("echo test15-update");
+        schedulerModel.setExecTaskScript("echo test15-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
@@ -266,7 +266,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
-        schedulerModel.setTaskScript("echo test15-update");
+        schedulerModel.setExecTaskScript("echo test15-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
@@ -286,7 +286,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
-        schedulerModel.setTaskScript("echo test15-15-15");
+        schedulerModel.setExecTaskScript("echo test15-15-15");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
@@ -305,7 +305,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar");
         schedulerModel.setTaskNodeName("gawyn-test15");
-        schedulerModel.setTaskScript("echo test15-update");
+        schedulerModel.setExecTaskScript("echo test15-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel = new DependencyModel("start", SchedulingPeriod.DAY, "today");
@@ -326,7 +326,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar___caesar");
         schedulerModel.setTaskNodeName("idea-001");
-        schedulerModel.setTaskScript("echo idea-001");
+        schedulerModel.setExecTaskScript("echo idea-001");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
@@ -347,7 +347,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar___caesar");
         schedulerModel.setTaskNodeName("idea-001");
-        schedulerModel.setTaskScript("echo idea-001-update");
+        schedulerModel.setExecTaskScript("echo idea-001-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
@@ -368,7 +368,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar___caesar");
         schedulerModel.setTaskNodeName("idea-001");
-        schedulerModel.setTaskScript("echo idea-001-update");
+        schedulerModel.setExecTaskScript("echo idea-001-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
@@ -390,7 +390,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar___caesar");
         schedulerModel.setTaskNodeName("idea-001");
-        schedulerModel.setTaskScript("echo idea-001-update1");
+        schedulerModel.setExecTaskScript("echo idea-001-update1");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");
@@ -415,7 +415,7 @@ public class DolphinSchedulerApiTest {
         SchedulerModel schedulerModel = new SchedulerModel();
         schedulerModel.setProject("caesar___caesar");
         schedulerModel.setTaskNodeName("idea-001");
-        schedulerModel.setTaskScript("echo idea-001-update1-update");
+        schedulerModel.setExecTaskScript("echo idea-001-update1-update");
 
         List<DependencyModel> dependency = new ArrayList<>();
         DependencyModel dependencyModel1 = new DependencyModel("level1-1", SchedulingPeriod.DAY, "today");

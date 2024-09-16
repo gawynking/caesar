@@ -24,7 +24,7 @@ public class SchedulerModel {
     TaskTypeEnum taskType = TaskTypeEnum.SHELL;
 
     // 优先级
-    String priority;
+    String priority = "MEDIUM";
 
     // 重试次数
     int retryTimes = 5;
@@ -50,12 +50,12 @@ public class SchedulerModel {
     // 执行类型
     String executionType = "PARALLEL";
 
-    // 脚本
-    String taskScript;
+    // 执行脚本
+    String execTaskScript;
 
     // 任务上下线
     int ReleaseState = 0;
 
-    boolean isDelete = false;
+    Boolean isDelete = false;
 
 }

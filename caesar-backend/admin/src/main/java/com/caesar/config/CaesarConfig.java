@@ -1,5 +1,6 @@
 package com.caesar.config;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,28 +9,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@Data
 public class CaesarConfig {
 
-    public static final Map<String, String> configMap = new HashMap<>();
+    @Value("${schedule.category}")
+    private String scheduleCategory;
 
+    @Value("${schedule.system}")
+    private String scheduleSystem;
 
-    public Map<String, String> getConfigMap() {
-        Class<?> clazz = this.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(Value.class)) {
-                field.setAccessible(true);
-                try {
-                    String key = field.getAnnotation(Value.class).value();
-                    key = key.replace("${", "").replace("}", "");
-                    String value = (String) field.get(this);
-                    configMap.put(key, value);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return configMap;
-    }
+    @Value("${schedule.project}")
+    private String scheduleProject;
+
+    @Value("${schedule.base-url}")
+    private String scheduleBaseUrl;
+
+    @Value("${schedule.version}")
+    private String scheduleVersion;
+
+    @Value("${schedule.token}")
+    private String scheduleToken;
+
+    @Value("${schedule.level}")
+    private String scheduleLevel;
 
 }

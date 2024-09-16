@@ -1,9 +1,7 @@
 package com.caesar.core;
 
-import com.caesar.core.cache.Cache;
 import com.caesar.core.review.*;
-import com.caesar.entity.CaesarTaskReviewConfig;
-import com.caesar.entity.dto.CaesarGroupReviewConfig;
+import com.caesar.entity.dto.CaesarGroupReviewConfigDto;
 import com.caesar.util.StringUtils;
 
 import java.util.*;
@@ -16,12 +14,12 @@ public class CodeReviewProcess {
      * @param taskReviewConfigList 审核配置列表 最多三级审核
      * @return
      */
-    public static ReviewHandler generalCodeReviewChain(List<CaesarGroupReviewConfig> taskReviewConfigList) throws ReviewLevelNotFoundException {
+    public static ReviewHandler generalCodeReviewChain(List<CaesarGroupReviewConfigDto> taskReviewConfigList) throws ReviewLevelNotFoundException {
 
 
         ArrayList<ReviewHandler> reviewHandlers = new ArrayList<>();
 
-        for(CaesarGroupReviewConfig taskReviewConfig:taskReviewConfigList){
+        for(CaesarGroupReviewConfigDto taskReviewConfig:taskReviewConfigList){
             if(StringUtils.isNotEmpty(taskReviewConfig.getReviewUsers())) {
                 ReviewLevel reviewLevel = ReviewLevel.fromKey(taskReviewConfig.getReviewLevel());
                 switch (reviewLevel) {
