@@ -359,7 +359,10 @@ create table caesar_schedule_config(
     version             int not null                                                             comment '版本号',
     create_time         timestamp not null default current_timestamp                             comment '创建时间戳',
     update_time         timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
-    primary key(id)
+    primary key(id),
+    unique key(schedule_name,version),
+    unique key(schedule_code,version),
+    unique key(schedule_code,release_status)
 )engine = innodb default charset=utf8mb4
 comment '调度配置表'
 ;

@@ -6,7 +6,7 @@ import lombok.Data;
 public class CaesarScheduleConfig extends BaseEntity{
 
     String taskName;                // 调度对应任务名称
-    String taskVersion;             // 调度对应任务版本
+    Integer taskVersion;             // 调度对应任务版本
     int scheduleCategory = 1;       // 调度类别: 1-DolphinScheduler 2-Hera
     int scheduleLevel = 1;          // 调度部署级别: 1-workflow 2-project
     String project;                 // 项目名称

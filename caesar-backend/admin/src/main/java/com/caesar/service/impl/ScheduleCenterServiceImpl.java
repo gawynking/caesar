@@ -8,6 +8,8 @@ import com.caesar.entity.dto.CaesarScheduleConfigDto;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
 import com.caesar.entity.vo.response.ScheduleInfoVo;
+import com.caesar.entity.vo.response.TaskDependency;
+import com.caesar.exception.SqlParseException;
 import com.caesar.mapper.ScheduleConfigMapper;
 import com.caesar.mapper.ScheduleDependencyMapper;
 import com.caesar.mapper.TaskMapper;
@@ -20,6 +22,7 @@ import com.caesar.scheduler.SchedulerFacade;
 import com.caesar.service.ScheduleCenterService;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.CaesarScheduleUtils;
+import com.caesar.util.SQLParserUtils;
 import com.caesar.util.ScheduleVersionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -94,6 +98,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         for(CaesarScheduleDependency dependency:taskDependencyList){
             ScheduleInfoVo.Dependency dependencyItem = new ScheduleInfoVo.Dependency();
             dependencyItem.setPreScheduleCode(dependency.getPreScheduleCode());
+            dependencyItem.setPreScheduleName(scheduleConfigMapper.getScheduleNameFromScheduleCode(dependency.getPreScheduleCode()));
             dependencyItem.setJoinType(dependency.getJoinType());
             dependencyItem.setOwnerId(dependency.getOwnerId());
             dependencyItem.setOwnerName(userMapper.getUsernameFromId(dependency.getOwnerId()));
@@ -103,9 +108,43 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         return scheduleInfoVo;
     }
 
+    @Override
+    public List<TaskDependency> getTaskDependencies(String taskName, Integer version, String period) throws SqlParseException {
+        String rawTaskCode = taskMapper.getCurrentTaskInfoWithVersion(taskName,version).getTaskScript();
+        TaskContentParser taskContentParser = new TaskContentParser(rawTaskCode);
+        String taskCode = TemplateUtils.transformSqlTemplate(taskContentParser);
+
+        List<TaskDependency> dependencys = new ArrayList<>();
+        for(String sql:taskCode.split(";")){
+            try {
+                List<Map<String, Integer>> tableFromTo = SQLParserUtils.getTableFromTo(sql);
+                Map<String, Integer> getFromTables = tableFromTo.get(1);
+                for(Map.Entry<String,Integer> entry:getFromTables.entrySet()){
+                    if(!dependencys.contains(entry.getKey())){
+                        List<CaesarScheduleConfigDto> scheduleConfigs = scheduleConfigMapper.findTaskScheduleConfigListFromTaskNameAndPeriod(entry.getKey(),period.toLowerCase());
+                        if(null != scheduleConfigs) {
+                            for(CaesarScheduleConfigDto scheduleConfig:scheduleConfigs) {
+                                TaskDependency taskDependency = new TaskDependency();
+                                taskDependency.setDependencyName(scheduleConfig.getScheduleName());
+                                taskDependency.setJoinTypeDesc("自动识别");
+                                dependencys.add(taskDependency);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new SqlParseException("SQL不能解析异常");
+            }
+        }
+
+        return dependencys;
+    }
+
 
     @Override
     public List<ScheduleInfoVo> getTaskSchedules(String taskName) {
+
         List<CaesarScheduleConfigDto> taskList = scheduleConfigMapper.getTaskSchedules(taskName);
         List<CaesarScheduleDependency> taskDependencyList = scheduleDependencyMapper.getTaskScheduleDependencys(taskName);
         List<ScheduleInfoVo> scheduleInfoVos = new ArrayList<>();
@@ -131,13 +170,16 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
                 if(scheduleConfig.getScheduleCode().equals(dependency.getScheduleCode())){
                     ScheduleInfoVo.Dependency dependencyItem = new ScheduleInfoVo.Dependency();
                     dependencyItem.setPreScheduleCode(dependency.getPreScheduleCode());
+                    dependencyItem.setPreScheduleName(scheduleConfigMapper.getScheduleNameFromScheduleCode(dependency.getPreScheduleCode()));
                     dependencyItem.setJoinType(dependency.getJoinType());
                     dependencyItem.setOwnerId(dependency.getOwnerId());
                     dependencyItem.setOwnerName(userMapper.getUsernameFromId(dependency.getOwnerId()));
                     dependencys.add(dependencyItem);
                 }
             }
+            scheduleInfoVos.add(scheduleInfoVo);
         }
+
         return scheduleInfoVos;
     }
 
@@ -155,7 +197,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         flag = insertTaskScheduleFlag;
         String scheduleCode = scheduleConfig.getScheduleCode();
         for(GeneralScheduleInfoVo.Dependency dependency:scheduleInfo.getDependency()){
-            dependency.setPreScheduleName(scheduleConfigMapper.getScheduleNameFromScheduleCode(dependency.getPreScheduleCode()));
+            dependency.setPreScheduleCode(scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(dependency.getPreScheduleName()));
             Boolean insertTaskDependencyFlag = updateTaskScheduleDenpendency(scheduleCode,dependency);
             if(!insertTaskDependencyFlag){
                 flag = false;
@@ -183,7 +225,8 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
     @Override
     public Boolean updateTaskSchedule(GeneralScheduleInfoVo scheduleInfo) {
         Boolean flag = false;
-        String scheduleCode = scheduleInfo.getScheduleCode();
+//        String scheduleCode = scheduleInfo.getScheduleCode();
+        String scheduleCode = scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(scheduleInfo.getScheduleName());
         CaesarScheduleConfig scheduleConfig = BeanConverterTools.convert(scheduleInfo, CaesarScheduleConfig.class);
         scheduleConfig.setScheduleCode(scheduleCode);
         scheduleConfig.setVersion(ScheduleVersionUtils.getInstance(scheduleConfigMapper).getVersion());
@@ -193,6 +236,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         flag = updateTaskScheduleFlag;
         for(GeneralScheduleInfoVo.Dependency dependency:scheduleInfo.getDependency()){
             dependency.setPreScheduleName(scheduleConfigMapper.getScheduleNameFromScheduleCode(dependency.getPreScheduleCode()));
+//            dependency.setPreScheduleCode(scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(dependency.getPreScheduleName()));
             Boolean insertTaskDependencyFlag = updateTaskScheduleDenpendency(scheduleCode,dependency);
             if(!insertTaskDependencyFlag){
                 flag = false;

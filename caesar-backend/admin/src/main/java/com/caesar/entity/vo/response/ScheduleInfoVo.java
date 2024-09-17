@@ -29,6 +29,7 @@ public class ScheduleInfoVo {
     @Data
     public static class Dependency{
         String preScheduleCode;
+        String preScheduleName;
         int joinType = 1;
         int ownerId;
         String ownerName;

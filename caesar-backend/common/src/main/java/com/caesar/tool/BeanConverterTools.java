@@ -31,9 +31,13 @@ public class BeanConverterTools {
                     targetField = targetClass.getDeclaredField(sourceField.getName());
                     targetField.setAccessible(true);
 
+                    if(null == sourceField.get(source)) { // IllegalArgumentException
+                       throw new IllegalArgumentException(sourceField.getName() + "值为null");
+                    }
+
                     // 将源字段的值设置到目标字段中
                     targetField.set(target, sourceField.get(source));
-                } catch (NoSuchFieldException e) {
+                } catch (Exception e) {
                     // 目标对象中没有与源字段同名的字段，忽略
                 }
             }

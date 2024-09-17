@@ -11,7 +11,7 @@
 
             <el-tab-pane v-for="(item, index) in editableTabs" :key="item.name" :label="item.title" :name="item.name">
 
-                <el-tabs v-model="item.activeName" class="indented-tab">
+                <el-tabs v-model="item.activeName" class="indented-tab" @tab-click="handleSencodTabClick">
                     <el-tab-pane label="数据开发" name="data-develop">
 
                         <div class="main-code-editor-menu">
@@ -75,16 +75,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
 
-                                <!-- <el-button type="primary" size="mini" plain @click="handleRefresh">回刷</el-button> -->
                                 <div>
-                                    <!-- <el-button 
-                                        type="primary" 
-                                        size="mini" 
-                                        :disabled="isOnlineTask"
-                                        style="margin-right: 10px;"
-                                        plain 
-                                        @click="handleRefresh"
-                                    >回刷</el-button> -->
                                     <el-dialog :visible.sync="dialogVisible" title="数据回刷">
                                         <el-form :model="form">
                                             <el-form-item label="回刷周期">
@@ -108,7 +99,6 @@
                                         </div>
                                     </el-dialog>
                                 </div>
-                                <!-- <el-button type="primary" size="mini" plain @click="handlePublish">发布</el-button> -->
                                 <div>
                                     <!-- 发布按钮 -->
                                     <el-button type="primary" size="mini" plain
@@ -131,12 +121,6 @@
                             </span>
                         </div>
 
-                        <!-- <div class="main-code-editor-area">
-                            <el-input type="textarea" size="small" :autosize="{ minRows: 25 }"
-                                v-model="item.dataDevelop.codeArea" autocomplete
-                                :readonly="item.dataDevelop.isCodeAreaReadOnly">
-                            </el-input>
-                        </div> -->
 
                         <div class="main-code-editor-area" style="margin-top: 10px;">
                             <CodeEditor v-model="item.dataDevelop.codeArea" :language="item.dataDevelop.language"
@@ -155,27 +139,27 @@
 
                     </el-tab-pane>
 
+
+
+
+
+                    <!-- 调度模块 -->
                     <el-tab-pane label="调度配置" name="schedule-config">
                         <div class="schedule-config">
                             <el-form :label-position="item.scheduleConfig.labelPosition" label-width="100px"
                                 :model="item.scheduleConfig" size="mini" class="form-layout">
-                                <el-row :gutter="20">
-                                    <el-col :span="12">
-                                        <el-form-item label="调度系统">
-                                            <el-input v-model="item.scheduleConfig.system" disabled></el-input>
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="12">
-                                        <el-form-item label="调度项目">
-                                            <el-input v-model="item.scheduleConfig.project" disabled></el-input>
-                                        </el-form-item>
+                                <el-row>
+                                    <el-col :span="22"><h3>编辑区</h3></el-col>
+                                    <el-col :span="2">
+                                        <el-button @click="reEdit">重置</el-button>
                                     </el-col>
                                 </el-row>
+                                
 
                                 <el-row :gutter="20">
                                     <el-col :span="12">
-                                        <el-form-item label="节点名称">
-                                            <el-input v-model="item.scheduleConfig.taskNodeName" disabled></el-input>
+                                        <el-form-item label="调度项目">
+                                            <el-input v-model="item.scheduleConfig.project" disabled></el-input>
                                         </el-form-item>
                                     </el-col>
                                     <el-col :span="12">
@@ -187,13 +171,19 @@
 
                                 <el-row :gutter="20">
                                     <el-col :span="12">
-                                        <el-form-item label="优先级">
-                                            <el-input v-model="item.scheduleConfig.priority"></el-input>
+                                        <el-form-item label="调度名称">
+                                            <div style="display: flex; align-items:flex-start">
+                                                <span>
+                                                    {{ item.scheduleConfig.taskNodeName }}
+                                                </span>
+                                                <el-input v-model="item.scheduleConfig.taskNodeNameSuffix" :disabled="!isEditable"
+                                                    style="flex-grow: 1; margin-left: 2px;"></el-input>
+                                            </div>
                                         </el-form-item>
                                     </el-col>
                                     <el-col :span="12">
-                                        <el-form-item label="重试次数">
-                                            <el-input v-model="item.scheduleConfig.retryTimes"></el-input>
+                                        <el-form-item label="优先级">
+                                            <el-input v-model="item.scheduleConfig.priority"></el-input>
                                         </el-form-item>
                                     </el-col>
                                 </el-row>
@@ -205,36 +195,67 @@
                                         </el-form-item>
                                     </el-col>
                                     <el-col :span="12">
-                                        <el-form-item label="开始时间">
-                                            <el-input v-model="item.scheduleConfig.beginTime"></el-input>
+                                        <el-form-item label="重试次数">
+                                            <el-input v-model="item.scheduleConfig.retryTimes"></el-input>
                                         </el-form-item>
                                     </el-col>
                                 </el-row>
+
+                                <el-row :gutter="20">
+                                    <el-col :span="12">
+                                        <el-form-item label="调度周期">
+                                            <el-select v-model="item.scheduleConfig.period" placeholder="请选择调度周期"
+                                                style="width: 100%">
+                                                <el-option label="天" value="day" default></el-option>
+                                                <el-option label="周" value="week"></el-option>
+                                                <el-option label="月" value="month"></el-option>
+                                                <el-option label="时" value="hour"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="开始时间">
+                                            <el-input v-model="item.scheduleConfig.beginTime"
+                                                style="width: 100%"></el-input>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+
+
+
 
                                 <el-form-item label="依赖任务">
                                     <el-divider></el-divider>
                                     <div class="align-end">
                                         <el-button type="primary" size="mini" plain
-                                            @click="identifyDependencies">依赖识别</el-button>
+                                            @click="fetchTaskDependencies">依赖识别</el-button>
                                     </div>
 
-                                    <el-table :data="item.scheduleConfig.dependency" style="width: 100%">
+                                    <el-empty v-if="!item.scheduleConfig.dependency.length"
+                                        description="暂无依赖数据"></el-empty>
+
+                                    <el-table v-else :data="item.scheduleConfig.dependency" style="width: 100%">
                                         <el-table-column label="上游依赖">
                                             <template slot-scope="scope">
                                                 <el-popover trigger="hover" placement="top">
                                                     <div slot="reference" class="name-wrapper">
-                                                        <el-tag size="medium">{{ scope.row.task }}</el-tag>
+                                                        <el-tag size="medium">{{ scope.row.dependencyName }}</el-tag>
                                                     </div>
                                                 </el-popover>
                                             </template>
                                         </el-table-column>
+                                        <el-table-column label="依赖识别类型">
+                                            <template slot-scope="scope">
+                                                <el-tag type="info" size="medium">{{ scope.row.joinTypeDesc }}</el-tag>
+                                            </template>
+                                        </el-table-column>
+
+
                                         <el-table-column label="操作">
                                             <template slot-scope="scope">
                                                 <div class="operation-buttons">
-                                                    <el-button size="mini"
-                                                        @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                                                     <el-button size="mini" type="danger"
-                                                        @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                                                        @click="handleDeleteDependency(scope.$index, scope.row)">删除</el-button>
                                                 </div>
                                             </template>
                                         </el-table-column>
@@ -242,135 +263,83 @@
 
                                     <div class="align-end margin-top">
                                         <el-button type="primary" size="mini" plain
-                                            @click="addDependency">添加</el-button>
+                                            @click="showAddDialog">添加</el-button>
                                     </div>
+
+
+
+                                    <el-dialog title="添加/编辑依赖" :visible.sync="updateDialogVisible" width="30%">
+                                        <el-form :model="currentDependency" ref="dependencyForm" label-width="120px">
+                                            <el-form-item label="依赖名称" prop="dependency"
+                                                :rules="[{ required: true, message: '请输入依赖名称', trigger: 'blur' }]">
+                                                <el-input v-model="currentDependency.dependencyName"></el-input>
+                                            </el-form-item>
+                                            <el-form-item label="依赖识别类型" prop="joinTypeDesc"
+                                                :rules="[{ required: true, message: '请选择依赖识别类型', trigger: 'change' }]">
+                                                <el-select v-model="currentDependency.joinTypeDesc" placeholder="请选择类型"
+                                                    disabled>
+                                                    <el-option label="人工维护" value="人工维护" selected></el-option>
+                                                    <!-- 更多选项已移除，因为类型是固定的 -->
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-form>
+                                        <span slot="footer" class="dialog-footer">
+                                            <el-button @click="updateDialogVisible = false">取 消</el-button>
+                                            <el-button type="primary" @click="saveDependency">{{ isEditMode ? '保存' :
+                                                '添加' }}</el-button>
+                                        </span>
+                                    </el-dialog>
+
+
+
+                                    <!-- 删除确认对话框 -->
+                                    <el-dialog title="确认删除" :visible.sync="deleteDialogVisible" width="30%">
+                                        <p>确定删除依赖: "{{ currentDependency.dependencyName }}" 吗？</p>
+                                        <span slot="footer" class="dialog-footer">
+                                            <el-button @click="deleteDialogVisible = false">取 消</el-button>
+                                            <el-button type="primary" @click="confirmDelete">确 定</el-button>
+                                        </span>
+                                    </el-dialog>
                                 </el-form-item>
 
-                                <div class="align-end margin-top">
-                                    <el-button type="primary" size="mini" plain @click="handleSave">保存</el-button>
-                                </div>
 
-                                <el-divider content-position="left">在行调度列表</el-divider>
-
-                                <el-descriptions title="T+1调度: dim.dim_date.day">
-                                    <el-descriptions-item label="调度系统">{{ item.scheduleConfig.system
-                                        }}</el-descriptions-item>
-                                    <el-descriptions-item label="任务类型">{{ item.scheduleConfig.taskType
-                                        }}</el-descriptions-item>
-                                    <el-descriptions-item label="优先级">{{ item.scheduleConfig.priority
-                                        }}</el-descriptions-item>
-                                    <el-descriptions-item label="重试次数">{{ item.scheduleConfig.retryTimes
-                                        }}</el-descriptions-item>
-                                    <el-descriptions-item label="重试间隔(分)">{{ item.scheduleConfig.retryInterval
-                                        }}</el-descriptions-item>
-                                    <el-descriptions-item label="开始时间">{{ item.scheduleConfig.beginTime
-                                        }}</el-descriptions-item>
-                                </el-descriptions>
 
                                 <div class="align-end margin-top">
-                                    <el-button type="primary" size="mini" plain @click="handleEditConfig">编辑</el-button>
-                                    <el-button type="danger" size="mini" plain
-                                        @click="handleDeleteConfig">删除</el-button>
+                                    <el-button type="primary" size="mini" plain
+                                        @click="confirmSaveTaskDependency">保存</el-button> 
                                 </div>
+
+
+                                <div style="margin-top: 35px;">
+                                    <el-divider content-position="left"><h3>调度列表</h3></el-divider>
+
+                                    <el-descriptions v-for="(schedule, index) in item.scheduleList" :key="index" :title="'调度名称: ' + schedule.scheduleName" :border="true">
+                                        <el-descriptions-item label="调度项目">{{ schedule.project }}</el-descriptions-item>
+                                        <el-descriptions-item label="任务类型">
+                                            {{ schedule.taskType === 1 ? 'shell' : '未知类型' }}
+                                        </el-descriptions-item>
+                                        <el-descriptions-item label="优先级">
+                                            {{ schedule.taskPriority === 1 ? 'lower' : schedule.taskPriority === 2 ?
+                                                'medium' : schedule.taskPriority === 3
+                                            ? 'higher' : 'other'}}
+                                        </el-descriptions-item>
+                                        <el-descriptions-item label="重试间隔(分)">{{schedule.failRetryInterval}}</el-descriptions-item>
+                                        <el-descriptions-item label="重试次数">{{ schedule.failRetryTimes}}</el-descriptions-item>
+                                        <el-descriptions-item label="调度周期">{{ schedule.period }}</el-descriptions-item>
+                                        <el-descriptions-item label="开始时间">{{ schedule.beginTime }}</el-descriptions-item>
+
+                                        <el-descriptions-item label="操作">
+                                            <div class="align-end margin-top" style="text-align: right;">
+                                                <el-button type="primary" size="mini" plain @click="handleEditConfig(schedule)">编辑</el-button>
+                                                <el-button type="danger" size="mini" plain @click="handleDeleteConfig(schedule)">删除</el-button>
+                                            </div>
+                                        </el-descriptions-item>
+                                    </el-descriptions>
+                                </div>
+
                             </el-form>
                         </div>
                     </el-tab-pane>
-
-                    <!-- <el-tab-pane label="调度配置" name="schedule-config">
-                        <div class="schedule-config">
-                            <div style="margin: 20px;"></div>
-                            <el-form :label-position="item.scheduleConfig.labelPosition" label-width="100px"
-                                :model="item.scheduleConfig" size="mini" style="width: 50%;">
-                                <el-form-item label="调度系统">
-                                    <el-input v-model="item.scheduleConfig.system" disabled></el-input>
-                                </el-form-item>
-                                <el-form-item label="调度项目">
-                                    <el-input v-model="item.scheduleConfig.project" disabled></el-input>
-                                </el-form-item>
-                                <el-form-item label="节点名称">
-                                    <el-input v-model="item.scheduleConfig.taskNodeName" disabled></el-input>
-                                </el-form-item>
-                                <el-form-item label="任务类型">
-                                    <el-input v-model="item.scheduleConfig.taskType" disabled></el-input>
-                                </el-form-item>
-                                <el-form-item label="优先级">
-                                    <el-input v-model="item.scheduleConfig.priority"></el-input>
-                                </el-form-item>
-                                <el-form-item label="重试次数">
-                                    <el-input v-model="item.scheduleConfig.retryTimes"></el-input>
-                                </el-form-item>
-                                <el-form-item label="重试间隔">
-                                    <el-input v-model="item.scheduleConfig.retryInterval"></el-input>
-                                </el-form-item>
-                                <el-form-item label="开始时间">
-                                    <el-input v-model="item.scheduleConfig.beginTime"></el-input>
-                                </el-form-item>
-
-                                <el-form-item label="依赖任务">
-                                    <el-divider></el-divider>
-                                    <div style="display: flex;justify-content: end;">
-                                        <el-button type="primary" size="mini" plain>依赖识别</el-button>
-                                    </div>
-
-                                    <el-table :data="item.scheduleConfig.dependency" style="width: 100%">
-                                        <el-table-column label="上游依赖">
-                                            <template slot-scope="scope">
-                                                <el-popover trigger="hover" placement="top">
-                                                    <div slot="reference" class="name-wrapper">
-                                                        <el-tag size="medium">{{ scope.row.task }}</el-tag>
-                                                    </div>
-                                                </el-popover>
-                                            </template>
-                                        </el-table-column>
-                                        <el-table-column label="操作">
-                                            <template slot-scope="scope">
-                                                <div
-                                                    style="display: flex;align-items: center;justify-content: flex-end;">
-                                                    <el-button size="mini"
-                                                        @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                                                    <el-button size="mini" type="danger"
-                                                        @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                                                </div>
-                                            </template>
-                                        </el-table-column>
-                                    </el-table>
-                                    <div
-                                        style="display: flex;justify-content: end;margin-top: 10px;margin-right: 10px;">
-                                        <el-button type="primary" size="mini" plain>添加</el-button>
-                                    </div>
-                                </el-form-item>
-
-                            </el-form>
-
-                            <div style="display: flex;justify-content: end;margin-right: 20px;">
-                                <el-button type="primary" size="mini" plain>保存</el-button>
-                            </div>
-
-                            <el-divider content-position="left">在行调度列表</el-divider>
-
-                            <el-descriptions title="T+1调度: dim.dim_date.day">
-                                <el-descriptions-item label="调度系统">{{ item.scheduleConfig.system
-                                    }}</el-descriptions-item>
-                                <el-descriptions-item label="任务类型">{{ item.scheduleConfig.taskType
-                                    }}</el-descriptions-item>
-                                <el-descriptions-item label="优先级">{{ item.scheduleConfig.priority
-                                    }}</el-descriptions-item>
-                                <el-descriptions-item label="重试次数">{{
-                                    item.scheduleConfig.retryTimes }}</el-descriptions-item>
-                                <el-descriptions-item label="重试间隔(分)">{{
-                                    item.scheduleConfig.retryInterval }}</el-descriptions-item>
-                                <el-descriptions-item label="开始时间">{{ item.scheduleConfig.beginTime
-                                    }}</el-descriptions-item>
-                            </el-descriptions>
-
-                            <div style="display: flex;justify-content: end;margin-right: 20px;">
-                                <el-button type="primary" size="mini" plain>编辑</el-button>
-                                <el-button type="danger" size="mini" plain>删除</el-button>
-                            </div>
-
-                        </div>
-                    </el-tab-pane> -->
-
 
                     <!--
                     <el-tab-pane label="数据监控" name="dqc" disabled>
@@ -395,6 +364,7 @@
 import CodeEditor from '../../common/CodeEditor.vue';
 import { EventBus } from '../../common/event-bus';
 import moment from 'moment-timezone';
+import { MessageBox, Message } from 'element-ui';
 
 export default {
     name: 'TaskManagerMain',
@@ -422,7 +392,19 @@ export default {
             publishDialogVisible: false,
             publishForm: {
                 reason: ''
-            }
+            },
+
+            // dependency 
+            updateDialogVisible: false,
+            currentDependency: {
+                dependencyName: '',
+                joinTypeDesc: '人工维护'
+            },
+            isEditMode: false,
+            dependencyToDelete: null,
+            isEditable: true,
+            deleteDialogVisible: false,
+
         }
     },
     created() {
@@ -435,7 +417,7 @@ export default {
         EventBus.$on('tasks-selectedTasks', data => {
             this.selectedTasks = data;
         });
-        this.fetchData();
+
     },
     mounted() {
         this.loginUser = sessionStorage.getItem('loginUser');
@@ -491,7 +473,7 @@ export default {
                     codeArea: taskObject.taskScript,
                     logArea: "",
                     isCodeAreaReadOnly: true,
-                    isVisibleLogging: false
+                    isVisibleLogging: true
                 },
                 scheduleConfig: {
                     labelPosition: 'right',
@@ -502,12 +484,17 @@ export default {
                     priority: "low",
                     retryTimes: "3",
                     retryInterval: "5",
-                    beginTime: "00:15",
+                    beginTime: "00:15:00",
+                    taskNodeNameSuffix: "",
+                    period: "day",
                     dependency: [
-                        { task: 'ods.dim_date' },
-                        { task: 'ods.dim_city' }
+                        {
+                            dependencyName: 'ods.dim_date',
+                            joinTypeDesc: "自动识别"
+                        }
                     ]
-                }
+                },
+                scheduleList: []
             });
             this.editableTabsValue = targetName;
         },
@@ -610,9 +597,16 @@ export default {
                 console.error("Failed to load data:", error);
             }
         },
-        clickTab(thisTab) {
+        clickTab(thisTab, event) {
             const currentTab = this.editableTabs.find(tab => tab.name === thisTab);
             this.currentSelectedTab = currentTab;
+        },
+        handleSencodTabClick(thisTab, event) {
+            if (thisTab.name === "schedule-config") {
+                console.log("---------------------------------------------")
+                this.fetchScheduleList()
+                this.fetchScheduleBaseInfo()
+            }
         },
         handleVersionChange(selectedVersion) {
             const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
@@ -717,43 +711,248 @@ export default {
             this.$message.success('代码上线请求已发送');
             this.publishDialogVisible = false;
         },
-        // 调度方法
-        fetchData() {
-            this.$axios.get('/api/schedule-config')
-                .then(response => {
-                    this.item.scheduleConfig = response.data;
-                })
-                .catch(error => {
-                    console.error('Error fetching schedule config:', error);
+
+        // ---------------------------------------------------------------------------------------------------------------
+        // 调度模块方法定义 -------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------
+        // 调度模块方法定义
+        async fetchScheduleList() {
+            try {
+                const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+                const response = await this.$axios.get('/scheduler/getTaskSchedules', {
+                    params: {
+                        taskName: currentTab.taskInfo.taskName
+                    }
                 });
+                // 根据后端接口修改URL
+                currentTab.scheduleList = response.data.data.items;
+            } catch (error) {
+                console.error('Error fetching schedules:', error);
+            }
         },
-        identifyDependencies() {
-            console.log('Identifying dependencies...');
+        async fetchScheduleBaseInfo() {
+            try {
+                const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+                const response = await this.$axios.get('/scheduler/getScheduleBaseInfo');
+                // 根据后端接口修改URL
+                const baseInfo = response.data.data.items;
+                if (baseInfo.scheduleCategory === 1) {
+                    currentTab.scheduleConfig.system = "DolphinScheduler";
+                } else {
+                    currentTab.scheduleConfig.system = "Hera";
+                }
+                currentTab.scheduleConfig.project = baseInfo.project;
+                currentTab.scheduleConfig.labelPosition = 'right';
+                currentTab.scheduleConfig.taskNodeName = currentTab.taskInfo.taskName + ".";
+                currentTab.scheduleConfig.taskNodeNameSuffix = "";
+                currentTab.scheduleConfig.taskType = "shell";
+                currentTab.scheduleConfig.priority = "low";
+                currentTab.scheduleConfig.retryTimes = "3";
+                currentTab.scheduleConfig.retryInterval = "5";
+                currentTab.scheduleConfig.beginTime = "00:15:00";
+                currentTab.scheduleConfig.period = "day";
+            } catch (error) {
+                console.error('Error fetching schedule base info:', error);
+            }
         },
-        handleEdit(index, row) {
-            console.log('Editing dependency:', index, row);
-        },
-        handleDelete(index, row) {
-            this.item.scheduleConfig.dependency.splice(index, 1);
-        },
-        addDependency() {
-            this.item.scheduleConfig.dependency.push({ task: 'New Task' });
-        },
-        handleSave() {
-            this.$axios.post('/api/schedule-config', this.item.scheduleConfig)
-                .then(response => {
-                    console.log('Schedule config saved:', response.data);
-                })
-                .catch(error => {
-                    console.error('Error saving schedule config:', error);
+        // 点击依赖识别按钮时触发，向后端发送请求并获取依赖数据
+        async fetchTaskDependencies() {
+            try {
+                const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+                const response = await this.$axios.get('/scheduler/getTaskDependencies', {
+                    params: {
+                        taskName: currentTab.taskInfo.taskName,
+                        version: currentTab.taskInfo.version,
+                        period: currentTab.scheduleConfig.period
+                    }
                 });
+                // 根据后端接口修改URL
+                currentTab.scheduleConfig.dependency = response.data.data.items;
+            } catch (error) {
+                console.error('Error fetching schedules:', error);
+            }
         },
-        handleEditConfig() {
-            console.log('Editing schedule config...');
+
+        showAddDialog() {
+            this.isEditMode = false;
+            this.currentDependency = { dependencyName: '', joinTypeDesc: '人工维护' };
+            this.updateDialogVisible = true;
         },
-        handleDeleteConfig() {
-            console.log('Deleting schedule config...');
+        handleEditDependency(index, row) {
+            this.isEditMode = true;
+            this.currentDependency = { ...row };
+            this.updateDialogVisible = true;
+        },
+        handleDeleteDependency(index, row) {
+            this.isEditMode = false;
+            this.dependencyToDelete = row;
+            this.currentDependency = { ...row };
+            this.deleteDialogVisible = true;
+        },
+
+
+        saveDependency() {
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            currentTab.scheduleConfig.dependency.push({ ...this.currentDependency });
+            this.updateDialogVisible = false;
+            this.currentDependency = { dependencyName: '', joinTypeDesc: '人工维护' };
+        },
+
+        confirmDelete() {
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            const index = currentTab.scheduleConfig.dependency.indexOf(this.dependencyToDelete);
+            if (index > -1) {
+                currentTab.scheduleConfig.dependency.splice(index, 1);
+            }
+            this.deleteDialogVisible = false;
+            this.dependencyToDelete = null;
+            this.currentDependency = { dependencyName: '', joinTypeDesc: '人工维护' };
+        },
+
+        confirmSaveTaskDependency() {
+            // 弹出二次确认框
+            MessageBox.confirm('确认要保存依赖吗？', '二次确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                console.log('用户确认保存');  // 调试用，确认是否进入这里
+                this.handleSaveTaskDependency();
+            }).catch(() => {
+                // 用户取消时的提示
+                Message.info('已取消保存');
+            });
+        },
+        convertToDependency(dependencyList) {
+            return dependencyList.map(dep => {
+                var joinType = 1;
+                if (dep.joinTypeDesc === "自动识别") {
+                    joinType = 1;
+                } else {
+                    joinType = 2;
+                }
+                return {
+                    preScheduleCode: null,
+                    preScheduleName: dep.dependencyName,
+                    joinType: joinType, // 默认 joinType 为 1
+                    ownerName: this.loginUser
+                };
+            });
+        },
+        async sendCreateOrUpdate(data,shuffix){
+            if(this.isEditMode){
+                if(shuffix !== "" || null !== shuffix){
+                    // 发送 POST 请求到后端
+                    await this.$axios.post('/scheduler/genTaskSchedule', data)
+                        .then(response => {
+                            // 请求成功后的处理
+                            if (response.data.data.success) {
+                                Message.success('保存成功');
+                            } else {
+                                Message.error('保存失败：' + response.data.message);
+                            }
+                        })
+                        .catch(error => {
+                            // 请求失败的处理
+                            Message.error('请求失败：' + error.message);
+                        });
+                }else{
+                    alert("调度名称尾缀不能为空，请输入正确业务含义标识!")
+                }
+            }else{
+                    // 发送 POST 请求到后端
+                    await this.$axios.post('/scheduler/updateTaskSchedule', data)
+                        .then(response => {
+                            // 请求成功后的处理
+                            if (response.data.data.success) {
+                                Message.success('保存成功');
+                            } else {
+                                Message.error('保存失败：' + response.data.message);
+                            }
+                        })
+                        .catch(error => {
+                            // 请求失败的处理
+                            Message.error('请求失败：' + error.message);
+                        });
+            }
+        },
+        async handleSaveTaskDependency() {
+            this.isEditable = true;
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            var taskPriority = 2;
+            if (currentTab.scheduleConfig.priority === "lower") {
+                taskPriority = 1;
+            } else if (currentTab.scheduleConfig.priority === "medium") {
+                taskPriority = 2;
+            } else if (currentTab.scheduleConfig.priority === "higher") {
+                taskPriority = 3;
+            }
+
+            // 准备要发送的数据
+            const data = {
+                taskName: currentTab.taskInfo.taskName,
+                taskVersion: currentTab.taskInfo.version,
+                scheduleCategory: 1,
+                project: currentTab.scheduleConfig.project,
+                scheduleCode: null,
+                scheduleName: currentTab.taskInfo.taskName + "." + currentTab.scheduleConfig.taskNodeNameSuffix,
+                releaseStatus: 1,
+                taskType: 1,
+                scheduleParams: "[]",
+                taskPriority: taskPriority,
+                failRetryTimes: currentTab.scheduleConfig.retryTimes,
+                failRetryInterval: currentTab.scheduleConfig.retryInterval,
+                beginTime: currentTab.scheduleConfig.beginTime,
+                period: currentTab.scheduleConfig.period,
+                dateValue: currentTab.scheduleConfig.dateValue,
+                version: null,
+                taskCode: null,
+                ownerName: this.loginUser,
+                dependency: this.convertToDependency(currentTab.scheduleConfig.dependency)
+            }
+
+            this.sendCreateOrUpdate(data,currentTab.scheduleConfig.taskNodeNameSuffix)
+        },
+        async handleEditConfig(schedule){
+            
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            currentTab.scheduleConfig.labelPosition='right',
+            currentTab.scheduleConfig.system="DolphinScheduler",
+            currentTab.scheduleConfig.project=schedule.project,
+            currentTab.scheduleConfig.taskNodeName=schedule.scheduleName,
+            currentTab.scheduleConfig.taskType=(schedule.taskType === 1?'shell':'other'),
+            currentTab.scheduleConfig.priority=(schedule.taskPriority === 1?'lower':schedule.taskPriority === 2?'medium':schedule.taskPriority === 3?'higher':'other'),
+            currentTab.scheduleConfig.retryTimes=schedule.failRetryTimes,
+            currentTab.scheduleConfig.retryInterval=schedule.failRetryInterval,
+            currentTab.scheduleConfig.beginTime=schedule.beginTime,
+            currentTab.scheduleConfig.taskNodeNameSuffix="",
+            currentTab.scheduleConfig.period=schedule.period
+            currentTab.scheduleConfig.dependency=schedule.dependency.map(dep => {
+                var joinTypeDesc = "自动识别";
+                if (joinType = 2) {
+                    joinTypeDesc = "人工维护"
+                } 
+                return {
+                    dependencyName:dep.preScheduleName,
+                    joinTypeDesc:joinTypeDesc
+                };
+            });
+
+            console.log('schedule.dependency' + JSON.stringify(schedule.dependency))
+            console.log("恢复数据到编辑区: " + JSON.stringify(currentTab.scheduleConfig))
+
+            this.isEditable = false;
+        },
+        handleDeleteConfig(schedule){
+
+        },
+        reEdit(){
+            console.log('sadfffffffffffffffffffffffffffff')
+            this.isEditable = true;
         }
+        // ---------------------------------------------------------------------------------------------------------------
+        // 调度模块方法定义结束 ---------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------
     },
     computed: {
         isOnlineTask() {

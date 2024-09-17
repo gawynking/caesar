@@ -22,8 +22,7 @@ public interface ScheduleDependencyMapper extends BaseMapper<CaesarScheduleDepen
             "\twhere task_name = #{taskName}\n" +
             "\tgroup by schedule_code \n" +
             ") t2 \n" +
-            "   on t1.schedule_code = t2.schedule_code \n" +
-            "  and t1.version = t2.version ")
+            "   on t1.schedule_code = t2.schedule_code")
     List<CaesarScheduleDependency> getTaskScheduleDependencys(String taskName);
 
     @Insert("insert into caesar_schedule_dependency(\n" +

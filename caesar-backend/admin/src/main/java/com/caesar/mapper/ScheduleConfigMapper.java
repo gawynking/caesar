@@ -48,7 +48,7 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
             "\towner_id,\n" +
             "\tversion,\n" +
             "\tperiod,\n" +
-            "\tdate_value,\n" +
+            "\tdate_value\n" +
             ")values(\n" +
             "\t#{taskName},\n" +
             "\t#{taskVersion},\n" +
@@ -96,7 +96,7 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
     Boolean updateTaskSchedule(CaesarScheduleConfig scheduleConfig);
 
 
-    @Select("select max(schedule_code) as schedule_code from caesar_schedule_config where task_name=#{scheduleName}")
+    @Select("select max(schedule_code) as schedule_code from caesar_schedule_config where schedule_name=#{scheduleName}")
     String getTaskScheduleCodeFromScheduleName(String scheduleName);
 
     @Delete("delete from caesar_schedule_config where schedule_code = #{scheduleCode}")
@@ -114,4 +114,11 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
 
     @Select("select max(schedule_name) as schedule_name from caesar_schedule_config where schedule_code = #{scheduleCode}")
     String getScheduleNameFromScheduleCode(String preScheduleCode);
+
+    @Select("select t1.* \n" +
+            "from caesar_schedule_config t1 \n" +
+            "where t1.task_name = #{taskName}\n" +
+            "  and t1.period = #{period}\n" +
+            "  and t1.release_status = 1")
+    List<CaesarScheduleConfigDto> findTaskScheduleConfigListFromTaskNameAndPeriod(String taskName, String period);
 }

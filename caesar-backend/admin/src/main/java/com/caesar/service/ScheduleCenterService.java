@@ -5,6 +5,8 @@ import com.caesar.entity.CaesarScheduleConfig;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
 import com.caesar.entity.vo.response.ScheduleInfoVo;
+import com.caesar.entity.vo.response.TaskDependency;
+import com.caesar.exception.SqlParseException;
 
 import java.util.List;
 
@@ -23,5 +25,7 @@ public interface ScheduleCenterService extends IService<CaesarScheduleConfig> {
     ScheduleBaseInfoVo getScheduleBaseInfo();
 
     ScheduleInfoVo getTaskSchedule(String scheduleName);
+
+    List<TaskDependency> getTaskDependencies(String taskName, Integer version, String period) throws SqlParseException;
 
 }

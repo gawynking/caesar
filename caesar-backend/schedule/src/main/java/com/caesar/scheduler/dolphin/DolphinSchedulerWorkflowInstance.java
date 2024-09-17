@@ -126,7 +126,9 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
                 buffer.append(taskDefinitionCode).append(",");
             }
         }
-        upstreamCodes = buffer.delete(buffer.length()-1,buffer.length()).toString();
+        if(buffer.length()>1) {
+            upstreamCodes = buffer.delete(buffer.length() - 1, buffer.length()).toString();
+        }
 
         JSONObject result = null;
         try {
@@ -203,8 +205,9 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
                 buffer.append(tmpTaskCode).append(",");
             }
         }
-        upstreamCodes = buffer.delete(buffer.length()-1,buffer.length()).toString();
-
+        if(buffer.length()>1) {
+            upstreamCodes = buffer.delete(buffer.length() - 1, buffer.length()).toString();
+        }
         JSONObject result = null;
         try {
             // 1 下线调度
