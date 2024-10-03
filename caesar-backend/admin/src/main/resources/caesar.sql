@@ -213,7 +213,7 @@ drop table if exists caesar_datasource;
 create table caesar_datasource(
     id                int not null auto_increment                                        comment '数据源ID',
     datasource_name   varchar(256)                                                       comment '数据源名称',
-    datasource_type   int                                                                comment '数据源类型: 1-测试 2-预发 3-生产',
+    datasource_type   int                                                                comment '数据源类型: 1-测试 3-生产',
     engine            int                                                                comment '执行引擎',
     datasource_info   varchar(2048)                                                      comment '数据源信息JSON',
     owner_id          int                                                                comment '创建人',
@@ -224,7 +224,6 @@ create table caesar_datasource(
 comment '数据源表'
 ;
 insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL测试数据源",1,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
-insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL预发数据源",2,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
 insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL生产数据源",3,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
 
 
@@ -260,14 +259,10 @@ create table caesar_engine(
 )engine = innodb default charset=utf8mb4
 comment '数据引擎表'
 ;
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(1,'None','none','1',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(101,'Hive','hive','2',1);
+
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(102,'Spark','spark','3',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(103,'Flink','flink','1.8',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(301,'Doris','doris','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(302,'StarRocks','starrocks','2',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(401,'MySQL','mysql','8',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(501,'Hbase','hbase','2',1);
 
 
 -- 任务执行记录
@@ -382,4 +377,19 @@ create table caesar_schedule_dependency(
 )engine = innodb default charset=utf8mb4
 comment '调度依赖关系表'
 ;
+
+-- 调度集群表
+drop table if exists caesar_schedule_cluster;
+create table caesar_schedule_cluster(
+    id                  int auto_increment                                                       comment 'ID',
+    ip_addr             varchar(32) not null                                                     comment 'IP地址',
+    schedule_category   int not null                                                             comment '调度类别: 1-DolphinScheduler 2-Hera',
+    create_time         timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time         timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id),
+    unique key(ip_addr)
+)engine = innodb default charset=utf8mb4
+comment '调度集群表'
+;
+insert into caesar_schedule_cluster(ip_addr,schedule_category)values('127.0.0.1',1);
 

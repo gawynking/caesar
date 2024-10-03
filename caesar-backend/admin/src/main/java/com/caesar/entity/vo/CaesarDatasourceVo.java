@@ -1,14 +1,14 @@
-package com.caesar.entity;
+package com.caesar.entity.vo;
 
 import lombok.Data;
 
 @Data
-public class CaesarDatasource extends BaseEntity{
+public class CaesarDatasourceVo {
 
     String datasourceName;
     int datasourceType;
     int engine;
     String datasourceInfo;
-    int ownerId;
+    String ownerName;
 
 }

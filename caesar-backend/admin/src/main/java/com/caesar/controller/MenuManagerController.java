@@ -18,22 +18,45 @@ public class MenuManagerController {
 
 
     @PostMapping("/addFolder")
-    private JsonResponse<Boolean> addFolder(@RequestBody CaesarMenuVo menu){
-        CaesarMenuDto caesarMenuDto = BeanConverterTools.convert(menu, CaesarMenuDto.class);
-        return JsonResponse.success(menuManagerService.addFolder(caesarMenuDto));
+    private JsonResponse<String> addFolder(@RequestBody CaesarMenuVo menu){
+        try {
+            CaesarMenuDto caesarMenuDto = BeanConverterTools.convert(menu, CaesarMenuDto.class);
+            boolean flag = menuManagerService.addFolder(caesarMenuDto);
+            if(flag){
+                return JsonResponse.success("添加目录成功");
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("添加目录失败");
     }
 
 
     @GetMapping("/deleteFolder")
-    private JsonResponse<Boolean> deleteFolder(@RequestParam Integer id){
-        return JsonResponse.success(menuManagerService.deleteFolder(id));
+    private JsonResponse<String> deleteFolder(@RequestParam Integer id){
+        try {
+            if(menuManagerService.deleteFolder(id)) {
+                return JsonResponse.success("删除目录成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("删除目录失败");
     }
 
 
     @PostMapping("/renameFolder")
-    private JsonResponse<Boolean> renameFolder(@RequestBody CaesarMenuVo menu){
-        CaesarMenuDto caesarMenuDto = BeanConverterTools.convert(menu, CaesarMenuDto.class);
-        return JsonResponse.success(menuManagerService.renameFolder(caesarMenuDto));
+    private JsonResponse<String> renameFolder(@RequestBody CaesarMenuVo menu){
+        try {
+            CaesarMenuDto caesarMenuDto = BeanConverterTools.convert(menu, CaesarMenuDto.class);
+            if(menuManagerService.renameFolder(caesarMenuDto)) {
+                return JsonResponse.success("重命名目录成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("重命名目录失败");
     }
 
 }

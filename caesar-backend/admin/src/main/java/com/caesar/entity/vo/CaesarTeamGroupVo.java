@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CaesarTeamGroupVo {
+    int id;
     String groupName;
     String groupDesc;
     int ownerId;

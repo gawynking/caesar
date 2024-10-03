@@ -23,6 +23,7 @@ public interface TeamGroupMapper extends BaseMapper<CaesarTeamGroup> {
     String getGroupNameFromId(int id);
 
     @Select("select \n" +
+            "\tt1.id as id,\n" +
             "\tt2.id as owner_id,\n" +
             "\tt2.username as owner_name,\n" +
             "\tt1.group_name as group_name,\n" +

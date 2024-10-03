@@ -25,30 +25,46 @@ public class TeamgroupManagerController {
     @GetMapping("getTeamList")
     public JsonResponse<List<CaesarTeamGroupVo>> getTeamList(){
 
-        List<CaesarTeamGroupVo> list = teamGroupService.getTeamList();
-
-        return JsonResponse.success(list);
-
+        try {
+            List<CaesarTeamGroupVo> list = teamGroupService.getTeamList();
+            return JsonResponse.success(list);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取用户组信息失败");
     }
 
 
 
     @PostMapping("/addTeamGroup")
-    public JsonResponse<Boolean> addTeamGroup(@RequestBody CaesarTeamGroup teamGroup){
-        return JsonResponse.success(teamGroupService.addTeamGroup(teamGroup));
+    public JsonResponse<String> addTeamGroup(@RequestBody CaesarTeamGroup teamGroup){
+        try {
+            if(teamGroupService.addTeamGroup(teamGroup)) {
+                return JsonResponse.success("添加用户组成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("添加用户组失败");
     }
 
 
 
     @GetMapping("/deleteTeamGroup")
-    public JsonResponse<Boolean> deleteTeamGroup(@RequestParam int id){
-        List<CaesarUserGroup> userGroups = userGroupService.getUserGroupsByGroupId(id);
-        if(null != userGroups && userGroups.size()>0){
-            return JsonResponse.fail("该组存在用户，不能删除.");
+    public JsonResponse<String> deleteTeamGroup(@RequestParam int id){
+        try {
+            List<CaesarUserGroup> userGroups = userGroupService.getUserGroupsByGroupId(id);
+            if (null != userGroups && userGroups.size() > 0) {
+                return JsonResponse.fail("该组存在用户，不能删除.");
+            }
+            boolean flag = teamGroupService.deleteTeamGroup(id);
+            if(flag) {
+                return JsonResponse.success("删除用户组成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return JsonResponse.success(teamGroupService.deleteTeamGroup(id));
+        return JsonResponse.fail("删除用户组失败");
     }
-
-
 
 }

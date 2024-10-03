@@ -19,19 +19,13 @@ public interface DatasourceMapper extends BaseMapper<CaesarDatasource> {
             "\tdatasource_name,\n" +
             "\tdatasource_type,\n" +
             "\tengine,\n" +
-            "\turl,\n" +
-            "\tusername,\n" +
-            "\tpassword,\n" +
-            "\tdb_name,\n" +
+            "\tdatasource_info,\n" +
             "\towner_id\n" +
             ") values (\n" +
             "\t#{datasourceName},\n" +
             "\t#{datasourceType},\n" +
             "\t#{engine},\n" +
-            "\t#{url},\n" +
-            "\t#{username},\n" +
-            "\t#{password},\n" +
-            "\t#{dbName},\n" +
+            "\t#{datasourceInfo},\n" +
             "\t#{ownerId}\n" +
             ")")
     boolean addDatasource(CaesarDatasource datasource);

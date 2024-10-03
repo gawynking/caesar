@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -33,6 +34,8 @@ public class AuthController {
     @Autowired
     TeamGroupService teamGroupService;
 
+
+
     @PostMapping("/login")
     public JsonResponse<JwtResponse> login(@RequestBody JwtRequest jwtRequest) {
 
@@ -43,15 +46,15 @@ public class AuthController {
         CaesarUser user = loginService.findByUsername(jwtRequest.getUsername());
 
         if(null != user && user.getPassword().equals(jwtRequest.getPassword())){
-            return JsonResponse.success(new JwtResponse("登录成功"));
+            return JsonResponse.success(new JwtResponse(UUID.randomUUID().toString().replaceAll("-","")));
         }
 
-        return JsonResponse.fail("用户名或密码错误");
+        return JsonResponse.fail("本次登陆认证失败，请确认信息重新登陆");
     }
 
     @PostMapping("/logout")
-    public String logout() {
-        return "Logged out successfully";
+    public JsonResponse<String> logout() {
+        return JsonResponse.success("Logged out successfully");
     }
 
     @PostMapping("/register")
@@ -70,16 +73,23 @@ public class AuthController {
         boolean res2 = userService.addUserGroup(userGroup);
 
         boolean res = res1 && res2;
-        return JsonResponse.success(res?"注册用户成功，请登录":"用户注册失败");
-
+        if(res){
+            return JsonResponse.success("注册用户成功，请登录");
+        }else {
+            return JsonResponse.fail("用户注册失败，请确认信息重试");
+        }
     }
 
 
     @GetMapping("getTeamList")
     public JsonResponse<List<CaesarTeamGroup>> getTeamList(){
-        List<CaesarTeamGroup> list = teamGroupService.list();
-        return JsonResponse.success(list);
-
+        try {
+            List<CaesarTeamGroup> list = teamGroupService.list();
+            return JsonResponse.success(list);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取用户组信息失败");
     }
 
 }

@@ -55,154 +55,219 @@ public class DevelopCenterController {
 
     @GetMapping("/listTask")
     public JsonResponse<List<MenuNode>> listTask(@RequestParam String partten) {
-        List<MenuModel> caesarMenus = new ArrayList<>();
-        caesarMenus.addAll(menuManagerService.listMenuForAside());
-        caesarMenus.addAll(developCenterService.listTaskToMenu(partten));
-        List<MenuNode> menuNodes = MenuModel.convert(caesarMenus);
-        return JsonResponse.success(menuNodes);
+        try {
+            List<MenuModel> caesarMenus = new ArrayList<>();
+            caesarMenus.addAll(menuManagerService.listMenuForAside());
+            caesarMenus.addAll(developCenterService.listTaskToMenu(partten));
+            List<MenuNode> menuNodes = MenuModel.convert(caesarMenus);
+            return JsonResponse.success(menuNodes);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取任务列表失败");
     }
 
 
 
     @PostMapping("/addTask")
-    public JsonResponse<Boolean> addTask(@RequestBody AddTaskVo addTaskVo) {
+    public JsonResponse<String> addTask(@RequestBody AddTaskVo addTaskVo) {
 
-        Integer menuId = menuManagerService.getMenuIdFromMenuIndex(addTaskVo.getMenuIndex());
-        Integer createdUser = userManagerService.getUserIdFromUserName(addTaskVo.getCreatedUserName());
-        Integer updatedUser = userManagerService.getUserIdFromUserName(addTaskVo.getUpdatedUserName());
+        try {
+            Integer menuId = menuManagerService.getMenuIdFromMenuIndex(addTaskVo.getMenuIndex());
+            Integer createdUser = userManagerService.getUserIdFromUserName(addTaskVo.getCreatedUserName());
+            Integer updatedUser = userManagerService.getUserIdFromUserName(addTaskVo.getUpdatedUserName());
 
-        CaesarTaskDto caesarTaskDto = BeanConverterTools.convert(addTaskVo, CaesarTaskDto.class);
-        caesarTaskDto.setMenuId(menuId);
-        caesarTaskDto.setCreatedUser(createdUser);
-        caesarTaskDto.setUpdatedUser(updatedUser);
-
-        return JsonResponse.success(developCenterService.addTask(caesarTaskDto));
+            CaesarTaskDto caesarTaskDto = BeanConverterTools.convert(addTaskVo, CaesarTaskDto.class);
+            caesarTaskDto.setMenuId(menuId);
+            caesarTaskDto.setCreatedUser(createdUser);
+            caesarTaskDto.setUpdatedUser(updatedUser);
+            boolean flag = developCenterService.addTask(caesarTaskDto);
+            if(flag) {
+                return JsonResponse.success("添加任务成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("添加任务失败");
     }
 
 
     @PostMapping("/saveTask")
-    public JsonResponse<Integer> saveTask(@RequestBody CaesarTaskVo caesarTaskVo) {
-        String lastChecksum = developCenterService.getTaskChecksumFromVersion(caesarTaskVo.getTaskName(), caesarTaskVo.getLastVersion());
-        String newChecksum = HashUtils.getMD5Hash(caesarTaskVo.getTaskScript());
-        if (!newChecksum.equals(lastChecksum)) {
-            caesarTaskVo.setChecksum(newChecksum);
-            CaesarTaskDto caesarTaskDto = BeanConverterTools.convert(caesarTaskVo, CaesarTaskDto.class);
-            return JsonResponse.success(developCenterService.saveTask(caesarTaskDto));
+    public JsonResponse<String> saveTask(@RequestBody CaesarTaskVo caesarTaskVo) {
+        try {
+            String lastChecksum = developCenterService.getTaskChecksumFromVersion(caesarTaskVo.getTaskName(), caesarTaskVo.getLastVersion());
+            String newChecksum = HashUtils.getMD5Hash(caesarTaskVo.getTaskScript());
+            if (!newChecksum.equals(lastChecksum)) {
+                caesarTaskVo.setChecksum(newChecksum);
+                CaesarTaskDto caesarTaskDto = BeanConverterTools.convert(caesarTaskVo, CaesarTaskDto.class);
+                int i = developCenterService.saveTask(caesarTaskDto);
+                return JsonResponse.success("保存任务成功");
+            }
+            return JsonResponse.success("任务没有变化");
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return JsonResponse.fail("noChange");
+        return JsonResponse.fail("保存任务失败");
     }
 
 
 
     @GetMapping("/deleteTask")
-    public JsonResponse<Boolean> deleteTask(@RequestParam(value = "taskName", required = false) String taskName) {
-        return JsonResponse.success(developCenterService.markDeletedTaskFromTaskName(taskName));
+    public JsonResponse<String> deleteTask(@RequestParam(value = "taskName", required = false) String taskName) {
+        try {
+            if (developCenterService.markDeletedTaskFromTaskName(taskName)) {
+                return JsonResponse.success("删除任务成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("删除任务失败");
     }
 
 
     @GetMapping("/getTaskInfos")
     public JsonResponse<List<CaesarTaskVo>> getTaskInfos(@RequestParam String taskName) {
-        List<CaesarTaskVo> caesarTaskVos = developCenterService.getTaskInfos(taskName);
-        return JsonResponse.success(caesarTaskVos);
+        try {
+            List<CaesarTaskVo> caesarTaskVos = developCenterService.getTaskInfos(taskName);
+            return JsonResponse.success(caesarTaskVos);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取任务信息失败");
     }
 
     @GetMapping("/getCurrentTaskInfo")
     public JsonResponse<CaesarTaskVo> getCurrentTaskInfo(@RequestParam String taskName) {
-        CaesarTaskVo caesarTaskVo = developCenterService.getCurrentTaskInfo(taskName);
-        return JsonResponse.success(caesarTaskVo);
+        try {
+            CaesarTaskVo caesarTaskVo = developCenterService.getCurrentTaskInfo(taskName);
+            return JsonResponse.success(caesarTaskVo);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取当前任务信息失败");
     }
 
     @GetMapping("/getTaskVersions")
     public JsonResponse<CaesarTaskVersionVo> getTaskVersions(@RequestParam String taskName, int currentVersion) {
-        CaesarTaskVersionVo taskVersions = developCenterService.getTaskVersions(taskName, currentVersion);
-        return JsonResponse.success(taskVersions);
+        try {
+            CaesarTaskVersionVo taskVersions = developCenterService.getTaskVersions(taskName, currentVersion);
+            return JsonResponse.success(taskVersions);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取任务版本失败");
     }
+
 
     @GetMapping("/getParams")
     public JsonResponse<List<CaesarTaskParameterVo>> getParams() {
-        return JsonResponse.success(developCenterService.getParams());
+        try {
+            return JsonResponse.success(developCenterService.getParams());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取参数失败");
     }
 
     @GetMapping("/getCurrentTaskInfoWithVersion")
     public JsonResponse<CaesarTaskVo> getCurrentTaskInfoWithVersion(@RequestParam String taskName, int version) {
-        return JsonResponse.success(developCenterService.getCurrentTaskInfoWithVersion(taskName, version));
+        try {
+            return JsonResponse.success(developCenterService.getCurrentTaskInfoWithVersion(taskName, version));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取当前版本对应任务信息失败");
     }
 
     @GetMapping("/getEngines")
     public JsonResponse<List<CaesarEngineVo>> getEngines() {
-        return JsonResponse.success(engineService.getEngines());
+        try {
+            return JsonResponse.success(engineService.getEngines());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取引擎列表失败");
     }
 
     @GetMapping("/getDbs")
     public JsonResponse<List<CaesarGroupServiceVo>> getDbs() {
-        List<CaesarGroupServiceDto> dbs = groupServiceService.getDbs();
-        CaesarGroupServiceVo caesarGroupServiceVo = new CaesarGroupServiceVo();
-        List<CaesarGroupServiceVo> caesarGroupServiceVos = caesarGroupServiceVo.assembleData(dbs);
-        return JsonResponse.success(caesarGroupServiceVos);
+        try {
+            List<CaesarGroupServiceDto> dbs = groupServiceService.getDbs();
+            CaesarGroupServiceVo caesarGroupServiceVo = new CaesarGroupServiceVo();
+            List<CaesarGroupServiceVo> caesarGroupServiceVos = caesarGroupServiceVo.assembleData(dbs);
+            return JsonResponse.success(caesarGroupServiceVos);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取数据库信息失败");
     }
 
     @PostMapping("/execute")
-    public JsonResponse<Boolean> execute(@RequestBody TaskExecuteVo taskExecuteVo) {
-
-        CaesarTaskExecuteRecordDto taskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
-        CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskExecuteVo.getTaskName(), taskExecuteVo.getVersion());
-        taskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
-        taskExecuteRecordDto.setEnvironment(taskExecuteVo.getEnvironment());
-        return JsonResponse.success(taskExecuteService.execute(taskExecuteRecordDto));
+    public JsonResponse<String> execute(@RequestBody TaskExecuteVo taskExecuteVo) {
+        try {
+            CaesarTaskExecuteRecordDto taskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+            CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskExecuteVo.getTaskName(), taskExecuteVo.getVersion());
+            taskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
+            taskExecuteRecordDto.setEnvironment(taskExecuteVo.getEnvironment());
+            taskExecuteService.execute(taskExecuteRecordDto);
+            return JsonResponse.success("执行成功");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("执行失败");
     }
 
 
     @PostMapping("/refresh")
-    public JsonResponse<Boolean> refresh(@RequestBody TaskRefreshVo taskRefreshVo) {
-
-        List<CaesarTaskExecuteRecordDto> taskExecuteRecordDtos = new ArrayList<>();
-        CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskRefreshVo.getTaskName(), taskRefreshVo.getVersion());
+    public JsonResponse<String> refresh(@RequestBody TaskRefreshVo taskRefreshVo) {
 
         try {
-            Date startDate = DateUtils.dateParse(taskRefreshVo.getStartDate(), "yyyy-MM-dd");
-            Date endDate = DateUtils.dateParse(taskRefreshVo.getEndDate(), "yyyy-MM-dd");
+            List<CaesarTaskExecuteRecordDto> taskExecuteRecordDtos = new ArrayList<>();
+            CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskRefreshVo.getTaskName(), taskRefreshVo.getVersion());
 
-            if ("day".equals(taskRefreshVo.getPeriod().toLowerCase())) {
-                while (DateUtils.dateCompare(startDate,endDate)<=0){
-                    CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
-                    JSONObject parameter = JSONUtils.getJSONObject();
-                    parameter.put("start_date",DateUtils.dateFormat(startDate,"yyyy-MM-dd"));
-                    parameter.put("end_date",DateUtils.dateFormat(startDate,"yyyy-MM-dd"));
-                    caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
-                    caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
-                    caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
-                    taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
-                    startDate = DateUtils.dateAdd(startDate,1,false);
+            try {
+                Date startDate = DateUtils.dateParse(taskRefreshVo.getStartDate(), "yyyy-MM-dd");
+                Date endDate = DateUtils.dateParse(taskRefreshVo.getEndDate(), "yyyy-MM-dd");
+
+                if ("day".equals(taskRefreshVo.getPeriod().toLowerCase())) {
+                    while (DateUtils.dateCompare(startDate, endDate) <= 0) {
+                        CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+                        JSONObject parameter = JSONUtils.getJSONObject();
+                        parameter.put("start_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
+                        parameter.put("end_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
+                        caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
+                        caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
+                        caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
+                        taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
+                        startDate = DateUtils.dateAdd(startDate, 1, false);
+                    }
+                } else if ("month".equals(taskRefreshVo.getPeriod().toLowerCase())) {
+                    while (DateUtils.dateCompare(startDate, endDate) <= 0) {
+                        CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+                        JSONObject parameter = JSONUtils.getJSONObject();
+                        parameter.put("start_date", DateUtils.getMonthStart(startDate));
+                        parameter.put("end_date", DateUtils.getMonthEnd(startDate));
+                        caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
+                        caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
+                        caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
+                        taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
+                        startDate = DateUtils.addMonth(startDate, 1);
+                    }
+                } else {
+                    return JsonResponse.fail("回刷周期必须选择day或者month");
                 }
-            } else if ("month".equals(taskRefreshVo.getPeriod().toLowerCase())) {
-                while (DateUtils.dateCompare(startDate,endDate)<=0){
-                    CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
-                    JSONObject parameter = JSONUtils.getJSONObject();
-                    parameter.put("start_date",DateUtils.getMonthStart(startDate));
-                    parameter.put("end_date",DateUtils.getMonthEnd(startDate));
-                    caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
-                    caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
-                    caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
-                    taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
-                    startDate = DateUtils.addMonth(startDate,1);
-                }
-            } else {
-                return JsonResponse.success();
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
+            taskExecuteService.refresh(taskExecuteRecordDtos);
+            return JsonResponse.success("提交回刷任务成功");
         }catch (Exception e){
             e.printStackTrace();
         }
-
-        System.out.println(taskExecuteRecordDtos);
-        return JsonResponse.success(taskExecuteService.refresh(taskExecuteRecordDtos));
-
+        return JsonResponse.fail("提交回刷任务失败");
     }
 
-
-    @PostMapping("/codeCompare")
-    public JsonResponse codeCompare(@RequestBody TaskCompareVo taskCompareVo) {
-        return null;
-    }
 
 }

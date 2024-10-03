@@ -27,45 +27,69 @@ public class UserManagerController {
 
     @GetMapping("getUserList")
     public JsonResponse<List<CaesarUserVo>> getUserList(){
-
-        List<CaesarUserVo> list = userService.getUserList();
-        List<CaesarUserGroupVo> allGroups = userGroupService.getAllGroups();
-        for(CaesarUserVo userVo:list){
-            List<CaesarUserGroupVo> userGroups = new ArrayList<>();
-            int userId = userVo.getId();
-            for (CaesarUserGroupVo userGroupVo:allGroups){
-                if(userId == userGroupVo.getUserId()){
-                    userGroups.add(userGroupVo);
+        try {
+            List<CaesarUserVo> list = userService.getUserList();
+            List<CaesarUserGroupVo> allGroups = userGroupService.getAllGroups();
+            for (CaesarUserVo userVo : list) {
+                List<CaesarUserGroupVo> userGroups = new ArrayList<>();
+                int userId = userVo.getId();
+                for (CaesarUserGroupVo userGroupVo : allGroups) {
+                    if (userId == userGroupVo.getUserId()) {
+                        userGroups.add(userGroupVo);
+                    }
                 }
+                userVo.setGroups(userGroups);
             }
-            userVo.setGroups(userGroups);
+
+            return JsonResponse.success(list);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        return JsonResponse.success(list);
-
+        return JsonResponse.fail("获取用户列表失败");
     }
 
     @GetMapping("/activatedUser")
-    public JsonResponse<Boolean> activatedUser(@RequestParam int id){
-        return JsonResponse.success(userService.activatedUser(id));
+    public JsonResponse<String> activatedUser(@RequestParam int id){
+        try {
+            Boolean flag = userService.activatedUser(id);
+            if(flag) {
+                return JsonResponse.success("激活用户成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("激活用户失败");
     }
 
     @GetMapping("/deleteUser")
-    public JsonResponse<Boolean> delete(@RequestParam int id){
-        userService.delete(id);
-        userGroupService.deleteUser(id);
-        return JsonResponse.success();
+    public JsonResponse<String> delete(@RequestParam int id){
+        try {
+            boolean flag1 = userService.delete(id);
+            boolean flag2 = userGroupService.deleteUser(id);
+            if (flag1 && flag2) {
+                return JsonResponse.success("添加用户成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("删除用户失败");
     }
 
+
     @PostMapping("/addUser")
-    public JsonResponse<Boolean> addUser(@RequestBody CaesarUserVo user){
-        CaesarUser caesarUser = BeanConverterTools.convert(user, CaesarUser.class);
-        userService.addUser(caesarUser);
-        CaesarUserGroup userGroup = new CaesarUserGroup();
-        userGroup.setUserId(userService.getUserIdFromUserName(user.getUsername()));
-        userGroup.setGroupId(user.getTeamGroup());
-        userGroupService.save(userGroup);
-        return JsonResponse.success(true);
+    public JsonResponse<String> addUser(@RequestBody CaesarUserVo user){
+        try {
+            CaesarUser caesarUser = BeanConverterTools.convert(user, CaesarUser.class);
+            userService.addUser(caesarUser);
+            CaesarUserGroup userGroup = new CaesarUserGroup();
+            userGroup.setUserId(userService.getUserIdFromUserName(user.getUsername()));
+            userGroup.setGroupId(user.getTeamGroup());
+            userGroupService.save(userGroup);
+            return JsonResponse.success("添加用户成功");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("添加用户失败");
     }
 
 }

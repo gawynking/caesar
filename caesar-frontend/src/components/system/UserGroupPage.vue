@@ -103,6 +103,7 @@ export default {
         },
         // 删除用户组
         deleteGroup(id) {
+            console.log("aaaaaaa" + id)
             // 发送删除用户组请求给后端，假设使用axios库发送请求
             this.$axios.get('/team/deleteTeamGroup', {
                 params: { id: id }

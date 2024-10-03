@@ -94,7 +94,7 @@ export default {
             newTaskName: '',
             currentMenuItem: '',
             selectedGroup: null,
-            engine: 1,
+            engine: 102,
             engines: [],
             groups:[],
             taskDeleteVisible: false
@@ -109,6 +109,7 @@ export default {
         EventBus.$on('tasks-selectedTasks', data => {
             this.selectedTasks = data;
         });
+        this.loadData(this.filterText);
     },
     mounted() {
         this.loginUser = sessionStorage.getItem('loginUser');

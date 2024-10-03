@@ -40,34 +40,44 @@ public class CodeReviewCenterController {
 
 
     @PostMapping("/publish")
-    public JsonResponse<Boolean> publish(@RequestBody TaskPublishVo publishVo) {
-
-        CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(publishVo.getTaskName(), publishVo.getVersion());
-        Boolean isPassedTest = taskExecuteService.validateTaskIsPassedTest(currentTaskInfo.getId());
-        if(null != isPassedTest && !isPassedTest){
-            return JsonResponse.success();
+    public JsonResponse<String> publish(@RequestBody TaskPublishVo publishVo) {
+        try {
+            CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(publishVo.getTaskName(), publishVo.getVersion());
+            Boolean isPassedTest = taskExecuteService.validateTaskIsPassedTest(currentTaskInfo.getId());
+            if (null != isPassedTest && !isPassedTest) {
+                return JsonResponse.success();
+            }
+            CaesarTaskPublishDto publishDto = BeanConverterTools.convert(currentTaskInfo, CaesarTaskPublishDto.class);
+            publishDto.setTaskId(currentTaskInfo.getId());
+            publishDto.setGroupId(currentTaskInfo.getGroupId());
+            publishDto.setSubmitUsername(publishVo.getSubmitUsername());
+            publishDto.setCodeDesc(publishVo.getCodeDesc());
+            if(publishService.publishTask(publishDto)) {
+                return JsonResponse.success("发布任务成功");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        CaesarTaskPublishDto publishDto = BeanConverterTools.convert(currentTaskInfo, CaesarTaskPublishDto.class);
-        publishDto.setTaskId(currentTaskInfo.getId());
-        publishDto.setGroupId(currentTaskInfo.getGroupId());
-        publishDto.setSubmitUsername(publishVo.getSubmitUsername());
-        publishDto.setCodeDesc(publishVo.getCodeDesc());
-        return JsonResponse.success(publishService.publishTask(publishDto));
+        return JsonResponse.fail("发布任务失败");
     }
 
 
     @GetMapping("/getReviewTaskList")
     public JsonResponse<List<CaesarReviewTaskDto>> getReviewTaskList(@RequestParam String loginUser) {
+        try {
+            Integer loginUserId = userManagerService.getUserIdFromUserName(loginUser);
+            List<CaesarReviewTaskDto> caesarReviewTaskDtos = reviewService.getReviewTaskListByUserId(loginUserId);
 
-        Integer loginUserId = userManagerService.getUserIdFromUserName(loginUser);
-        List<CaesarReviewTaskDto> caesarReviewTaskDtos = reviewService.getReviewTaskListByUserId(loginUserId);
-
-        return JsonResponse.success(caesarReviewTaskDtos);
+            return JsonResponse.success(caesarReviewTaskDtos);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取任务review列表失败");
     }
 
 
     @GetMapping("/submit")
-    public JsonResponse<Boolean> review(
+    public JsonResponse<String> review(
             @RequestParam int id,
             @RequestParam int taskId,
             @RequestParam int reviewLevel,
@@ -75,16 +85,21 @@ public class CodeReviewCenterController {
             @RequestParam int reviewResult,
             @RequestParam String auditMessage
     ) {
-        Boolean review = reviewService.review(id, taskId, reviewStatus, reviewResult, auditMessage);
-        if(ReviewLevel.FINAL == ReviewLevel.fromKey(reviewLevel)) {
-            CaesarTask onlineTask = developCenterService.getTaskOnlineVersionInfoFromReviewTaskId(taskId);
-            if(null != onlineTask && onlineTask.getId() > 0) {
-                developCenterService.currentVersionTaskOffline(onlineTask.getId());
+        try {
+            Boolean review = reviewService.review(id, taskId, reviewStatus, reviewResult, auditMessage);
+            if (ReviewLevel.FINAL == ReviewLevel.fromKey(reviewLevel)) {
+                CaesarTask onlineTask = developCenterService.getTaskOnlineVersionInfoFromReviewTaskId(taskId);
+                if (null != onlineTask && onlineTask.getId() > 0) {
+                    developCenterService.currentVersionTaskOffline(onlineTask.getId());
+                }
+                developCenterService.taskPassReview2Online(taskId);
+                Cache.codeReviewCache.remove(taskId);
             }
-            developCenterService.taskPassReview2Online(taskId);
-            Cache.codeReviewCache.remove(taskId);
+            return JsonResponse.success("提交任务成功");
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return JsonResponse.success(review);
+        return JsonResponse.fail("提交任务失败");
     }
 
 }
