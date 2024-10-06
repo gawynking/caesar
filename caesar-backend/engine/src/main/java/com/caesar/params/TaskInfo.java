@@ -13,6 +13,8 @@ public class TaskInfo {
     private String dbLevel;
     private String taskName;
     private String code;
+    private Map<String,Integer> customParamValues;
     private Map<String, String> config;
+    private Map<String, String> engineParams;
 
 }

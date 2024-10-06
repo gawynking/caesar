@@ -83,6 +83,15 @@ public class MenuModel {
             this.children.add(child);
         }
 
+        @Override
+        public String toString() {
+            return "MenuNodeImpl{" +
+                    "menuIndex='" + menuIndex + '\'' +
+                    ", menuName='" + menuName + '\'' +
+                    ", isLeaf=" + isLeaf +
+                    ", children=" + children +
+                    '}';
+        }
     }
 
 }

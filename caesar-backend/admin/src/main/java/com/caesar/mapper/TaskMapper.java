@@ -91,6 +91,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tt1.datasource_info as datasource_info,\n" +
             "\tt1.engine          as engine,\n" +
             "\tt1.version         as version,\n" +
+            "\tt1.created_user    as created_user,\n" +
             "\tt1.task_script     as task_script\n" +
             "from caesar_task t1 \n" +
             "join (\n" +

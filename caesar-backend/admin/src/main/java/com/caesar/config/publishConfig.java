@@ -2,11 +2,16 @@ package com.caesar.config;
 
 import com.caesar.constant.EngineConfig;
 import com.caesar.util.JSONUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -34,6 +39,7 @@ public class publishConfig {
             LOGGER.warning("Scheduler Initializing faild");
             e.printStackTrace();
         }
+
         // 分发配置
         publishCommon();
         publishEngine();
@@ -61,6 +67,20 @@ public class publishConfig {
         if (null != caesarConfig && caesarConfig.containsKey("engine")) {
             engineConfig = (Map<String, Object>)caesarConfig.get("engine");
         }
+
+        // 加入资源
+        Map<String, String> shellMapping = ShellMapping.getShellMapping();
+        for(String shell:shellMapping.keySet()){
+            String shellScript = "";
+            Resource sparkResource = new ClassPathResource(shellMapping.get(shell));
+            try {
+                shellScript = IOUtils.toString(sparkResource.getInputStream(), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            engineConfig.put(shell.toLowerCase().trim(),shellScript);
+        }
+
         EngineConfig.setConfigMap(engineConfig);
         LOGGER.info("Engine Configuration: " + engineConfig);
     }

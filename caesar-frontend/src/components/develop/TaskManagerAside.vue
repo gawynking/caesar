@@ -8,18 +8,21 @@
                 <span>{{ item.menuName }}</span>
             </template>
 
-            <el-submenu v-for="child in item.children" :key="child.menuIndex" :index="child.menuIndex" v-if="!child.isLeaf">
+            <el-submenu v-for="child in item.children" :key="child.menuIndex" :index="child.menuIndex"
+                v-if="!child.isLeaf">
 
                 <template slot="title">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>{{ child.menuName }}</span>
-                        <el-button type="text" size="mini" style="margin-right: 10px;" @click.native.prevent="addSubtask($event, child)">
+                        <el-button type="text" size="mini" style="margin-right: 10px;"
+                            @click.native.prevent="addSubtask($event, child)">
                             <i class="el-icon-circle-plus-outline"></i>
                         </el-button>
                     </div>
                 </template>
 
-                <el-menu-item v-for="grandChild in child.children" :key="grandChild.menuIndex" :index="grandChild.menuIndex">
+                <el-menu-item v-for="grandChild in child.children" :key="grandChild.menuIndex"
+                    :index="grandChild.menuIndex">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>{{ grandChild.menuName }}</span>
 
@@ -53,14 +56,17 @@
 
                 <el-form-item label="用户组">
                     <el-select v-model="selectedGroup" placeholder="请选择用户组" @change="onGroupChange">
-                    <el-option v-for="group in groups" :key="group.groupId" :label="group.groupName" :value="group.groupId">
-                    </el-option>
+                        <el-option v-for="group in groups" :key="group.groupId" :label="group.groupName"
+                            :value="group.groupId">
+                        </el-option>
                     </el-select>
                 </el-form-item>
+
                 <el-form-item label="数据库名">
                     <el-select v-model="dbName" placeholder="请选择数据库">
-                    <el-option v-for="item in filteredDbNames" :key="item.id" :label="item.levelTag" :value="item.levelTag">
-                    </el-option>
+                        <el-option v-for="item in filteredDbNames" :key="item.dbName" :label="item.dbName"
+                            :value="item.dbName">
+                        </el-option>
                     </el-select>
                 </el-form-item>
 
@@ -86,7 +92,8 @@ export default {
     data() {
         return {
             asideListData: [],
-            loginUser: 'admin',
+            loginUser: '',
+            menuDbMapping: [],
             filterText: '',
             selectedTasks: [],
             dialogVisible: false,
@@ -96,7 +103,7 @@ export default {
             selectedGroup: null,
             engine: 102,
             engines: [],
-            groups:[],
+            groups: [],
             taskDeleteVisible: false
         }
     },
@@ -109,24 +116,25 @@ export default {
         EventBus.$on('tasks-selectedTasks', data => {
             this.selectedTasks = data;
         });
-        this.loadData(this.filterText);
+        console.log("加载菜单数据 - created() " + sessionStorage.getItem('loginUser') + ".*")
+        this.loadData(sessionStorage.getItem('loginUser')+".*");
+        this.loadMenuDbs();
     },
     mounted() {
         this.loginUser = sessionStorage.getItem('loginUser');
         this.$nextTick(() => {
             this.syncFilterText();
-            this.loadData(this.filterText);
         });
         this.loadEngines();
         this.loadBbs();
     },
     beforeMount() {
         this.syncFilterText();
-        this.loadData(this.filterText);
     },
     watch: {
         filterText(newFilterText) {
             this.syncFilterText();
+            console.log("加载菜单数据 - watch.filterText " + this.filterText)
             this.loadData(newFilterText);
         },
         selectedTasks(selectedTasks) {
@@ -140,14 +148,30 @@ export default {
             }
             const group = this.groups.find(g => g.groupId === this.selectedGroup);
             return group ? group.dbInfos : [];
+        },
+        filteredDbNames() {
+            return this.menuDbMapping.filter(
+                (item) => item.menuIndex === this.currentMenuItem.menuIndex
+            );
         }
     },
     methods: {
+        async loadMenuDbs() {
+            try {
+                const response = await this.$axios.get("/develop/getMenuDbs");
+                if (response.data && response.data.status === 'success') {
+                    this.menuDbMapping = response.data.data.items;
+                }
+            } catch (error) {
+                console.error("Failed to load data:", error);
+            }
+        },
         async loadData(filterText) {
             try {
                 const response = await this.$axios.get("/develop/listTask", {
                     params: { partten: filterText }
                 });
+                console.log(' ==> ' + JSON.stringify(response.data.data.items))
                 if (response.data && response.data.status === 'success') {
                     this.asideListData = response.data.data.items;
                     EventBus.$emit("asideListData", this.asideListData);
@@ -185,6 +209,7 @@ export default {
             })
         },
         addSubtask(event, child) {
+            console.log(' ==> ' + JSON.stringify(child))
             event.stopPropagation();
             this.currentMenuItem = child;
             this.dialogVisible = true;
@@ -200,6 +225,7 @@ export default {
                 });
                 if (response.data && response.data.status === 'success') {
                     console.log('删除任务成功.')
+                    console.log("加载菜单数据 - sendDeleteSubtask" + this.filterText)
                     this.loadData(this.filterText);
                 }
             } catch (error) {
@@ -221,22 +247,27 @@ export default {
                     menuIndex: this.currentMenuItem.menuIndex,
                     taskName: this.dbName + '.' + this.newTaskName,
                     engine: this.engine,
-                    groupId:this.selectedGroup,
+                    groupId: this.selectedGroup,
                     createdUserName: this.loginUser,
                     updatedUserName: this.loginUser
                 });
                 if (response.data && response.data.status === 'success') {
                     console.log('创建新任务成功.')
+                    console.log("加载菜单数据 - submitTask" + this.filterText)
                     this.loadData(this.filterText);
                 }
             } catch (error) {
                 console.error("Failed to load data:", error);
             }
             this.newTaskName = '';
+            this.selectedGroup = '';
+            this.dbName = '';
         },
         cancelTask() {
             this.dialogVisible = false;
             this.newTaskName = '';
+            this.selectedGroup = '';
+            this.dbName = '';
         }
     }
 };

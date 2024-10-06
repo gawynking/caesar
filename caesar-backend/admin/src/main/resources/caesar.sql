@@ -148,6 +148,7 @@ create table caesar_group_service(
     id          int not null auto_increment                                              comment 'ID',
     group_id    int not null                                                             comment '组ID',
     service_tag varchar(64) not null                                                     comment '服务标识',
+    menu_index  varchar(32) not null                                                     comment '所属菜单索引',
     level_tag   varchar(64) not null                                                     comment '分层标识',
     is_test     int default 0 not null                                                   comment '是否测试: 1-是 0-否',
     create_time timestamp not null default current_timestamp                             comment '创建时间戳',
@@ -156,12 +157,12 @@ create table caesar_group_service(
 ) engine = innodb default charset=utf8mb4
 comment '组服务表'
 ;
-insert into caesar_group_service(group_id,service_tag,level_tag,is_test)values(1,'default','ods',0);
-insert into caesar_group_service(group_id,service_tag,level_tag,is_test)values(1,'default','dim',0);
-insert into caesar_group_service(group_id,service_tag,level_tag,is_test)values(1,'default','dwd',0);
-insert into caesar_group_service(group_id,service_tag,level_tag,is_test)values(1,'default','dws',0);
-insert into caesar_group_service(group_id,service_tag,level_tag,is_test)values(1,'default','ads',0);
-insert into caesar_group_service(group_id,service_tag,level_tag,is_test)values(1,'default','tmp_db',1);
+insert into caesar_group_service(group_id,service_tag,menu_index,level_tag,is_test)values(1,'default','ods','ods',0);
+insert into caesar_group_service(group_id,service_tag,menu_index,level_tag,is_test)values(1,'default','dw','dim',0);
+insert into caesar_group_service(group_id,service_tag,menu_index,level_tag,is_test)values(1,'default','dw','dwd',0);
+insert into caesar_group_service(group_id,service_tag,menu_index,level_tag,is_test)values(1,'default','dw','dws',0);
+insert into caesar_group_service(group_id,service_tag,menu_index,level_tag,is_test)values(1,'default','ads','ads',0);
+insert into caesar_group_service(group_id,service_tag,menu_index,level_tag,is_test)values(1,'default','tmp','tmp_db',1);
 
 
 -- 任务表
@@ -241,6 +242,8 @@ create table caesar_task_parameter(
 ) engine = innodb default charset=utf8mb4
 comment '任务开发参数表'
 ;
+insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{dt\}','ETL调度日期,默认昨天,格式: yyyyMMdd','getDt');
+insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{etl_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd','getEtlDate');
 insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{start_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd','getStartDate');
 insert into caesar_task_parameter(param_name,param_desc,expression)values('\$\{end_date\}','ETL调度日期,默认昨天,格式: yyyy-MM-dd','getEndDate');
 

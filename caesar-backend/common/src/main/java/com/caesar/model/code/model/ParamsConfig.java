@@ -8,9 +8,8 @@ import java.util.List;
 public class ParamsConfig implements CodeModel {
 
     private String content;
-    private List<Pair> systemParams;
-    private List<String> engineParams;
-    private List<String> customParams;
-
+    private List<CaesarParams> systemParams;
+    private List<CaesarParams> engineParams;
+    private List<CaesarParams> customParams;
 
 }

@@ -15,4 +15,6 @@ public interface EngineConstant {
 
     public static final String ENVIRONMENT = "environment";
 
+    public static final String SPARK_SHELL = "spark_shell";
+
 }

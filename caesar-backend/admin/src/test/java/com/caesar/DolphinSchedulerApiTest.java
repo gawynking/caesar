@@ -399,7 +399,7 @@ public class DolphinSchedulerApiTest {
         dependency.add(dependencyModel2);
         schedulerModel.setDependency(dependency);
 
-        schedulerModel.setDelete(true);
+//        schedulerModel.setDelete(true);
         JSONObject s = dolphinSchedulerInstance.deployTask(schedulerModel);
         System.out.println("----------------- " + s);
 
@@ -424,7 +424,7 @@ public class DolphinSchedulerApiTest {
         dependency.add(dependencyModel2);
         schedulerModel.setDependency(dependency);
 
-        schedulerModel.setDelete(true);
+//        schedulerModel.setDelete(true);
         ScheduleResponse response = schedulerFacade.deployTask(schedulerModel);
         System.out.println("----------------- " + response);
 

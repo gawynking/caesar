@@ -10,6 +10,7 @@ import com.caesar.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
+import com.caesar.spark.engine.SparkEngine;
 import com.caesar.util.JdbcUrlParserUtils;
 import com.caesar.util.StringUtils;
 
@@ -33,33 +34,7 @@ public class HiveEngine extends ShellTask implements Engine {
 
 
     public ExecutionResult executeShell(TaskInfo taskInfo) {
-
-        TextEngineFactory textEngineFactory = new TextEngineFactory();
-        Engine textEngineFactoryEngine = textEngineFactory.createEngine(taskInfo.getConfig());
-        ExecutionResult textExecutionResult = textEngineFactoryEngine.execute(taskInfo);
-        String scriptPath = (String) textExecutionResult.getData();
-
-        super.systemUser = taskInfo.getSystemUser();
-        List<String> commands = super.getJobPrefix();
-
-        commands.add("hive");
-        commands.add("-f");
-        commands.add(scriptPath);
-
-
-        try {
-            Invoker invoker = new Invoker(new HiveCommand(commands.toArray(new String[0])));
-            ExecutionResult<ShellTask> result = invoker.executeCommand();
-            if (result.isSuccess()) {
-                return new ExecutionResult(true, "Task submit execute.");
-            } else {
-                return new ExecutionResult(false, "Failed to submit task.");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ExecutionResult(false, e.getMessage());
-        }
+        return new SparkEngine().execute(taskInfo);
     }
 
 }

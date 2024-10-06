@@ -10,6 +10,7 @@ public class SparkCommand implements Command {
 
     public SparkCommand(String[] command) {
         this.receiver = new SparkReceiver();
+        this.command = command;
     }
 
     @Override

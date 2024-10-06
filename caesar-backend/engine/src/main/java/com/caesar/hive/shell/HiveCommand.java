@@ -10,6 +10,7 @@ public class HiveCommand implements Command {
 
     public HiveCommand(String[] command) {
         this.receiver = new HiveReceiver();
+        this.command = command;
     }
 
     @Override

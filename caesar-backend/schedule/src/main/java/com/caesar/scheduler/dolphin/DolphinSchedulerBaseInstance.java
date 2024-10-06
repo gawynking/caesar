@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public abstract class DolphinSchedulerBaseInstance {
 
 
-    private static final Logger LOGGER = Logger.getLogger(DolphinSchedulerBaseInstance.class.getName());
+    private static final Logger logger = Logger.getLogger(DolphinSchedulerBaseInstance.class.getName());
 
     DolphinSchedulerAPI schedulerAPI;
 
@@ -142,7 +142,7 @@ public abstract class DolphinSchedulerBaseInstance {
         try {
             JSONObject projectListObject = this.schedulerAPI.queryAllProjectList();
             if(!"success".equals(projectListObject.getString("msg"))){
-                LOGGER.warning("查询项目列表接口失败");
+                logger.warning("查询项目列表接口失败");
                 return null;
             }
             JSONArray projectList = projectListObject.getJSONArray("data");

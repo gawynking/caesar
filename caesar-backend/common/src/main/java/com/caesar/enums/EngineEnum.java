@@ -25,8 +25,8 @@ public enum EngineEnum {
     private final int tag;
     private final String engine;
 
-    EngineEnum(int value, String label) {
-        this.tag = value;
+    EngineEnum(int tag, String label) {
+        this.tag = tag;
         this.engine = label;
     }
 

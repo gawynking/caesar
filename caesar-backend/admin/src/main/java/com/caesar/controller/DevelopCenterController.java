@@ -9,10 +9,10 @@ import com.caesar.entity.vo.CaesarGroupServiceVo;
 import com.caesar.entity.vo.CaesarTaskParameterVo;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.AddTaskVo;
-import com.caesar.entity.vo.request.TaskCompareVo;
 import com.caesar.entity.vo.request.TaskExecuteVo;
 import com.caesar.entity.vo.request.TaskRefreshVo;
 import com.caesar.entity.vo.response.CaesarTaskVersionVo;
+import com.caesar.entity.vo.response.MenuDbs;
 import com.caesar.model.JsonResponse;
 import com.caesar.model.MenuModel;
 import com.caesar.model.MenuNode;
@@ -27,11 +27,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 @RestController
 @RequestMapping("/develop")
 public class DevelopCenterController {
+
+    private static final Logger LOGGER = Logger.getLogger(DevelopCenterController.class.getName());
+
 
     @Autowired
     DevelopCenterService developCenterService;
@@ -56,10 +60,12 @@ public class DevelopCenterController {
     @GetMapping("/listTask")
     public JsonResponse<List<MenuNode>> listTask(@RequestParam String partten) {
         try {
+            LOGGER.info(String.format("输入参数 => %s",partten));
             List<MenuModel> caesarMenus = new ArrayList<>();
             caesarMenus.addAll(menuManagerService.listMenuForAside());
             caesarMenus.addAll(developCenterService.listTaskToMenu(partten));
             List<MenuNode> menuNodes = MenuModel.convert(caesarMenus);
+            LOGGER.info(String.format("返回菜单列表 => %s",menuNodes.toString()));
             return JsonResponse.success(menuNodes);
         }catch (Exception e){
             e.printStackTrace();
@@ -100,10 +106,10 @@ public class DevelopCenterController {
             if (!newChecksum.equals(lastChecksum)) {
                 caesarTaskVo.setChecksum(newChecksum);
                 CaesarTaskDto caesarTaskDto = BeanConverterTools.convert(caesarTaskVo, CaesarTaskDto.class);
-                int i = developCenterService.saveTask(caesarTaskDto);
-                return JsonResponse.success("保存任务成功");
+                int currentVersion = developCenterService.saveTask(caesarTaskDto);
+                return JsonResponse.success(String.valueOf(currentVersion));
             }
-            return JsonResponse.success("任务没有变化");
+            return JsonResponse.fail("任务没有变化");
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -148,7 +154,7 @@ public class DevelopCenterController {
     }
 
     @GetMapping("/getTaskVersions")
-    public JsonResponse<CaesarTaskVersionVo> getTaskVersions(@RequestParam String taskName, int currentVersion) {
+    public JsonResponse<CaesarTaskVersionVo> getTaskVersions(@RequestParam String taskName, @RequestParam int currentVersion) {
         try {
             CaesarTaskVersionVo taskVersions = developCenterService.getTaskVersions(taskName, currentVersion);
             return JsonResponse.success(taskVersions);
@@ -201,6 +207,19 @@ public class DevelopCenterController {
         }
         return JsonResponse.fail("获取数据库信息失败");
     }
+
+
+    @GetMapping("/getMenuDbs")
+    public JsonResponse<List<MenuDbs>> getMenuDbs() {
+        try {
+            List<MenuDbs> menuDbs = groupServiceService.getMenuDbs();
+            return JsonResponse.success(menuDbs);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取菜单对应数据库信息失败");
+    }
+
 
     @PostMapping("/execute")
     public JsonResponse<String> execute(@RequestBody TaskExecuteVo taskExecuteVo) {

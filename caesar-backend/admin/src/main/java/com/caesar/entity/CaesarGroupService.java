@@ -7,6 +7,7 @@ public class CaesarGroupService extends BaseEntity{
 
     int groupId;
     String serviceTag;
+    String menuIndex;
     String levelTag;
     int isTest;
 

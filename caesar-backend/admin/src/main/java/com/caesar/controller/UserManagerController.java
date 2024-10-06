@@ -92,4 +92,15 @@ public class UserManagerController {
         return JsonResponse.fail("添加用户失败");
     }
 
+    @GetMapping("/getUserIdFromUsername")
+    public JsonResponse<Integer> getUserIdFromUsername(@RequestParam String userName){
+        try {
+            Integer userId = userService.getUserIdFromUserName(userName);
+            return JsonResponse.success(userId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("Username转userId失败");
+    }
+
 }

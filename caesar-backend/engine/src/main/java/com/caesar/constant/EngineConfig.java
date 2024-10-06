@@ -15,12 +15,12 @@ public class EngineConfig {
         return configMap;
     }
 
-    public static Map<String, ?> getScheduleProperties() {
+    public static Map<String, ?> getEngineProperties() {
         return configMap;
     }
 
     public static Map<String, ?> getMap(String key) {
-        Map<String, ?> scheduleProps = getScheduleProperties();
+        Map<String, ?> scheduleProps = getEngineProperties();
         if (scheduleProps != null && scheduleProps.containsKey(key)) {
             return (Map<String, ?>) scheduleProps.get(key);
         }
@@ -28,7 +28,7 @@ public class EngineConfig {
     }
 
     public static String getString(String key) {
-        Map<String, ?> scheduleProps = getScheduleProperties();
+        Map<String, ?> scheduleProps = getEngineProperties();
         if (scheduleProps != null && scheduleProps.containsKey(key)) {
             return (String) scheduleProps.get(key);
         }
@@ -36,7 +36,7 @@ public class EngineConfig {
     }
 
     public static Integer getInteger(String key) {
-        Map<String, ?> scheduleProps = getScheduleProperties();
+        Map<String, ?> scheduleProps = getEngineProperties();
         if (scheduleProps != null && scheduleProps.containsKey(key)) {
             return (Integer) scheduleProps.get(key);
         }
@@ -44,7 +44,7 @@ public class EngineConfig {
     }
 
     public static Boolean getBoolean(String key) {
-        Map<String, ?> scheduleProps = getScheduleProperties();
+        Map<String, ?> scheduleProps = getEngineProperties();
         if (scheduleProps != null && scheduleProps.containsKey(key)) {
             return (Boolean) scheduleProps.get(key);
         }
@@ -52,7 +52,7 @@ public class EngineConfig {
     }
 
     public static Long getLong(String key) {
-        Map<String, ?> scheduleProps = getScheduleProperties();
+        Map<String, ?> scheduleProps = getEngineProperties();
         if (scheduleProps != null && scheduleProps.containsKey(key)) {
             return (Long) scheduleProps.get(key);
         }

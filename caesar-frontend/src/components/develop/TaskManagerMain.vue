@@ -59,9 +59,9 @@
                                 </el-dropdown>
 
 
-                                <el-button type="primary" size="mini" plain @click="handleCodeAreaEdit">{{
-                                    item.editName }}</el-button>
+                                <el-button type="primary" size="mini" plain @click="handleCodeAreaEdit">{{ item.editName }}</el-button>
                                 <el-button type="primary" size="mini" plain @click="handleCodeAreaSave">保存</el-button>
+
                                 <el-dropdown @command="handleExecute" style="margin-left: 10px; margin-right: 10px;">
                                     <el-button type="primary" size="mini" plain>
                                         执行
@@ -69,9 +69,8 @@
                                     </el-button>
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item command="test">测试</el-dropdown-item>
-                                        <el-dropdown-item command="staging">预发</el-dropdown-item>
-                                        <el-dropdown-item :disabled="isOnlineTask"
-                                            command="production">生产</el-dropdown-item>
+                                        <!-- <el-dropdown-item command="staging">预发</el-dropdown-item> -->
+                                        <el-dropdown-item :disabled="isOnlineTask"command="production">生产</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
 
@@ -99,6 +98,7 @@
                                         </div>
                                     </el-dialog>
                                 </div>
+
                                 <div>
                                     <!-- 发布按钮 -->
                                     <el-button type="primary" size="mini" plain
@@ -467,7 +467,6 @@ export default {
         EventBus.$on('tasks-selectedTasks', data => {
             this.selectedTasks = data;
         });
-
     },
     mounted() {
         this.loginUser = sessionStorage.getItem('loginUser');
@@ -589,6 +588,8 @@ export default {
             this.activeTask = taskInfo.taskName;
             // 调用后端插入数据 
             try {
+                console.log('save task == ' + JSON.stringify(taskInfo))
+                const updateUser = await this.getUserIdFromUsername(this.loginUser);
                 const response = await this.$axios.post("/develop/saveTask", {
                     menuId: taskInfo.menuId,
                     taskType: taskInfo.taskType,
@@ -599,7 +600,7 @@ export default {
                     taskScript: code,
                     lastVersion: taskInfo.version,
                     createdUser: taskInfo.createdUser,
-                    updatedUser: taskInfo.updatedUser,
+                    updatedUser: updateUser,
                     createTime: taskInfo.createTime
                 });
                 if (response.data && response.data.status === 'success') {
@@ -610,12 +611,22 @@ export default {
                     currentTab.taskVersions = taskVersions.caesarTaskVos;
                     currentTab.defaultVersion = taskVersions.currentVersion;
                 }
-                if (response.data.status === 'fail' && response.data.message === 'noChange') {
-                    alert("您的任务没有变更!");
+                if (response.data.status === 'fail') {
+                    alert(response.data.message);
                 }
             } catch (error) {
                 console.error("Failed to load data:", error);
             }
+        },
+        async getUserIdFromUsername(userName){
+            const response = await this.$axios.get("/user/getUserIdFromUsername", {
+                    params: {
+                        userName: userName
+                    }
+                });
+                if (response.data && response.data.status === 'success') {
+                    return response.data.data.items;
+                }
         },
         async getCurrentTaskInfoWithVersion(taskName, version) {
             try {
@@ -653,7 +664,6 @@ export default {
         },
         handleSencodTabClick(thisTab, event) {
             if (thisTab.name === "schedule-config") {
-                console.log("---------------------------------------------")
                 this.fetchScheduleList()
                 this.fetchScheduleBaseInfo()
             }
@@ -682,13 +692,7 @@ export default {
         async handleExecute(environment) {
             this.dialogVisible = true;
             this.environment = environment;
-            // this.handleCodeAreaSave();
-            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
-            this.submitRefresh(environment);
         },
-        // handleRefresh() {
-        //     this.dialogVisible = true;
-        // },
         validateForm() {
             if (!this.form.period || !this.form.startDate || !this.form.endDate) {
                 this.$message.error('请完整填写表单');
@@ -712,7 +716,7 @@ export default {
 
             return true;
         },
-        async submitRefresh(environment) {
+        async submitRefresh() {
             if (!this.validateForm()) {
                 return;
             }
@@ -724,14 +728,15 @@ export default {
                 const endDate = moment(this.form.endDate).tz(timezone).format(format);
 
                 const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
-                const response = await this.$axios.post('/develop/refresh', {
+                const requestData = {
                     version: currentTab.taskInfo.version,
                     taskName: currentTab.taskInfo.taskName,
-                    environment: environment,
+                    environment: this.environment,
                     period: this.form.period,
                     startDate: startDate,
                     endDate: endDate
-                });
+                }
+                const response = await this.$axios.post('/develop/refresh', requestData);
                 if (response.data.status === 'success') {
                     this.$message.success('回刷请求已发送');
                 } else {
@@ -741,6 +746,9 @@ export default {
                 this.$message.error('回刷请求失败');
             } finally {
                 this.dialogVisible = false;
+                this.form.period = '';
+                this.form.startDate = '';
+                this.form.endDate = '';
             }
         },
         showPublishDialog() {

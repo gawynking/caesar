@@ -2,14 +2,19 @@ package com.caesar.model.code;
 
 
 import com.caesar.enums.EngineEnum;
+import com.caesar.enums.ParamsCategoryEnum;
 import com.caesar.enums.TemplateSectionEnum;
 import com.caesar.model.code.model.*;
+import com.caesar.util.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class TaskContentParser {
+
+    private static final Logger logger = Logger.getLogger(TaskContentParser.class);
 
     private TaskContentModel taskContentModel;
 
@@ -32,20 +37,6 @@ public class TaskContentParser {
         return stringBuffer.toString();
     }
 
-    public String generateExecuteScript(){
-        StringBuffer execScript = new StringBuffer();
-        ParamsConfig paramsConfig = this.taskContentModel.getParamsConfig();
-        SchemaDefine schemaDefine = this.taskContentModel.getSchemaDefine();
-        EtlProcess etlProcess = this.taskContentModel.getEtlProcess();
-
-        execScript.append(getString(paramsConfig.getEngineParams())).append("\n");
-        execScript.append(getString(paramsConfig.getCustomParams())).append("\n");
-        execScript.append(schemaDefine.getContent()).append("\n");
-        execScript.append(etlProcess.getContent());
-
-        return execScript.toString();
-    }
-
 
     // 解析模板内容
     private TaskContentModel parseScriptContent(String content) {
@@ -53,13 +44,15 @@ public class TaskContentParser {
         TaskContentModel taskContentModel = new TaskContentModel();
 
         List<String> meta = new ArrayList<>();
-        List<String> params = new ArrayList();
+        ParamsModel params = new ParamsModel();
         List<String> schema = new ArrayList();
         List<String> etl = new ArrayList();
 
         TemplateSectionEnum flag = TemplateSectionEnum.OTHER;
+        ParamsCategoryEnum paramsCategory = ParamsCategoryEnum.OTHER;
         String[] lines = content.split("\n");
         for(String line :lines){
+            line = line.trim();
             if(line.replaceAll("\\s","").toUpperCase().startsWith("###META#########")){
                 flag = TemplateSectionEnum.META;
                 continue;
@@ -74,10 +67,31 @@ public class TaskContentParser {
                 continue;
             }
 
-            if(TemplateSectionEnum.META == flag && !line.replaceAll("\\s","").startsWith("#")){
+            if(line.replaceAll("\\s","").toUpperCase().startsWith("##系统参数")){
+                paramsCategory = ParamsCategoryEnum.SYSTEM;
+                continue;
+            } else if (line.replaceAll("\\s","").toUpperCase().startsWith("##引擎参数")) {
+                paramsCategory = ParamsCategoryEnum.ENGINE;
+                continue;
+            } else if (line.replaceAll("\\s","").toUpperCase().startsWith("##自定义UDF&参数")) {
+                paramsCategory = ParamsCategoryEnum.CUSTOM;
+                continue;
+            }
+
+            if(TemplateSectionEnum.META == flag && !line.replaceAll("\\s","").startsWith("#") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim())){
                 meta.add(line);
-            } else if(TemplateSectionEnum.PARAMS == flag && !line.replaceAll("\\s","").startsWith("#")){
-                params.add(line);
+            } else if(TemplateSectionEnum.PARAMS == flag && !line.replaceAll("\\s","").startsWith("#") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim()) && line.replaceAll("\\s","").contains("=")){
+                switch (paramsCategory){
+                    case SYSTEM:
+                        params.addSystemParams(line);
+                        break;
+                    case ENGINE:
+                        params.addEngineParams(line);
+                        break;
+                    case CUSTOM:
+                        params.addCustomParams(line);
+                        break;
+                }
             } else if(TemplateSectionEnum.SCHEMA == flag && !line.replaceAll("\\s","").startsWith("#")){
                 schema.add(line);
             } else if(TemplateSectionEnum.ETL == flag && !line.replaceAll("\\s","").startsWith("#")){
@@ -123,50 +137,93 @@ public class TaskContentParser {
         return schemaDefine;
     }
 
-    private ParamsConfig parseParams(List<String> paramsList){
+    private ParamsConfig parseParams(ParamsModel paramsModel){
         ParamsConfig paramsConfig = new ParamsConfig();
 
         String content;
-        List<Pair> systemParams = new ArrayList<>();
-        List<String> engineParams = new ArrayList<>();
-        List<String> customParams = new ArrayList<>();
+        List<CaesarParams> systemParams = new ArrayList<>();
+        List<CaesarParams> engineParams = new ArrayList<>();
+        List<CaesarParams> customParams = new ArrayList<>();
 
         StringBuffer sb = new StringBuffer();
-        int flag = -1;
-        for(String line:paramsList){
+        for(String line:paramsModel.getSystemParams()){
             sb.append(line).append("\n");
-            if(line.replaceAll("\\s","").startsWith("--系统参数")){
-                flag = 1;
-                continue;
-            }
-            if(line.replaceAll("\\s","").startsWith("--引擎参数")){
-                flag = 2;
-                continue;
-            }
-            if(line.replaceAll("\\s","").startsWith("--自定义参数")){
-                flag = 3;
-                continue;
-            }
 
-            if(flag==1){
+            /**
+             * 预定义格式: set caesar.xxx = xxx;
+             */
+            if(true){
                 String[] pairArray = line
                         .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
                         .replaceAll("\\s","")
                         .replaceAll(";","")
                         .trim()
-                        .split(";");
+                        .split("=");
+                if(!pairArray[0].startsWith("caesar")){
+                    logger.warn(String.format("系统参数格式不符合预期:原始参数 => %s",line));
+                    continue;
+                }
                 Pair pair = new Pair();
-                pair.setKey(pairArray[0]);
-                pair.setValue(pairArray[1]);
+                pair.setKey(pairArray[0].trim());
+                pair.setValue(pairArray[1].trim());
                 systemParams.add(pair);
             }
-            if(flag==2){
-                engineParams.add(line);
+
+        }
+
+        for(String line:paramsModel.getEngineParams()){
+            sb.append(line).append("\n");
+
+            /**
+             * 预定义格式: set xxx = xxx;
+             */
+            if(true){
+                String[] pairArray = line
+                        .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
+                        .replaceAll("\\s","")
+                        .replaceAll(";","")
+                        .trim()
+                        .split("=");
+                Pair pair = new Pair();
+                pair.setKey(pairArray[0].trim());
+                pair.setValue(pairArray[1].trim());
+                engineParams.add(pair);
             }
-            if(flag==3){
-                customParams.add(line);
+
+        }
+
+
+        for(String line:paramsModel.getCustomParams()){
+            sb.append(line).append("\n");
+
+            /**
+             * 预定义格式:
+             *  type1: set xxx = xxx;
+             *  type2:
+             *      add jar xxx;
+             *      create [temporary] function xxx;
+             */
+            if(true){
+                if(line.replaceAll("\\s"," ").trim().startsWith("set")){
+                    String[] pairArray = line
+                            .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
+                            .replaceAll("\\s","")
+                            .replaceAll(";","")
+                            .trim()
+                            .split("=");
+                    Pair pair = new Pair();
+                    pair.setKey(pairArray[0].trim());
+                    pair.setValue(pairArray[1].trim());
+                    customParams.add(pair);
+                }
+                if(line.replaceAll("\\s"," ").trim().startsWith("create function") || line.replaceAll("\\s"," ").trim().startsWith("create temporary function")){
+                    CustomFunctionParams customFunctionParams = new CustomFunctionParams();
+                    customFunctionParams.setStatement(line.replaceAll("\\s"," ").trim());
+                    customParams.add(customFunctionParams);
+                }
             }
         }
+
         content = sb.deleteCharAt(sb.length()-1).toString();
 
         paramsConfig.setContent(content);

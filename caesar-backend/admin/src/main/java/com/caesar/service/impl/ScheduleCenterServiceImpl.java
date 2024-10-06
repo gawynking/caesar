@@ -9,6 +9,7 @@ import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
 import com.caesar.entity.vo.response.ScheduleInfoVo;
 import com.caesar.entity.vo.response.TaskDependency;
+import com.caesar.exception.EngineNotDefineException;
 import com.caesar.exception.SqlParseException;
 import com.caesar.mapper.ScheduleConfigMapper;
 import com.caesar.mapper.ScheduleDependencyMapper;
@@ -111,8 +112,14 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
     @Override
     public List<TaskDependency> getTaskDependencies(String taskName, Integer version, String period) throws SqlParseException {
         String rawTaskCode = taskMapper.getCurrentTaskInfoWithVersion(taskName,version).getTaskScript();
-        TaskContentParser taskContentParser = new TaskContentParser(rawTaskCode);
-        String taskCode = TemplateUtils.transformSqlTemplate(taskContentParser);
+        String taskCode = null;
+        TemplateUtils.ExecuteScript executeScript = null;
+        try {
+            executeScript = TemplateUtils.transformSqlTemplate(rawTaskCode);
+            taskCode = executeScript.getScript();
+        } catch (EngineNotDefineException e) {
+            throw new RuntimeException(e);
+        }
 
         List<TaskDependency> dependencys = new ArrayList<>();
         for(String sql:taskCode.split(";")){
@@ -205,8 +212,14 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         }
 
         String rawTaskCode = taskMapper.getCurrentTaskInfoWithVersion(scheduleInfo.getTaskName(),scheduleInfo.getTaskVersion()).getTaskScript();
-        TaskContentParser taskContentParser = new TaskContentParser(rawTaskCode);
-        String taskCode = TemplateUtils.transformSqlTemplate(taskContentParser);
+        String taskCode = null;
+        TemplateUtils.ExecuteScript executeScript = null;
+        try {
+            executeScript = TemplateUtils.transformSqlTemplate(rawTaskCode);
+            taskCode = executeScript.getScript();
+        } catch (EngineNotDefineException e) {
+            throw new RuntimeException(e);
+        }
         scheduleInfo.setTaskCode(taskCode);
 
         LOGGER.info("本次创建任务执行脚本如下: " + taskCode);
@@ -244,8 +257,14 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         }
 
         String rawTaskCode = taskMapper.getCurrentTaskInfoWithVersion(scheduleInfo.getTaskName(),scheduleInfo.getTaskVersion()).getTaskScript();
-        TaskContentParser taskContentParser = new TaskContentParser(rawTaskCode);
-        String taskCode = TemplateUtils.transformSqlTemplate(taskContentParser);
+        String taskCode = null;
+        TemplateUtils.ExecuteScript executeScript = null;
+        try {
+            executeScript = TemplateUtils.transformSqlTemplate(rawTaskCode);
+            taskCode = executeScript.getScript();
+        } catch (EngineNotDefineException e) {
+            throw new RuntimeException(e);
+        }
         scheduleInfo.setTaskCode(taskCode);
 
         LOGGER.info("本次创更新务执行脚本如下: " + taskCode);
