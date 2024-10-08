@@ -5,8 +5,9 @@ import com.caesar.params.TaskInfo;
 
 public class Executor {
 
+    private static EngineManager engineManager = new EngineManager();
+
     public static ExecutionResult execute(TaskInfo task){
-        EngineManager engineManager = new EngineManager();
         ExecutionResult result = engineManager.execute(task);
         return result;
     }

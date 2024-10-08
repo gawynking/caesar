@@ -41,6 +41,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
     @Override
     public Boolean execute(CaesarTaskExecuteRecordDto taskExecuteRecordDto) {
 
+        String parameter = taskExecuteRecordDto.getParameter();
         EnvironmentEnum environment = EnvironmentEnum.fromKey(taskExecuteRecordDto.getEnvironment());
         CaesarTask caesarTask = taskMapper.getTaskInfoFromId(taskExecuteRecordDto.getTaskId());
         TaskInfo task = new TaskInfo();
@@ -78,6 +79,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         task.setEngineParams(executeScript.getEngineParams());
         task.setCustomParamValues(executeScript.getCustomParamValues());
         task.setCode(script);
+        task.setTaskParams(JSONUtils.getMapFromJSONObject(JSONUtils.getJSONObjectFromString(parameter)));
 
         int datasourceType = -1;
         switch (environment){
@@ -103,7 +105,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         taskExecuteRecord.setEnvironment(environment.getKey());
         taskExecuteRecord.setBeginTime(LocalDateTime.now());
         taskExecuteRecord.setIsSuccess(0);
-        taskExecuteRecord.setParameter(taskExecuteRecordDto.getParameter());
+        taskExecuteRecord.setParameter(parameter);
 
         switch (environment){
             case TEST:

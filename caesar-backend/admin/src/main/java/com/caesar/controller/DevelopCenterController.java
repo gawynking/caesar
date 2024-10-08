@@ -252,6 +252,8 @@ public class DevelopCenterController {
                     while (DateUtils.dateCompare(startDate, endDate) <= 0) {
                         CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
                         JSONObject parameter = JSONUtils.getJSONObject();
+                        parameter.put("period","day");
+                        parameter.put("etl_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
                         parameter.put("start_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
                         parameter.put("end_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
@@ -264,6 +266,8 @@ public class DevelopCenterController {
                     while (DateUtils.dateCompare(startDate, endDate) <= 0) {
                         CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
                         JSONObject parameter = JSONUtils.getJSONObject();
+                        parameter.put("period","month");
+                        parameter.put("etl_date", DateUtils.getMonthStart(startDate));
                         parameter.put("start_date", DateUtils.getMonthStart(startDate));
                         parameter.put("end_date", DateUtils.getMonthEnd(startDate));
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());

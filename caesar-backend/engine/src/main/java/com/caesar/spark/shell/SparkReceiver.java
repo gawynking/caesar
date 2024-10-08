@@ -7,16 +7,17 @@ import com.caesar.task.Task;
 
 public class SparkReceiver {
 
+    private static TaskManager taskManager = new TaskManager();
+
     ExecutionResult<ShellTask> result;
 
     public ExecutionResult<Task> runSparkQuery(String[] command) {
-        TaskManager taskManager = new TaskManager();
         ExecutionResult<Task> result = taskManager.submitTask(command);
         return result;
     }
 
     public ExecutionResult cancelSparkQuery(String taskId) {
-        return new TaskManager().terminateTask(taskId);
+        return taskManager.terminateTask(taskId);
     }
 
 }

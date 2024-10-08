@@ -130,9 +130,19 @@ public class SparkEngine extends ShellTask implements Engine {
 
         commands.add("sh");
         commands.add(shellFilePath);
+        // caesar执行，这里要替换成变量对应的具体值
+//        for(String variable:customParamValues.keySet()){
+//            variable = variable.trim();
+//            commands.add("${"+variable+"}");
+//        }
+        Map<String, String> taskParams = taskInfo.getTaskParams();
         for(String variable:customParamValues.keySet()){
             variable = variable.trim();
-            commands.add("${"+variable+"}");
+            if(taskParams.containsKey(variable)){
+                commands.add(taskParams.get(variable));
+            }else{
+                throw new RuntimeException("未知参数异常");
+            }
         }
 
         logger.info("Task script \n ------------------------------------------------ " + String.join(" ",commands));
