@@ -16,10 +16,10 @@ public class SparkSQLExecutor extends AbstractSqlExecutor<SparkSession> {
 
 
     public static void main(String[] args) {
-        new SparkSQLExecutor().execute(args, new MetaCallback<SparkSession>() {
+        new SparkSQLExecutor().execute(args, new HandlerCallback<SparkSession>() {
             @Override
             public void process(SparkSession sparkSession, String sql) throws Exception {
-                sparkSession.sql(sql).printSchema();
+                sparkSession.sql(sql);
             }
         });
     }
@@ -34,9 +34,9 @@ public class SparkSQLExecutor extends AbstractSqlExecutor<SparkSession> {
     }
 
     @Override
-    protected void executeSQL(SparkSession sparkSession, String sql) {
+    protected void executeSQL(SparkSession sparkSession, String sql, HandlerCallback<SparkSession> handler) {
         try {
-            sparkSession.sql(sql);
+            handler.process(sparkSession,sql);
         } catch (Exception e) {
             logger.warning("Error executing SQL: " + sql + ". Error: " + e.getMessage());
             e.printStackTrace();

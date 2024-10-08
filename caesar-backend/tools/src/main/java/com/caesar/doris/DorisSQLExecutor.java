@@ -9,20 +9,15 @@ import java.sql.Connection;
  */
 public class DorisSQLExecutor extends AbstractSqlExecutor<Connection> {
 
-    public static void main(String[] args) {
-        
-    }
-
     @Override
     protected Connection openConnect() {
         return null;
     }
 
     @Override
-    protected void executeSQL(Connection connection, String sql) {
+    protected void executeSQL(Connection connection, String sql, HandlerCallback<Connection> handler) {
 
     }
-
 
     @Override
     protected void closeConnect(Connection connection) {

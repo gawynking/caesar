@@ -20,7 +20,7 @@ public abstract class AbstractSqlExecutor<T> {
 
     public final void execute(
             String[] args,
-            MetaCallback<T> callback
+            HandlerCallback<T> handler
     ) {
 
         // 1 连接数据库
@@ -36,18 +36,11 @@ public abstract class AbstractSqlExecutor<T> {
         for(String sql:sqls) {
             String finalSql = replaceParams(sql, params);
 
-            // 4 处理元数据
-            try {
-                callback.process(t,finalSql);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            // 5 执行SQL
-            executeSQL(t,finalSql);
+            // 4 执行SQL
+            executeSQL(t,finalSql,handler);
         }
 
-        // 6 关闭连接
+        // 5 关闭连接
         closeConnect(t);
     }
 
@@ -109,14 +102,14 @@ public abstract class AbstractSqlExecutor<T> {
     protected abstract T openConnect();
 
     // 5 执行 SQL
-    protected abstract void executeSQL(T t, String sql);
+    protected abstract void executeSQL(T t, String sql,HandlerCallback<T> handler);
 
     // 6 关闭连接
     protected abstract void closeConnect(T t);
 
 
     // 7 定义结果处理接口
-    public static interface MetaCallback<T> {
+    public static interface HandlerCallback<T> {
         void process(T t,String sql) throws Exception;
     }
 
