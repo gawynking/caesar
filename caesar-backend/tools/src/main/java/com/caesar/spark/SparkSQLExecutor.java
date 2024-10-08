@@ -34,18 +34,23 @@ public class SparkSQLExecutor extends AbstractSqlExecutor<SparkSession> {
     }
 
     @Override
-    protected void executeSQL(String sql) {
+    protected void executeSQL(SparkSession sparkSession, String sql) {
         try {
-            t.sql(sql);
+            sparkSession.sql(sql);
         } catch (Exception e) {
             logger.warning("Error executing SQL: " + sql + ". Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+
     @Override
     protected void closeConnect(SparkSession sparkSession) {
-        sparkSession.close();
+        try {
+            sparkSession.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

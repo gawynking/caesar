@@ -44,13 +44,12 @@ public abstract class AbstractSqlExecutor<T> {
             }
 
             // 5 执行SQL
-            executeSQL(finalSql);
+            executeSQL(t,finalSql);
         }
 
         // 6 关闭连接
         closeConnect(t);
     }
-
 
     // 1 解析外部参数
     private static Map<String, String> parseParams(String[] args) {
@@ -110,7 +109,7 @@ public abstract class AbstractSqlExecutor<T> {
     protected abstract T openConnect();
 
     // 5 执行 SQL
-    protected abstract void executeSQL(String sql);
+    protected abstract void executeSQL(T t, String sql);
 
     // 6 关闭连接
     protected abstract void closeConnect(T t);
