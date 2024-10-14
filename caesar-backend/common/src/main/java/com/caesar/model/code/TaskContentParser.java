@@ -80,7 +80,7 @@ public class TaskContentParser {
 
             if(TemplateSectionEnum.META == flag && !line.replaceAll("\\s","").startsWith("#") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim())){
                 meta.add(line);
-            } else if(TemplateSectionEnum.PARAMS == flag && !line.replaceAll("\\s","").startsWith("#") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim()) && line.replaceAll("\\s","").contains("=")){
+            } else if(TemplateSectionEnum.PARAMS == flag && !line.replaceAll("\\s","").startsWith("#") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim())){
                 switch (paramsCategory){
                     case SYSTEM:
                         params.addSystemParams(line);
@@ -145,22 +145,27 @@ public class TaskContentParser {
         List<CaesarParams> engineParams = new ArrayList<>();
         List<CaesarParams> customParams = new ArrayList<>();
 
-        StringBuffer sb = new StringBuffer();
+        StringBuffer context = new StringBuffer();
+        // 1 System Parameters
+        StringBuffer systemBuffer = new StringBuffer();
         for(String line:paramsModel.getSystemParams()){
-            sb.append(line).append("\n");
-
-            /**
-             * 预定义格式: set caesar.xxx = xxx;
-             */
-            if(true){
-                String[] pairArray = line
+            context.append(line).append("\n");
+            systemBuffer.append(line).append("\n");
+        }
+        /**
+         * 预定义格式: set caesar.xxx = xxx;
+         */
+        for(String statement:systemBuffer.toString().split(";")){
+            if(StringUtils.isNotEmpty(statement.replaceAll("\\s",""))){
+                String[] pairArray = statement
+                        .replaceAll("\\s"," ")
                         .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
                         .replaceAll("\\s","")
                         .replaceAll(";","")
                         .trim()
                         .split("=");
                 if(!pairArray[0].startsWith("caesar")){
-                    logger.warn(String.format("系统参数格式不符合预期:原始参数 => %s",line));
+                    logger.warn(String.format("系统参数格式不符合预期:原始参数 => %s",statement.replaceAll("\\s","").trim()));
                     continue;
                 }
                 Pair pair = new Pair();
@@ -168,17 +173,21 @@ public class TaskContentParser {
                 pair.setValue(pairArray[1].trim());
                 systemParams.add(pair);
             }
-
         }
 
+        // 2 System Parameters
+        StringBuffer engineBuffer = new StringBuffer();
         for(String line:paramsModel.getEngineParams()){
-            sb.append(line).append("\n");
-
-            /**
-             * 预定义格式: set xxx = xxx;
-             */
-            if(true){
-                String[] pairArray = line
+            context.append(line).append("\n");
+            engineBuffer.append(line).append("\n");
+        }
+        /**
+         * 预定义格式: set xxx = xxx;
+         */
+        for(String statement:engineBuffer.toString().split(";")){
+            if(StringUtils.isNotEmpty(statement.replaceAll("\\s",""))){
+                String[] pairArray = statement
+                        .replaceAll("\\s"," ")
                         .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
                         .replaceAll("\\s","")
                         .replaceAll(";","")
@@ -189,23 +198,27 @@ public class TaskContentParser {
                 pair.setValue(pairArray[1].trim());
                 engineParams.add(pair);
             }
-
         }
 
-
+        // 3 System Parameters
+        StringBuffer customBuffer = new StringBuffer();
         for(String line:paramsModel.getCustomParams()){
-            sb.append(line).append("\n");
+            context.append(line).append("\n");
+            customBuffer.append(line).append("\n");
+        }
 
-            /**
-             * 预定义格式:
-             *  type1: set xxx = xxx;
-             *  type2:
-             *      add jar xxx;
-             *      create [temporary] function xxx;
-             */
-            if(true){
-                if(line.replaceAll("\\s"," ").trim().startsWith("set")){
-                    String[] pairArray = line
+        /**
+         * 预定义格式:
+         *  type1: set xxx = xxx;
+         *  type2:
+         *      add jar xxx;
+         *      create [temporary] function xxx;
+         */
+        for(String statement:customBuffer.toString().split(";")) {
+            if (StringUtils.isNotEmpty(statement.replaceAll("\\s", ""))) {
+                if(statement.replaceAll("\\s"," ").trim().startsWith("set")){
+                    String[] pairArray = statement
+                            .replaceAll("\\s"," ")
                             .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
                             .replaceAll("\\s","")
                             .replaceAll(";","")
@@ -216,15 +229,15 @@ public class TaskContentParser {
                     pair.setValue(pairArray[1].trim());
                     customParams.add(pair);
                 }
-                if(line.replaceAll("\\s"," ").trim().startsWith("create function") || line.replaceAll("\\s"," ").trim().startsWith("create temporary function")){
+                if(statement.replaceAll("\\s"," ").trim().startsWith("create function") || statement.replaceAll("\\s"," ").trim().startsWith("create temporary function")){
                     CustomFunctionParams customFunctionParams = new CustomFunctionParams();
-                    customFunctionParams.setStatement(line.replaceAll("\\s"," ").trim());
+                    customFunctionParams.setStatement(statement.replaceAll("\\s"," ").trim());
                     customParams.add(customFunctionParams);
                 }
             }
         }
 
-        content = sb.deleteCharAt(sb.length()-1).toString();
+        content = context.deleteCharAt(context.length()-1).toString();
 
         paramsConfig.setContent(content);
         paramsConfig.setSystemParams(systemParams);

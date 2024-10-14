@@ -1,10 +1,17 @@
 package com.caesar.model.code;
 
+import com.alibaba.fastjson.JSONObject;
 import com.caesar.enums.EngineEnum;
 import com.caesar.exception.EngineNotDefineException;
+import com.caesar.model.code.config.TemplateConfig;
+import com.caesar.model.code.enums.DatePeriod;
+import com.caesar.model.code.enums.Parameters;
 import com.caesar.model.code.model.*;
+import com.caesar.util.DateUtils;
+import com.caesar.util.JSONUtils;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +21,28 @@ import java.util.regex.Pattern;
 import static javax.swing.UIManager.getString;
 
 public class TemplateUtils {
+
+    /**
+     * 生成请求参数,封装预定义参数信息
+     *
+     * @return
+     */
+    public static Map<String,String> generalRefreshParameter(DatePeriod period, Date requestDate){
+
+        Map<String,String> parameter = new HashMap<>();
+
+        try {
+            parameter.put("period", "day");
+            parameter.put("etl_date", Parameters.fromParameter("etl_date").applyExpression(period,requestDate));
+            parameter.put("start_date", Parameters.fromParameter("start_date").applyExpression(period,requestDate));
+            parameter.put("end_date", Parameters.fromParameter("end_date").applyExpression(period,requestDate));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return parameter;
+    }
+
 
 
     public static ExecuteScript transformSqlTemplate(String template) throws EngineNotDefineException{
@@ -59,52 +88,61 @@ public class TemplateUtils {
 
                 // 3 parse custom parameters ,execute
                 List<CaesarParams> customParams = paramsConfig.getCustomParams();
-                Map<String, Integer> customVariableMap = new HashMap<>();
-                for(CaesarParams customParam:customParams){
-                    CaesarParams.ParamsType type = customParam.getType();
-                    switch (type){
-                        case Pair:
-                            Pair pair = (Pair)customParam;
-                            if(pair.getValue().startsWith("${") && pair.getValue().endsWith("}")){
-                                String variable = pair.getValue().replaceAll("\\$\\{","").replaceAll("\\}","");
-                                int count = 0;
-                                if(customVariableMap.containsKey(variable)){
-                                    count = customVariableMap.get(variable);
+                if(customParams.size()>0) {
+                    Map<String, String> customVariableMap = new HashMap<>();
+                    for (CaesarParams customParam : customParams) {
+                        CaesarParams.ParamsType type = customParam.getType();
+                        switch (type) {
+                            case Pair:
+                                Pair pair = (Pair) customParam;
+                                if (pair.getValue().startsWith("${") && pair.getValue().endsWith("}")) {
+                                    String variable = pair.getValue().replaceAll("\\$\\{", "").replaceAll("\\}", "");
+                                    customVariableMap.put(variable, pair.getValue());
                                 }
-                                customVariableMap.put(variable,count+1);
-                            }
-                            if(pair.getKey().startsWith("hivevar:") || pair.getKey().startsWith("hiveconf:")) {
-                                scriptBuffer
-                                        .append("set")
-                                        .append(" ")
-                                        .append(pair.getKey())
-                                        .append(" = ")
-                                        .append(pair.getValue())
-                                        .append(";")
-                                        .append("\n");
-                            }else {
-                                scriptBuffer
-                                        .append("set")
-                                        .append(" ")
-                                        .append("hivevar:")
-                                        .append(pair.getKey())
-                                        .append(" = ")
-                                        .append(parseAndReplaceVariablesForHive(pair.getValue()))
-                                        .append(";")
-                                        .append("\n");
-                            }
-                            break;
-                        case customFunction:
-                            CustomFunctionParams customFunctionParams = (CustomFunctionParams)customParam;
-                            if(customFunctionParams.getStatement().trim().endsWith(";")) {
-                                scriptBuffer.append(customFunctionParams.getStatement()).append("\n");
-                            }else {
-                                scriptBuffer.append(customFunctionParams.getStatement()).append(";").append("\n");
-                            }
-                            break;
+                                if(TemplateConfig.getHiveStyleCustomParameter()) {
+                                    if (pair.getKey().startsWith("hivevar:") || pair.getKey().startsWith("hiveconf:")) {
+                                        scriptBuffer
+                                                .append("set")
+                                                .append(" ")
+                                                .append(pair.getKey())
+                                                .append(" = ")
+                                                .append(pair.getValue())
+                                                .append(";")
+                                                .append("\n");
+                                    } else {
+                                        scriptBuffer
+                                                .append("set")
+                                                .append(" ")
+                                                .append("hivevar:")
+                                                .append(pair.getKey())
+                                                .append(" = ")
+                                                .append(parseAndReplaceVariablesForHive(pair.getValue()))
+                                                .append(";")
+                                                .append("\n");
+                                    }
+                                }else{
+                                    scriptBuffer
+                                            .append("set")
+                                            .append(" ")
+                                            .append(pair.getKey())
+                                            .append(" = ")
+                                            .append(pair.getValue())
+                                            .append(";")
+                                            .append("\n");
+                                }
+                                break;
+                            case customFunction:
+                                CustomFunctionParams customFunctionParams = (CustomFunctionParams) customParam;
+                                if (customFunctionParams.getStatement().trim().endsWith(";")) {
+                                    scriptBuffer.append(customFunctionParams.getStatement().replaceAll("\\s"," ").trim()).append("\n");
+                                } else {
+                                    scriptBuffer.append(customFunctionParams.getStatement().replaceAll("\\s"," ").trim()).append(";").append("\n");
+                                }
+                                break;
+                        }
                     }
+                    executeScript.setCustomParamValues(customVariableMap);
                 }
-                executeScript.setCustomParamValues(customVariableMap);
                 break;
             case DORIS:
                 throw new EngineNotDefineException("模板定义引擎"+engine.getEngine()+"暂时不被支持");
@@ -179,7 +217,7 @@ public class TemplateUtils {
         EngineEnum engine;
         Map<String, String> systemParams;
         Map<String, String> engineParams;
-        Map<String, Integer> customParamValues;
+        Map<String, String> customParamValues;
         String script;
     }
 }

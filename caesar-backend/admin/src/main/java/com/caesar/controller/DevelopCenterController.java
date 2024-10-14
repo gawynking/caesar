@@ -16,6 +16,8 @@ import com.caesar.entity.vo.response.MenuDbs;
 import com.caesar.model.JsonResponse;
 import com.caesar.model.MenuModel;
 import com.caesar.model.MenuNode;
+import com.caesar.model.code.TemplateUtils;
+import com.caesar.model.code.enums.DatePeriod;
 import com.caesar.service.*;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.DateUtils;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 
@@ -251,11 +254,12 @@ public class DevelopCenterController {
                 if ("day".equals(taskRefreshVo.getPeriod().toLowerCase())) {
                     while (DateUtils.dateCompare(startDate, endDate) <= 0) {
                         CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
-                        JSONObject parameter = JSONUtils.getJSONObject();
-                        parameter.put("period","day");
-                        parameter.put("etl_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
-                        parameter.put("start_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
-                        parameter.put("end_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
+//                        JSONObject parameter = JSONUtils.getJSONObject();
+//                        parameter.put("period","day");
+//                        parameter.put("etl_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
+//                        parameter.put("start_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
+//                        parameter.put("end_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
+                        JSONObject parameter = JSONUtils.getJSONObjectFromMap(TemplateUtils.generalRefreshParameter(DatePeriod.fromKey("day"), startDate));
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
@@ -265,11 +269,12 @@ public class DevelopCenterController {
                 } else if ("month".equals(taskRefreshVo.getPeriod().toLowerCase())) {
                     while (DateUtils.dateCompare(startDate, endDate) <= 0) {
                         CaesarTaskExecuteRecordDto caesarTaskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
-                        JSONObject parameter = JSONUtils.getJSONObject();
-                        parameter.put("period","month");
-                        parameter.put("etl_date", DateUtils.getMonthStart(startDate));
-                        parameter.put("start_date", DateUtils.getMonthStart(startDate));
-                        parameter.put("end_date", DateUtils.getMonthEnd(startDate));
+//                        JSONObject parameter = JSONUtils.getJSONObject();
+//                        parameter.put("period","month");
+//                        parameter.put("etl_date", DateUtils.getMonthStart(startDate));
+//                        parameter.put("start_date", DateUtils.getMonthStart(startDate));
+//                        parameter.put("end_date", DateUtils.getMonthEnd(startDate));
+                        JSONObject parameter = JSONUtils.getJSONObjectFromMap(TemplateUtils.generalRefreshParameter(DatePeriod.fromKey("month"), startDate));
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());

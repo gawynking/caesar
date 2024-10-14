@@ -12,8 +12,8 @@ public class ShellMapping {
     private static final Map<String, String> shellMapping = new HashMap<>();
 
 
-    public static final String SPARK_TEMPLATE = "shell/spark_shell.sh";
-    public static final String HIVE_TEMPLATE = "shell/hive_shell.sh";
+    public static final String SPARK_TEMPLATE = "template/shell_spark.code";
+    public static final String HIVE_TEMPLATE = "template/shell_hive.code";
 
 
     static {

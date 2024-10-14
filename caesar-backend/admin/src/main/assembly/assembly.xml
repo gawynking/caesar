@@ -19,6 +19,7 @@
         <format>tar.gz</format>
     </formats>
     <includeBaseDirectory>${assembly.include.base.directory}</includeBaseDirectory>
+
     <fileSets>
 
         <!-- Scripts -->
@@ -37,7 +38,16 @@
             <includes>
                 <include>${project.build.finalName}.${project.packaging}</include>
             </includes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/jar</outputDirectory>
+        </fileSet>
+
+        <!-- tools jar -->
+        <fileSet>
+            <directory>${basedir}/../tools/target</directory>
+            <includes>
+                <include>tools-*.jar</include>
+            </includes>
+            <outputDirectory>/tool</outputDirectory>
         </fileSet>
 
         <!-- resources -->
@@ -53,7 +63,27 @@
             <outputDirectory>/config</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>${basedir}/${project.build.directory}/classes/</directory>
+            <includes>
+                <include>*.sql</include>
+            </includes>
+            <fileMode>600</fileMode>
+            <outputDirectory>/sql</outputDirectory>
+        </fileSet>
+
+        <!-- Templates -->
+        <fileSet>
+            <directory>${basedir}/${project.build.directory}/classes/template</directory>
+            <includes>
+                <include>*.code</include>
+            </includes>
+            <fileMode>600</fileMode>
+            <outputDirectory>/template</outputDirectory>
+        </fileSet>
+
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <scope>runtime</scope>

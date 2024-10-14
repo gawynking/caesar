@@ -11,6 +11,7 @@ import com.caesar.mapper.DatasourceMapper;
 import com.caesar.mapper.TaskExecuteMapper;
 import com.caesar.mapper.TaskMapper;
 import com.caesar.model.code.TemplateUtils;
+import com.caesar.model.code.config.TemplateConstants;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.Executor;
 import com.caesar.service.TaskExecuteService;
@@ -67,7 +68,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         Map<String, String> systemParams = executeScript.getSystemParams();
         if(null != systemParams) {
             for (String systemParam : systemParams.keySet()) {
-                if ("caesar.system_user".equals(systemParam)) {
+                if (TemplateConstants.CAESAR_SYSTEM_USER.equals(systemParam)) {
                     task.setSystemUser(systemParams.get(systemParam));
                     break;
                 }

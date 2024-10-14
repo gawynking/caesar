@@ -3,8 +3,6 @@ package com.caesar.spark.engine;
 import com.caesar.constant.EngineConfig;
 import com.caesar.constant.EngineConstant;
 import com.caesar.engine.Engine;
-import com.caesar.hive.shell.HiveCommand;
-import com.caesar.none.factory.TextEngineFactory;
 import com.caesar.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Invoker;
@@ -12,7 +10,6 @@ import com.caesar.shell.ShellTask;
 import com.caesar.spark.shell.SparkCommand;
 import com.caesar.util.FileUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -62,7 +59,7 @@ public class SparkEngine extends ShellTask implements Engine {
         FileUtils.createFile(sqlFilePath);
         FileUtils.createFile(shellFilePath);
 
-        FileUtils.writeToFile(sqlFilePath,taskInfo.getCode()); // 更新临时脚本文件
+        FileUtils.writeToFile(sqlFilePath,taskInfo.getCode()); // 更新临时脚本文件，带${xxx}或${hivevar:xxx}参数SQL脚本
 
 
         /**
@@ -73,14 +70,13 @@ public class SparkEngine extends ShellTask implements Engine {
          *   {{ sqlFile }}
          */
         String sqlFile = sqlFilePath;
-        Map<String, Integer> customParamValues = taskInfo.getCustomParamValues();
+        Map<String, String> customParamValues = taskInfo.getCustomParamValues(); // 脚本解析参数
         StringBuffer customParamsDefine = new StringBuffer();
         StringBuffer customParamsSetter = new StringBuffer();
         if(null != customParamValues && customParamValues.keySet().size() > 0) {
             int i = 1;
             for (String variable : customParamValues.keySet()) {
                 variable = variable.trim();
-                customParamValues.put(variable, i);
                 customParamsDefine
                         .append(variable)
                         .append("=")
@@ -88,7 +84,6 @@ public class SparkEngine extends ShellTask implements Engine {
                         .append(i)
                         .append("\n");
                 customParamsSetter
-                        .append("--conf spark.sql.param.")
                         .append(variable)
                         .append("=")
                         .append("${")
@@ -131,11 +126,7 @@ public class SparkEngine extends ShellTask implements Engine {
         commands.add("sh");
         commands.add(shellFilePath);
         // caesar执行，这里要替换成变量对应的具体值
-//        for(String variable:customParamValues.keySet()){
-//            variable = variable.trim();
-//            commands.add("${"+variable+"}");
-//        }
-        Map<String, String> taskParams = taskInfo.getTaskParams();
+        Map<String, String> taskParams = taskInfo.getTaskParams(); // 前端设置参数
         for(String variable:customParamValues.keySet()){
             variable = variable.trim();
             if(taskParams.containsKey(variable)){
