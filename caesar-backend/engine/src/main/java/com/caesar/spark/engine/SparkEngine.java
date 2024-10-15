@@ -3,6 +3,9 @@ package com.caesar.spark.engine;
 import com.caesar.constant.EngineConfig;
 import com.caesar.constant.EngineConstant;
 import com.caesar.engine.Engine;
+import com.caesar.enums.EngineEnum;
+import com.caesar.factory.EngineFactory;
+import com.caesar.factory.EngineFactoryRegistry;
 import com.caesar.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Invoker;
@@ -10,6 +13,9 @@ import com.caesar.shell.ShellTask;
 import com.caesar.spark.shell.SparkCommand;
 import com.caesar.util.FileUtils;
 
+import javax.xml.soap.Text;
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -24,13 +30,14 @@ public class SparkEngine extends ShellTask implements Engine {
     }
 
     @Override
-    public ExecutionResult execute(TaskInfo taskInfo) {
-        return executeShell(taskInfo);
+    public String buildCodeScript(String dbLevel,String taskName,String code,Boolean isTmp) {
+        EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.NONE);
+        Engine engine = engineFactory.createEngine(new HashMap<>());
+        return engine.buildCodeScript(dbLevel,taskName,code,true);
     }
 
-
-    public ExecutionResult executeShell(TaskInfo taskInfo) {
-
+    @Override
+    protected String buildShellScript(TaskInfo taskInfo,String sqlFilePath, Boolean isTmp) {
         /**
          * 项目路径设计类似如下风格: code-dir 指定绝对路径
          *  - dw-project/
@@ -47,20 +54,10 @@ public class SparkEngine extends ShellTask implements Engine {
         String taskName = taskInfo.getTaskName();
         String sparkShell = EngineConfig.getString(EngineConstant.SPARK_SHELL);
         String codeDir = (String) EngineConfig.getMap("none").get(EngineConstant.CODE_DIR);
-        String sqlDirPath = codeDir+"/sql/"+dbLevel;
         String shellDirPath = codeDir+"/sbin/"+dbLevel;
-
-        String sqlFilePath = sqlDirPath+"/tmp__"+taskName+".sql";
-        String shellFilePath = shellDirPath+"/tmp__"+taskName+".sh";
-
-        FileUtils.createDirectoryIfNotExists(sqlDirPath);
+        String shellFilePath = isTmp?shellDirPath+"/tmp__"+taskName+".sh":shellDirPath+"/"+taskName+".sh";
         FileUtils.createDirectoryIfNotExists(shellDirPath);
-
-        FileUtils.createFile(sqlFilePath);
         FileUtils.createFile(shellFilePath);
-
-        FileUtils.writeToFile(sqlFilePath,taskInfo.getCode()); // 更新临时脚本文件，带${xxx}或${hivevar:xxx}参数SQL脚本
-
 
         /**
          * 替换变量
@@ -120,12 +117,43 @@ public class SparkEngine extends ShellTask implements Engine {
         FileUtils.writeToFile(shellFilePath,sparkShell); // 更新临时脚本文件
 
 
+        return shellFilePath;
+    }
+
+
+    @Override
+    public ExecutionResult execute(TaskInfo taskInfo) {
+        return executeShell(taskInfo);
+    }
+
+
+    public ExecutionResult executeShell(TaskInfo taskInfo) {
+
+        /**
+         * 项目路径设计类似如下风格: code-dir 指定绝对路径
+         *  - dw-project/
+         *      - sbin/
+         *          - ods/
+         *          - dim/
+         *          - dwd/
+         *      - sql/
+         *          - ods/
+         *          - dim/
+         *          - dwd/
+         */
+        String dbLevel = taskInfo.getDbLevel();
+        String taskName = taskInfo.getTaskName();
+
+        String sqlFilePath = buildCodeScript(dbLevel,taskName,taskInfo.getCode(),true);
+        String shellFilePath = buildShellScript(taskInfo,sqlFilePath,false);
+
         super.systemUser = taskInfo.getSystemUser();
         List<String> commands = super.getJobPrefix();
 
         commands.add("sh");
         commands.add(shellFilePath);
         // caesar执行，这里要替换成变量对应的具体值
+        Map<String, String> customParamValues = taskInfo.getCustomParamValues(); // 脚本解析参数
         Map<String, String> taskParams = taskInfo.getTaskParams(); // 前端设置参数
         for(String variable:customParamValues.keySet()){
             variable = variable.trim();
@@ -137,7 +165,6 @@ public class SparkEngine extends ShellTask implements Engine {
         }
 
         logger.info("Task script \n ------------------------------------------------ " + String.join(" ",commands));
-        logger.info("Task Shell script \n ------------------------------------------------ " + sparkShell);
         logger.info("Task SQL script \n ------------------------------------------------ " + taskInfo.getCode());
 
         try {

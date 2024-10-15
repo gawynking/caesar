@@ -34,6 +34,11 @@ public class MySQLEngine extends ShellTask implements Engine {
     }
 
     @Override
+    public String buildCodeScript(String dbLevel, String taskName, String code, Boolean isTmp) {
+        return null;
+    }
+
+    @Override
     public ExecutionResult execute(TaskInfo taskInfo) {
 
         String priority = EngineConfig.getString(EngineConstant.PRIORITY);

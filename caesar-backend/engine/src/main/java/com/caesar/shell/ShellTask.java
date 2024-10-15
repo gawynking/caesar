@@ -3,6 +3,7 @@ package com.caesar.shell;
 
 import com.caesar.constant.EngineConfig;
 import com.caesar.constant.EngineConstant;
+import com.caesar.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.task.Task;
 import com.caesar.util.StringUtils;
@@ -33,6 +34,9 @@ public class ShellTask extends Task {
         return commandList;
     }
 
+    protected String buildShellScript(TaskInfo taskInfo,String sqlFilePath, Boolean isTmp){
+        throw new RuntimeException();
+    }
 
     @Override
     public ExecutionResult<Task> run() throws Exception {

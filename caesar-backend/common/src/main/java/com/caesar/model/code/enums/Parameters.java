@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 
 public enum Parameters {
 
-    ELT_DATE("elt_date", Functions::getEtlDate),
+    ELT_DATE("etl_date", Functions::getEtlDate),
     START_DATE("start_date", Functions::getStartDate),
     END_DATE("end_date", Functions::getEndDate);
 
