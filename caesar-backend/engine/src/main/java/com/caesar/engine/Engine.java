@@ -5,7 +5,7 @@ import com.caesar.params.TaskInfo;
 
 public interface Engine {
 
-    String buildCodeScript(String dbLevel,String taskName,String code,Boolean isTmp);
+    String buildCodeScript(String dbLevel,String taskName,String code);
 
     ExecutionResult execute(TaskInfo task);
 

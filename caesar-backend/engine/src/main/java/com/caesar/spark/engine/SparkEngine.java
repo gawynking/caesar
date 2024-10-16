@@ -13,8 +13,6 @@ import com.caesar.shell.ShellTask;
 import com.caesar.spark.shell.SparkCommand;
 import com.caesar.util.FileUtils;
 
-import javax.xml.soap.Text;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +28,14 @@ public class SparkEngine extends ShellTask implements Engine {
     }
 
     @Override
-    public String buildCodeScript(String dbLevel,String taskName,String code,Boolean isTmp) {
+    public String buildCodeScript(String dbLevel,String taskName,String code) {
         EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.NONE);
         Engine engine = engineFactory.createEngine(new HashMap<>());
-        return engine.buildCodeScript(dbLevel,taskName,code,true);
+        return engine.buildCodeScript(dbLevel,taskName,code);
     }
 
     @Override
-    protected String buildShellScript(TaskInfo taskInfo,String sqlFilePath, Boolean isTmp) {
+    protected String buildShellScript(TaskInfo taskInfo,String sqlFilePath) {
         /**
          * 项目路径设计类似如下风格: code-dir 指定绝对路径
          *  - dw-project/
@@ -55,7 +53,7 @@ public class SparkEngine extends ShellTask implements Engine {
         String sparkShell = EngineConfig.getString(EngineConstant.SPARK_SHELL);
         String codeDir = (String) EngineConfig.getMap("none").get(EngineConstant.CODE_DIR);
         String shellDirPath = codeDir+"/sbin/"+dbLevel;
-        String shellFilePath = isTmp?shellDirPath+"/tmp__"+taskName+".sh":shellDirPath+"/"+taskName+".sh";
+        String shellFilePath = shellDirPath+"/tmp__"+taskName+".sh";
         FileUtils.createDirectoryIfNotExists(shellDirPath);
         FileUtils.createFile(shellFilePath);
 
@@ -144,8 +142,8 @@ public class SparkEngine extends ShellTask implements Engine {
         String dbLevel = taskInfo.getDbLevel();
         String taskName = taskInfo.getTaskName();
 
-        String sqlFilePath = buildCodeScript(dbLevel,taskName,taskInfo.getCode(),true);
-        String shellFilePath = buildShellScript(taskInfo,sqlFilePath,false);
+        String sqlFilePath = buildCodeScript(dbLevel,taskName,taskInfo.getCode());
+        String shellFilePath = buildShellScript(taskInfo,sqlFilePath);
 
         super.systemUser = taskInfo.getSystemUser();
         List<String> commands = super.getJobPrefix();

@@ -18,8 +18,9 @@ public class TextEngineFactory extends EngineFactoryType implements EngineFactor
 
     @Override
     public Engine createEngine(Map<String, String> config) {
+        String fileSystem = (String) EngineConfig.getMap("node").get(EngineConstant.FILE_SYSTEM);
         String codeDir = (String) EngineConfig.getMap("node").get(EngineConstant.CODE_DIR);
-        return new TextEngine(codeDir);
+        return new TextEngine(fileSystem,codeDir);
     }
 
     @Override

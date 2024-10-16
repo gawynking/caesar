@@ -34,7 +34,7 @@ public class MySQLEngine extends ShellTask implements Engine {
     }
 
     @Override
-    public String buildCodeScript(String dbLevel, String taskName, String code, Boolean isTmp) {
+    public String buildCodeScript(String dbLevel, String taskName, String code) {
         return null;
     }
 

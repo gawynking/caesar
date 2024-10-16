@@ -31,4 +31,5 @@ engine:
     hive: /opt/xxx
     spark: /opt/xxx
   none:
+    file-system: file
     code-dir: /Users/chavinking/test/caesar

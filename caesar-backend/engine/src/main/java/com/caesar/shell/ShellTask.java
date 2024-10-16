@@ -34,7 +34,7 @@ public class ShellTask extends Task {
         return commandList;
     }
 
-    protected String buildShellScript(TaskInfo taskInfo,String sqlFilePath, Boolean isTmp){
+    protected String buildShellScript(TaskInfo taskInfo,String sqlFilePath){
         throw new RuntimeException();
     }
 

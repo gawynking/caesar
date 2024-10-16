@@ -14,17 +14,19 @@ import java.nio.file.Paths;
 
 public class TextEngine implements Engine {
 
+    private String fileSystem;
     private String codeDir;
     private String SEP = File.separator;
 
-    public TextEngine(String dir){
+    public TextEngine(String fileSystem, String dir){
+        this.fileSystem = fileSystem;
         if(!dir.endsWith("/")){
             this.codeDir = dir + "/";
         }
     }
 
     @Override
-    public String buildCodeScript(String dbLevel, String taskName, String code, Boolean isTmp) {
+    public String buildCodeScript(String dbLevel, String taskName, String code) {
         /**
          * 项目路径设计类似如下风格: code-dir 指定绝对路径
          *  - dw-project/
@@ -38,7 +40,7 @@ public class TextEngine implements Engine {
          *          - dwd/
          */
         String sqlDirPath = this.codeDir+"sql"+ SEP +dbLevel;
-        String sqlFilePath = isTmp?sqlDirPath+ SEP +"tmp__"+taskName+".sql":sqlDirPath+ SEP +taskName+".sql";
+        String sqlFilePath = sqlDirPath+ SEP +"tmp__"+taskName+".sql";
         FileUtils.createDirectoryIfNotExists(sqlDirPath);
         FileUtils.createFile(sqlFilePath);
         FileUtils.writeToFile(sqlFilePath,code); // 更新临时脚本文件，带${xxx}或${hivevar:xxx}参数SQL脚本
