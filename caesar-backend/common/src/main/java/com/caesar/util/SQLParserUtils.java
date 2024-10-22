@@ -1,11 +1,13 @@
 package com.caesar.util;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLUseStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.util.JdbcConstants;
 import com.alibaba.druid.sql.SQLUtils;
+import com.caesar.enums.EngineEnum;
 import com.caesar.sql.parse.CaesarSQLUtils;
 
 import java.util.ArrayList;
@@ -83,5 +85,23 @@ public class SQLParserUtils {
         return sqlStr;
     }
 
+
+
+    public static DbType engineType2DruidDbType(EngineEnum engineType){
+
+        if(null == engineType){
+            return null;
+        }
+
+        if(engineType == EngineEnum.HIVE){
+            return DbType.hive;
+        }
+
+        if(engineType == EngineEnum.SPARK){
+            return DbType.hive;
+        }
+
+        return null;
+    }
 
 }

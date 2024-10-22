@@ -130,4 +130,23 @@ public class SchedulerFacade {
         return new ScheduleResponse().faild("release");
     }
 
+
+
+    public JSONObject queryTaskList(String project,String workFlow) {
+        SchedulerInstance instance = null;
+        try {
+            instance = schedulerFactory.createScheduler();
+        } catch (NotExistsDolphinLevelException e) {
+            e.printStackTrace();
+        }
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = instance.queryTaskList(project, workFlow);
+        } catch (ProjectNotExistsException e) {
+            throw new RuntimeException(e);
+        } catch (GenTaskCodeFaildException e) {
+            throw new RuntimeException(e);
+        }
+        return jsonObject;
+    }
 }

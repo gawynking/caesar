@@ -1,14 +1,21 @@
 package com.caesar.service.impl;
 
+import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSetStatement;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.config.CaesarConfig;
 import com.caesar.entity.CaesarScheduleConfig;
 import com.caesar.entity.CaesarScheduleDependency;
 import com.caesar.entity.dto.CaesarScheduleConfigDto;
+import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
 import com.caesar.entity.vo.response.ScheduleInfoVo;
 import com.caesar.entity.vo.response.TaskDependency;
+import com.caesar.enums.EngineEnum;
 import com.caesar.exception.EngineNotDefineException;
 import com.caesar.exception.SqlParseException;
 import com.caesar.mapper.ScheduleConfigMapper;
@@ -17,7 +24,6 @@ import com.caesar.mapper.TaskMapper;
 import com.caesar.mapper.UserMapper;
 import com.caesar.model.ScheduleResponse;
 import com.caesar.model.SchedulerModel;
-import com.caesar.model.code.TaskContentParser;
 import com.caesar.model.code.TemplateUtils;
 import com.caesar.scheduler.SchedulerFacade;
 import com.caesar.service.ScheduleCenterService;
@@ -25,6 +31,7 @@ import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.CaesarScheduleUtils;
 import com.caesar.util.SQLParserUtils;
 import com.caesar.util.ScheduleVersionUtils;
+import com.caesar.util.SchedulerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -111,7 +118,9 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
 
     @Override
     public List<TaskDependency> getTaskDependencies(String taskName, Integer version, String period) throws SqlParseException {
-        String rawTaskCode = taskMapper.getCurrentTaskInfoWithVersion(taskName,version).getTaskScript();
+        CaesarTaskVo taskInfo = taskMapper.getCurrentTaskInfoWithVersion(taskName, version);
+        EngineEnum engine = EngineEnum.fromTag(taskInfo.getEngine());
+        String rawTaskCode = taskInfo.getTaskScript();
         String taskCode = null;
         TemplateUtils.ExecuteScript executeScript = null;
         try {
@@ -121,23 +130,90 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
             throw new RuntimeException(e);
         }
 
+        JSONArray scheduleTaskList = null;
+        SchedulerFacade schedulerFacade = SchedulerUtils.getScheduler();
+        ScheduleBaseInfoVo scheduleBaseInfo = getScheduleBaseInfo();
+        String project = scheduleBaseInfo.getProject();
+        if(scheduleBaseInfo.getScheduleCategory() != 1){
+            throw new RuntimeException("当前仅支持DolphinScheduler调度");
+        }
+        if(scheduleBaseInfo.getScheduleLevel() == 1){
+            String[] scheduleItems = project.split("___");
+            if(scheduleItems.length != 2){
+                throw new RuntimeException("配置调度项目不符合规范，当前调度项目为:" + project);
+            }
+            scheduleTaskList = schedulerFacade.queryTaskList(scheduleItems[0],scheduleItems[1]).getJSONArray("data");
+        } else if (scheduleBaseInfo.getScheduleLevel() == 2) {
+            scheduleTaskList = schedulerFacade.queryTaskList(project,null).getJSONArray("data");
+        }
+
+        if(null == scheduleTaskList || scheduleTaskList.size() == 0){
+            return null;
+        }
+
         List<TaskDependency> dependencys = new ArrayList<>();
         for(String sql:taskCode.split(";")){
+
+            try {
+                SQLStatement sqlStatements = SQLUtils.parseStatements(sql, SQLParserUtils.engineType2DruidDbType(engine)).get(0);
+                if(sqlStatements instanceof SQLSetStatement){
+                    continue;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                continue;
+            }
+
+
             try {
                 List<Map<String, Integer>> tableFromTo = SQLParserUtils.getTableFromTo(sql);
                 Map<String, Integer> getFromTables = tableFromTo.get(1);
                 for(Map.Entry<String,Integer> entry:getFromTables.entrySet()){
-                    if(!dependencys.contains(entry.getKey())){
-                        List<CaesarScheduleConfigDto> scheduleConfigs = scheduleConfigMapper.findTaskScheduleConfigListFromTaskNameAndPeriod(entry.getKey(),period.toLowerCase());
-                        if(null != scheduleConfigs) {
-                            for(CaesarScheduleConfigDto scheduleConfig:scheduleConfigs) {
-                                TaskDependency taskDependency = new TaskDependency();
-                                taskDependency.setDependencyName(scheduleConfig.getScheduleName());
-                                taskDependency.setJoinTypeDesc("自动识别");
-                                dependencys.add(taskDependency);
-                            }
+
+                    String depTask = entry.getKey();
+                    Boolean existsDeploy = false;
+                    for(int i=0;i<scheduleTaskList.size();i++){
+                        JSONObject dependency = scheduleTaskList.getJSONObject(i);
+                        if(depTask.toLowerCase().equals(dependency.getString("name").toLowerCase())){
+                            existsDeploy = true;
+                            break;
                         }
                     }
+
+                    if(existsDeploy){
+                        Boolean isDep = false;
+                        for(TaskDependency dependency:dependencys){
+                            String dependencyName = dependency.getDependencyName().toLowerCase();
+                            String[] dependencyNameItems = dependencyName.split(".");
+                            if(dependencyNameItems.length<=2){
+                                LOGGER.info("依赖任务名称配置不符合规范 => " + dependency);
+                                continue;
+                            }
+                            String fromDependency = dependencyNameItems[0] +"."+dependencyNameItems[1];
+                            if(fromDependency.toLowerCase().equals(depTask.toLowerCase())){
+                                isDep = true;
+                                break;
+                            }
+                        }
+
+                        if(!isDep){
+                            List<CaesarScheduleConfigDto> scheduleConfigs = scheduleConfigMapper.findTaskScheduleConfigListFromTaskNameAndPeriod(entry.getKey(),period.toLowerCase());
+                            if(null != scheduleConfigs) {
+                                for(CaesarScheduleConfigDto scheduleConfig:scheduleConfigs) {
+                                    TaskDependency taskDependency = new TaskDependency();
+                                    taskDependency.setDependencyName(scheduleConfig.getScheduleName());
+                                    taskDependency.setJoinTypeDesc("自动识别");
+                                    dependencys.add(taskDependency);
+                                }
+                            } else{
+                                throw new RuntimeException("调度缺失，请检查调度配置");
+                            }
+                        }
+
+                    }else {
+                        LOGGER.info("依赖任务未配置调度 " + depTask);
+                    }
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

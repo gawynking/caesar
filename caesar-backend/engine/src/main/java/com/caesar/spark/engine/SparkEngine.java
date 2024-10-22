@@ -52,8 +52,8 @@ public class SparkEngine extends ShellTask implements Engine {
         String taskName = taskInfo.getTaskName();
         String sparkShell = EngineConfig.getString(EngineConstant.SPARK_SHELL);
         String codeDir = (String) EngineConfig.getMap("none").get(EngineConstant.CODE_DIR);
-        String shellDirPath = codeDir+"/sbin/"+dbLevel;
-        String shellFilePath = shellDirPath+"/tmp__"+taskName+".sh";
+        String shellDirPath = codeDir+SEP+"sbin"+SEP+dbLevel;
+        String shellFilePath = shellDirPath+SEP+"tmp__"+taskName+".sh";
         FileUtils.createDirectoryIfNotExists(shellDirPath);
         FileUtils.createFile(shellFilePath);
 

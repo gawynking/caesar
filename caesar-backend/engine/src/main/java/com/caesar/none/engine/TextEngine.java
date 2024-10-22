@@ -39,7 +39,7 @@ public class TextEngine implements Engine {
          *          - dim/
          *          - dwd/
          */
-        String sqlDirPath = this.codeDir+"sql"+ SEP +dbLevel;
+        String sqlDirPath = this.codeDir+SEP+"sql"+ SEP +dbLevel;
         String sqlFilePath = sqlDirPath+ SEP +"tmp__"+taskName+".sql";
         FileUtils.createDirectoryIfNotExists(sqlDirPath);
         FileUtils.createFile(sqlFilePath);

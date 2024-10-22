@@ -335,4 +335,20 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         return result;
     }
 
+
+    @Override
+    public JSONObject queryTaskList(String project, String workFlow) throws ProjectNotExistsException, GenTaskCodeFaildException {
+
+        Long projectCode = getProjectCodeFromProjectName(project);
+        Long processDefinitionCode = getProcessDefinitionCodeFromProcessDefinitionName(projectCode, workFlow);
+        JSONObject processDefinitionList = null;
+        try {
+            processDefinitionList = this.schedulerAPI.getTaskListByProcessDefinitionCode(projectCode, processDefinitionCode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return processDefinitionList;
+    }
+
 }

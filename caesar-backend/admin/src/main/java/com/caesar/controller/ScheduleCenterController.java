@@ -131,6 +131,7 @@ public class ScheduleCenterController {
     @PostMapping("/genTaskSchedule")
     public JsonResponse<String> genTaskSchedule(@RequestBody GeneralScheduleInfoVo scheduleInfo){
         try {
+            System.out.println("--------------"+scheduleInfo);
             if(scheduleCenterService.genTaskSchedule(scheduleInfo)) {
                 return JsonResponse.success("生成任务新调度任务成功");
             }

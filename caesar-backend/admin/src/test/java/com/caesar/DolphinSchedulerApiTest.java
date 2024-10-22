@@ -28,6 +28,15 @@ public class DolphinSchedulerApiTest {
     DolphinSchedulerAPI schedulerAPI = new DolphinSchedulerAPI320(baseUrl,token);
 
 
+
+    @Test
+    public void test00() throws Exception{
+        JSONObject processListByProjectCode = schedulerAPI.getProcessListByProjectCode(14576322429504l);
+        JSONObject taskListByProcessDefinitionCode = schedulerAPI.getTaskListByProcessDefinitionCode(14576322429504l, 14809691874240l);
+        System.out.println(processListByProjectCode);
+        System.out.println(taskListByProcessDefinitionCode);
+    }
+
     @Test
     public void test01() throws Exception{
 

@@ -9,6 +9,7 @@ import com.caesar.task.Task;
 import com.caesar.util.StringUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import java.util.logging.Logger;
 public class ShellTask extends Task {
 
     private static final Logger LOGGER = Logger.getLogger(ShellTask.class.getName());
+
+    protected String SEP = File.separator;
 
     protected String systemUser;
 

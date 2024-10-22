@@ -23,4 +23,6 @@ public interface SchedulerInstance {
 
     JSONObject deleteTiming(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException;
 
+    JSONObject queryTaskList(String project,String workFlow) throws ProjectNotExistsException,GenTaskCodeFaildException;
+
 }
