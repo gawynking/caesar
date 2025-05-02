@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/team")
 public class TeamgroupManagerController {
+
+    private static final Logger logger = Logger.getLogger(TeamgroupManagerController.class.getName());
 
     @Autowired
     TeamGroupService teamGroupService;
@@ -31,6 +34,7 @@ public class TeamgroupManagerController {
         }catch (Exception e){
             e.printStackTrace();
         }
+        logger.info("获取用户组信息失败");
         return JsonResponse.fail("获取用户组信息失败");
     }
 
@@ -55,7 +59,8 @@ public class TeamgroupManagerController {
         try {
             List<CaesarUserGroup> userGroups = userGroupService.getUserGroupsByGroupId(id);
             if (null != userGroups && userGroups.size() > 0) {
-                return JsonResponse.fail("该组存在用户，不能删除.");
+                logger.info("该组存在用户，不能删除!");
+                return JsonResponse.fail("该组存在用户，不能删除!");
             }
             boolean flag = teamGroupService.deleteTeamGroup(id);
             if(flag) {

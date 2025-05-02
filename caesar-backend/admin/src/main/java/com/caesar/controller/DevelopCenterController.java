@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 
@@ -37,7 +36,7 @@ import java.util.logging.Logger;
 @RequestMapping("/develop")
 public class DevelopCenterController {
 
-    private static final Logger LOGGER = Logger.getLogger(DevelopCenterController.class.getName());
+    private static final Logger logger = Logger.getLogger(DevelopCenterController.class.getName());
 
 
     @Autowired
@@ -63,12 +62,12 @@ public class DevelopCenterController {
     @GetMapping("/listTask")
     public JsonResponse<List<MenuNode>> listTask(@RequestParam String partten) {
         try {
-            LOGGER.info(String.format("输入参数 => %s",partten));
+//            logger.info(String.format("输入参数 => %s",partten));
             List<MenuModel> caesarMenus = new ArrayList<>();
             caesarMenus.addAll(menuManagerService.listMenuForAside());
             caesarMenus.addAll(developCenterService.listTaskToMenu(partten));
             List<MenuNode> menuNodes = MenuModel.convert(caesarMenus);
-            LOGGER.info(String.format("返回菜单列表 => %s",menuNodes.toString()));
+//            logger.info(String.format("返回菜单列表 => %s",menuNodes.toString()));
             return JsonResponse.success(menuNodes);
         }catch (Exception e){
             e.printStackTrace();

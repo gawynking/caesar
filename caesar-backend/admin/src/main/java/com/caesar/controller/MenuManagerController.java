@@ -8,10 +8,14 @@ import com.caesar.tool.BeanConverterTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.logging.Logger;
+
 
 @RestController
 @RequestMapping("/menu")
 public class MenuManagerController {
+
+    private static final Logger logger = Logger.getLogger(MenuManagerController.class.getName());
 
     @Autowired
     MenuManagerService menuManagerService;

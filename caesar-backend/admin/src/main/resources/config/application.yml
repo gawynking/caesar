@@ -18,7 +18,7 @@ schedule:
   category: dolphin
   system: dolphinscheduler
   project: caesar___caesar
-  base-url: http://localhost:12345/dolphinscheduler
+  base-url: http://10.165.131.95:12345/dolphinscheduler
   version: 3.2.0
   token: 86c184558e3e773655504a39e01a1eb6
   level: workflow
