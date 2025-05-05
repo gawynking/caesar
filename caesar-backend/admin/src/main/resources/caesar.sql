@@ -220,12 +220,13 @@ create table caesar_datasource(
     owner_id          int                                                                comment '创建人',
     create_time timestamp not null default current_timestamp                             comment '创建时间戳',
     update_time timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
-    primary key(id)
+    primary key(id),
+    unique key(engine,datasource_type)
 ) engine = innodb default charset=utf8mb4
 comment '数据源表'
 ;
-insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL测试数据源",1,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
-insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL生产数据源",3,401,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
+insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL测试数据源",1,301,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
+insert into caesar_datasource(datasource_name,datasource_type,engine,datasource_info,owner_id)values("MySQL生产数据源",3,301,'{"driver":"com.mysql.cj.jdbc.Driver","url":"jdbc:mysql://localhost:3306/chavin?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","username":"root","password":"mysql"}',1);
 
 
 
@@ -268,15 +269,38 @@ insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(301,'Doris','doris','2',1);
 
 
+-- 任务执行计划
+drop table if exists caesar_task_execute_plan;
+create table caesar_task_execute_plan(
+	id             int auto_increment                                                       comment '执行计划ID',
+	uuid           varchar(64)                                                              comment 'UUID',
+    task_id        int not null                                                             comment '任务ID',
+    task_name      varchar(256) not null                                                    comment '任务名称',
+    task_version   int not null                                                             comment '任务版本号',
+    environment    varchar(32)                                                              comment '执行环境: test production',
+    period         varchar(32) not null                                                     comment '周期: day month',
+    start_date     varchar(32) not null                                                     comment '开始日期',
+    end_date       varchar(32) not null                                                     comment '结束日期',
+    status         int not null default 1                                                   comment '执行状态: 1-已创建 2-执行中 3-执行成功 4-中断执行',
+    create_time    timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time    timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id),
+    unique key(uuid)
+)engine = innodb default charset=utf8mb4
+comment '任务执行计划'
+;
+
+
 -- 任务执行记录
 drop table if exists caesar_task_execute_record;
 create table caesar_task_execute_record(
 	id             int auto_increment                                                       comment '执行ID',
+	plan_uuid      varchar(64) not null                                                     comment '执行计划UUID',
 	uuid           varchar(64)                                                              comment 'UUID',
     task_id        int not null                                                             comment '任务ID',
     task_name      varchar(256) not null                                                    comment '任务名称',
     parameter      varchar(512)                                                             comment '预定义参数,JSON格式',
-    environment    varchar(32)                                                              comment '执行环境: test staging production',
+    environment    varchar(32)                                                              comment '执行环境: test production',
     begin_time     datetime not null default current_timestamp                              comment '执行开始时间戳',
     end_time       datetime                                                                 comment '执行结束时间戳',
     is_success     int not null default 0                                                   comment '是否执行成功: 1-是 0-否',

@@ -42,12 +42,30 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "\tfrom caesar_task\n" +
             "\tgroup by task_name \n" +
             ") t5 on t1.id = t5.id \n" +
-            "where t2.username like #{partten1}\n" +
-            "  and t3.username like #{partten1}\n" +
-            "  and t1.task_name like #{partten2}\n" +
+            "where (t2.username like #{pattern} or t3.username like #{pattern} or t1.task_name like #{pattern})\n" +
             "  and t1.is_deleted = 0\n" +
             "order by t1.update_time desc")
-    List<MenuModel> listTaskToMenuByOwnerAndTaskname(String partten1, String partten2);
+    List<MenuModel> listTaskToMenuByOwnerOrTaskname(String pattern);
+
+    @Select("select \n" +
+            "\tt4.menu_index as parent_index,\n" +
+            "\tt1.task_name  as menu_index,\n" +
+            "\tt1.task_name  as menu_name,\n" +
+            "\ttrue          as is_leaf\n" +
+            "from caesar_task t1 \n" +
+            "join caesar_user t2 on t1.created_user = t2.id \n" +
+            "join caesar_user t3 on t1.updated_user = t3.id \n" +
+            "join caesar_menu t4 on t1.menu_id = t4.id \n" +
+            "join (\n" +
+            "\tselect max(id) as id \n" +
+            "\tfrom caesar_task\n" +
+            "\tgroup by task_name \n" +
+            ") t5 on t1.id = t5.id \n" +
+            "where (t2.username like #{pattern1} or t3.username like #{pattern1})\n" +
+            "  and t1.task_name like #{pattern2}\n" +
+            "  and t1.is_deleted = 0\n" +
+            "order by t1.update_time desc")
+    List<MenuModel> listTaskToMenuByOwnerAndTaskname(String pattern1, String pattern2);
 
     @Select("select * from caesar_task where task_name = #{taskName}")
     List<CaesarTask> findByName(String taskName);

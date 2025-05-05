@@ -1,6 +1,7 @@
 package com.caesar.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.caesar.entity.CaesarTaskExecutePlan;
 import com.caesar.entity.dto.CaesarGroupServiceDto;
 import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.dto.CaesarTaskExecuteRecordDto;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 
@@ -62,19 +64,16 @@ public class DevelopCenterController {
     @GetMapping("/listTask")
     public JsonResponse<List<MenuNode>> listTask(@RequestParam String partten) {
         try {
-//            logger.info(String.format("输入参数 => %s",partten));
             List<MenuModel> caesarMenus = new ArrayList<>();
             caesarMenus.addAll(menuManagerService.listMenuForAside());
             caesarMenus.addAll(developCenterService.listTaskToMenu(partten));
             List<MenuNode> menuNodes = MenuModel.convert(caesarMenus);
-//            logger.info(String.format("返回菜单列表 => %s",menuNodes.toString()));
             return JsonResponse.success(menuNodes);
         }catch (Exception e){
             e.printStackTrace();
         }
         return JsonResponse.fail("获取任务列表失败");
     }
-
 
 
     @PostMapping("/addTask")
@@ -246,6 +245,14 @@ public class DevelopCenterController {
             List<CaesarTaskExecuteRecordDto> taskExecuteRecordDtos = new ArrayList<>();
             CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskRefreshVo.getTaskName(), taskRefreshVo.getVersion());
 
+            CaesarTaskExecutePlan taskExecutePlan = BeanConverterTools.convert(taskRefreshVo, CaesarTaskExecutePlan.class);
+            taskExecutePlan.setUuid(UUID.randomUUID().toString().replaceAll("-","").toLowerCase());
+            taskExecutePlan.setTaskId(currentTaskInfo.getId());
+            taskExecutePlan.setTaskVersion(taskRefreshVo.getVersion());
+            taskExecutePlan.setStatus(1);
+
+            taskExecuteService.saveExecutePlan(taskExecutePlan);
+
             try {
                 Date startDate = DateUtils.dateParse(taskRefreshVo.getStartDate(), "yyyy-MM-dd");
                 Date endDate = DateUtils.dateParse(taskRefreshVo.getEndDate(), "yyyy-MM-dd");
@@ -259,6 +266,8 @@ public class DevelopCenterController {
 //                        parameter.put("start_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
 //                        parameter.put("end_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
                         JSONObject parameter = JSONUtils.getJSONObjectFromMap(TemplateUtils.generalRefreshParameter(DatePeriod.fromKey("day"), startDate));
+                        caesarTaskExecuteRecordDto.setPlanUuid(taskExecutePlan.getUuid());
+                        caesarTaskExecuteRecordDto.setUuid(UUID.randomUUID().toString().replaceAll("-","").toLowerCase());
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
@@ -274,6 +283,8 @@ public class DevelopCenterController {
 //                        parameter.put("start_date", DateUtils.getMonthStart(startDate));
 //                        parameter.put("end_date", DateUtils.getMonthEnd(startDate));
                         JSONObject parameter = JSONUtils.getJSONObjectFromMap(TemplateUtils.generalRefreshParameter(DatePeriod.fromKey("month"), startDate));
+                        caesarTaskExecuteRecordDto.setPlanUuid(taskExecutePlan.getUuid());
+                        caesarTaskExecuteRecordDto.setUuid(UUID.randomUUID().toString().replaceAll("-","").toLowerCase());
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
@@ -288,8 +299,13 @@ public class DevelopCenterController {
                 e.printStackTrace();
             }
 
-            taskExecuteService.refresh(taskExecuteRecordDtos);
-            return JsonResponse.success("提交回刷任务成功");
+            Boolean flag = taskExecuteService.refresh(taskExecuteRecordDtos);
+            if(flag){
+                return JsonResponse.success("提交回刷任务全部成功");
+            }else{
+                return JsonResponse.success("提交回刷任务未全部成功");
+            }
+
         }catch (Exception e){
             e.printStackTrace();
         }

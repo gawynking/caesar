@@ -54,7 +54,7 @@ public class JSONUtils {
      */
     public static JSONObject getJSONObjectFromString(String jsonStr){
         try {
-            return JSONObject.parseObject(jsonStr);
+            return JSON.parseObject(jsonStr);
         }catch (Exception e){
             logger.info("String conversion json object failed : " + jsonStr );
             return null;

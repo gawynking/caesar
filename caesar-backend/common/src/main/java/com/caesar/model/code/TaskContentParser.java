@@ -146,6 +146,7 @@ public class TaskContentParser {
         List<CaesarParams> customParams = new ArrayList<>();
 
         StringBuffer context = new StringBuffer();
+
         // 1 System Parameters
         StringBuffer systemBuffer = new StringBuffer();
         for(String line:paramsModel.getSystemParams()){
@@ -175,7 +176,7 @@ public class TaskContentParser {
             }
         }
 
-        // 2 System Parameters
+        // 2 Engine Parameters
         StringBuffer engineBuffer = new StringBuffer();
         for(String line:paramsModel.getEngineParams()){
             context.append(line).append("\n");
@@ -200,7 +201,7 @@ public class TaskContentParser {
             }
         }
 
-        // 3 System Parameters
+        // 3 Custom Parameters
         StringBuffer customBuffer = new StringBuffer();
         for(String line:paramsModel.getCustomParams()){
             context.append(line).append("\n");
@@ -216,7 +217,7 @@ public class TaskContentParser {
          */
         for(String statement:customBuffer.toString().split(";")) {
             if (StringUtils.isNotEmpty(statement.replaceAll("\\s", ""))) {
-                if(statement.replaceAll("\\s"," ").trim().startsWith("set")){
+                if(statement.replaceAll("\\s"," ").trim().toLowerCase().startsWith("set")){
                     String[] pairArray = statement
                             .replaceAll("\\s"," ")
                             .replaceAll("[S|s]+[E|e]+[T|t]+ ","")
@@ -229,7 +230,7 @@ public class TaskContentParser {
                     pair.setValue(pairArray[1].trim());
                     customParams.add(pair);
                 }
-                if(statement.replaceAll("\\s"," ").trim().startsWith("create function") || statement.replaceAll("\\s"," ").trim().startsWith("create temporary function")){
+                if(statement.replaceAll("\\s"," ").trim().toLowerCase().startsWith("create function") || statement.replaceAll("\\s"," ").trim().toLowerCase().startsWith("create temporary function")){
                     CustomFunctionParams customFunctionParams = new CustomFunctionParams();
                     customFunctionParams.setStatement(statement.replaceAll("\\s"," ").trim());
                     customParams.add(customFunctionParams);

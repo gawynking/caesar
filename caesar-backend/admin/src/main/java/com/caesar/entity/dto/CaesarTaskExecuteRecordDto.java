@@ -1,6 +1,5 @@
 package com.caesar.entity.dto;
 
-import com.caesar.entity.BaseEntity;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,6 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class CaesarTaskExecuteRecordDto {
 
+    String planUuid;
     String uuid;
     int taskId;
     String taskName;

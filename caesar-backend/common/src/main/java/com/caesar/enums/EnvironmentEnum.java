@@ -3,7 +3,6 @@ package com.caesar.enums;
 public enum EnvironmentEnum {
 
     TEST("test", "Test Environment"),
-    STAGING("staging", "Staging Environment"), // 不建议使用
     PRODUCTION("production", "Production Environment");
 
     private final String key;

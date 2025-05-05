@@ -16,6 +16,7 @@ import com.caesar.model.code.model.dto.TaskTemplateDto;
 import com.caesar.service.DevelopCenterService;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.*;
+import com.mysql.cj.log.Log;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -24,11 +25,13 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 @Service
 public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> implements DevelopCenterService {
 
+    private static final Logger logger = Logger.getLogger(DevelopManagerServiceImpl.class.getName());
 
     @Resource
     TaskMapper taskMapper;
@@ -65,21 +68,27 @@ public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTas
     }
 
     @Override
-    public List<MenuModel> listTaskToMenu(String partten) {
-        if(null == partten || "".equals(partten.trim())){
+    public List<MenuModel> listTaskToMenu(String pattern) {
+        pattern = pattern.replaceAll("\\s","");
+        if(null == pattern || "".equals(pattern) || ".".equals(pattern) || "*".equals(pattern)){
             return taskMapper.listTaskToMenu();
         }
-        String[] parttens = partten.split("\\.");
-        if(parttens.length==1){
-            String parttenStr = parttens[0].equals("*")?"%%":"%"+parttens[0]+"%";
-            return taskMapper.listTaskToMenuByOwnerAndTaskname(parttenStr,"%%");
+        String[] patterns = pattern.split("\\.");
+        if(patterns.length==1){
+            String patternStr = "%"+pattern.replaceAll("\\.","")+"%";
+            return taskMapper.listTaskToMenuByOwnerOrTaskname(patternStr);
         } else{
-            String parttenStr1 = parttens[0].equals("*")?"%%":"%"+parttens[0]+"%";
-            String parttenStr2 = parttens[1].equals("*")?"%%":"%"+parttens[1]+"%";
-            return taskMapper.listTaskToMenuByOwnerAndTaskname(parttenStr1,parttenStr2);
+            if(null == patterns[0] || "".equals(patterns[0])){
+                String patternStr1 = "%%";
+                String patternStr2 = patterns[1].equals("*") ? "%%" : "%" + patterns[1] + "%";
+                return taskMapper.listTaskToMenuByOwnerAndTaskname(patternStr1,patternStr2);
+            } else {
+                String patternStr1 = patterns[0].equals("*") ? "%%" : "%" + patterns[0] + "%";
+                String patternStr2 = patterns[1].equals("*") ? "%%" : "%" + patterns[1] + "%";
+                return taskMapper.listTaskToMenuByOwnerAndTaskname(patternStr1, patternStr2);
+            }
         }
     }
-
 
 
     @Override

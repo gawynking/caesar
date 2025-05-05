@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Mapper
@@ -16,10 +17,7 @@ public interface TaskExecuteMapper extends BaseMapper<CaesarTaskExecuteRecord> {
     int findIdFromNow(CaesarTaskExecuteRecord taskExecuteRecord);
 
     @Select("select max(id) as id from caesar_task_execute_record where task_id = #{taskId} and environment = 'test' and is_success = 1")
-    int checkTaskExecuteTest(CaesarTaskExecuteRecord taskExecuteRecord);
-
-    @Select("select max(id) as id from caesar_task_execute_record where task_id = #{taskId} and environment = 'staging' and is_success = 1")
-    Integer checkTaskExecuteTestAndStage(CaesarTaskExecuteRecord taskExecuteRecord);
+    Integer checkTaskExecuteTested(CaesarTaskExecuteRecord taskExecuteRecord);
 
     @Update("update caesar_task_execute_record set is_success=#{isSuccess},end_time=#{endTime} where id=#{id}")
     boolean updateExecuteState(int isSuccess, LocalDateTime endTime, int id);
@@ -32,4 +30,7 @@ public interface TaskExecuteMapper extends BaseMapper<CaesarTaskExecuteRecord> {
             "where task_id = #{taskId} \n" +
             "  and is_success = 1")
     Boolean validateTaskIsPassedTest(int taskId);
+
+    @Select("select * from caesar_task_execute_record where plan_uuid = #{planUuid} and is_success = 1")
+    List<CaesarTaskExecuteRecord> findRecordByPlan(String planUuid);
 }

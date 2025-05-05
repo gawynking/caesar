@@ -32,7 +32,7 @@ public class TemplateUtils {
         Map<String,String> parameter = new HashMap<>();
 
         try {
-            parameter.put("period", "day");
+            parameter.put("period", period.getKey());
             parameter.put("etl_date", Parameters.fromParameter("etl_date").applyExpression(period,requestDate));
             parameter.put("start_date", Parameters.fromParameter("start_date").applyExpression(period,requestDate));
             parameter.put("end_date", Parameters.fromParameter("end_date").applyExpression(period,requestDate));
@@ -46,25 +46,26 @@ public class TemplateUtils {
 
 
     public static ExecuteScript transformSqlTemplate(String template) throws EngineNotDefineException{
-        ExecuteScript executeScript = new ExecuteScript();
-        StringBuffer scriptBuffer = new StringBuffer();
+
         TaskContentParser taskContentParser = new TaskContentParser(template);
         MetaContent metaContent = taskContentParser.getTaskContentModel().getMetaContent();
         ParamsConfig paramsConfig = taskContentParser.getTaskContentModel().getParamsConfig();
         SchemaDefine schemaDefine = taskContentParser.getTaskContentModel().getSchemaDefine();
         EtlProcess etlProcess = taskContentParser.getTaskContentModel().getEtlProcess();
 
-
+        ExecuteScript executeScript = new ExecuteScript();
+        StringBuffer scriptBuffer = new StringBuffer();
         EngineEnum engine = metaContent.getEngine();
+        executeScript.setTaskName(metaContent.getTaskName());
         executeScript.setEngine(engine);
+
         switch (engine){
             case HIVE:
-            case SPARK:
                 // 1 parse system parameters ,not execute
-                List<CaesarParams> systemParams = paramsConfig.getSystemParams();
-                if(systemParams.size()>0) {
+                List<CaesarParams> systemParamsHive = paramsConfig.getSystemParams();
+                if(systemParamsHive.size()>0) {
                     Map<String, String> systemMap = new HashMap<>();
-                    for (CaesarParams systemParam : systemParams) {
+                    for (CaesarParams systemParam : systemParamsHive) {
                         Pair pair = (Pair) systemParam;
                         String key = pair.getKey().trim();
                         String value = pair.getValue().trim();
@@ -74,10 +75,10 @@ public class TemplateUtils {
                 }
 
                 // 2 parse engine parameters ,not execute
-                List<CaesarParams> engineParams = paramsConfig.getEngineParams();
-                if(engineParams.size()>0) {
+                List<CaesarParams> engineParamsHive = paramsConfig.getEngineParams();
+                if(engineParamsHive.size()>0) {
                     Map<String, String> engineMap = new HashMap<>();
-                    for (CaesarParams caesarParam : engineParams) {
+                    for (CaesarParams caesarParam : engineParamsHive) {
                         Pair pair = (Pair) caesarParam;
                         String key = pair.getKey().trim();
                         String value = pair.getValue().trim();
@@ -87,46 +88,40 @@ public class TemplateUtils {
                 }
 
                 // 3 parse custom parameters ,execute
-                List<CaesarParams> customParams = paramsConfig.getCustomParams();
-                if(customParams.size()>0) {
+                List<CaesarParams> customParamsHive = paramsConfig.getCustomParams();
+                if(customParamsHive.size()>0) {
                     Map<String, String> customVariableMap = new HashMap<>();
-                    for (CaesarParams customParam : customParams) {
+                    for (CaesarParams customParam : customParamsHive) {
                         CaesarParams.ParamsType type = customParam.getType();
                         switch (type) {
                             case Pair:
                                 Pair pair = (Pair) customParam;
+//                                String key = pair.getKey().trim();
+//                                String value = pair.getValue().trim();
+//                                customVariableMap.put(key,value);
+
                                 if (pair.getValue().startsWith("${") && pair.getValue().endsWith("}")) {
                                     String variable = pair.getValue().replaceAll("\\$\\{", "").replaceAll("\\}", "");
                                     customVariableMap.put(variable, pair.getValue());
                                 }
-                                if(TemplateConfig.getHiveStyleCustomParameter()) {
-                                    if (pair.getKey().startsWith("hivevar:") || pair.getKey().startsWith("hiveconf:")) {
-                                        scriptBuffer
-                                                .append("set")
-                                                .append(" ")
-                                                .append(pair.getKey())
-                                                .append(" = ")
-                                                .append(pair.getValue())
-                                                .append(";")
-                                                .append("\n");
-                                    } else {
-                                        scriptBuffer
-                                                .append("set")
-                                                .append(" ")
-                                                .append("hivevar:")
-                                                .append(pair.getKey())
-                                                .append(" = ")
-                                                .append(parseAndReplaceVariablesForHive(pair.getValue()))
-                                                .append(";")
-                                                .append("\n");
-                                    }
-                                }else{
+
+                                if (pair.getKey().startsWith("hivevar:") || pair.getKey().startsWith("hiveconf:")) {
                                     scriptBuffer
                                             .append("set")
                                             .append(" ")
                                             .append(pair.getKey())
                                             .append(" = ")
                                             .append(pair.getValue())
+                                            .append(";")
+                                            .append("\n");
+                                } else {
+                                    scriptBuffer
+                                            .append("set")
+                                            .append(" ")
+                                            .append("hivevar:")
+                                            .append(pair.getKey())
+                                            .append(" = ")
+                                            .append(parseAndReplaceVariablesForHive(pair.getValue()))
                                             .append(";")
                                             .append("\n");
                                 }
@@ -144,8 +139,118 @@ public class TemplateUtils {
                     executeScript.setCustomParamValues(customVariableMap);
                 }
                 break;
+            case SPARK:
+                // 1 parse system parameters ,not execute
+                List<CaesarParams> systemParamsSpark = paramsConfig.getSystemParams();
+                if(systemParamsSpark.size()>0) {
+                    Map<String, String> systemMap = new HashMap<>();
+                    for (CaesarParams systemParam : systemParamsSpark) {
+                        Pair pair = (Pair) systemParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        systemMap.put(key, value);
+                    }
+                    executeScript.setSystemParams(systemMap);
+                }
+
+                // 2 parse engine parameters ,not execute
+                List<CaesarParams> engineParamsSpark = paramsConfig.getEngineParams();
+                if(engineParamsSpark.size()>0) {
+                    Map<String, String> engineMap = new HashMap<>();
+                    for (CaesarParams caesarParam : engineParamsSpark) {
+                        Pair pair = (Pair) caesarParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        engineMap.put(key, value);
+                    }
+                    executeScript.setEngineParams(engineMap);
+                }
+
+                // 3 parse custom parameters ,execute
+                List<CaesarParams> customParamsSpark = paramsConfig.getCustomParams();
+                if(customParamsSpark.size()>0) {
+                    Map<String, String> customVariableMap = new HashMap<>();
+                    for (CaesarParams customParam : customParamsSpark) {
+                        CaesarParams.ParamsType type = customParam.getType();
+                        switch (type) {
+                            case Pair:
+                                Pair pair = (Pair) customParam;
+//                                String key = pair.getKey().trim();
+//                                String value = pair.getValue().trim();
+//                                customVariableMap.put(key,value);
+
+                                if (pair.getValue().startsWith("${") && pair.getValue().endsWith("}")) {
+                                    String variable = pair.getValue().replaceAll("\\$\\{", "").replaceAll("\\}", "");
+                                    customVariableMap.put(variable, pair.getValue());
+                                }
+
+                                scriptBuffer
+                                        .append("set")
+                                        .append(" ")
+                                        .append(pair.getKey())
+                                        .append(" = ")
+                                        .append(pair.getValue())
+                                        .append(";")
+                                        .append("\n");
+                                break;
+                            case customFunction:
+                                CustomFunctionParams customFunctionParams = (CustomFunctionParams) customParam;
+                                if (customFunctionParams.getStatement().trim().endsWith(";")) {
+                                    scriptBuffer.append(customFunctionParams.getStatement().replaceAll("\\s"," ").trim()).append("\n");
+                                } else {
+                                    scriptBuffer.append(customFunctionParams.getStatement().replaceAll("\\s"," ").trim()).append(";").append("\n");
+                                }
+                                break;
+                        }
+                    }
+                    executeScript.setCustomParamValues(customVariableMap);
+                }
+                break;
             case DORIS:
-                throw new EngineNotDefineException("模板定义引擎"+engine.getEngine()+"暂时不被支持");
+                // 1 parse system parameters ,not execute
+                List<CaesarParams> systemParamsDoris = paramsConfig.getSystemParams();
+                if(systemParamsDoris.size()>0) {
+                    Map<String, String> systemMap = new HashMap<>();
+                    for (CaesarParams systemParam : systemParamsDoris) {
+                        Pair pair = (Pair) systemParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        systemMap.put(key, value);
+                    }
+                    executeScript.setSystemParams(systemMap);
+                }
+
+                // 2 parse engine parameters ,not execute
+                List<CaesarParams> engineParamsDoris = paramsConfig.getEngineParams();
+                if(engineParamsDoris.size()>0) {
+                    Map<String, String> engineMap = new HashMap<>();
+                    for (CaesarParams caesarParam : engineParamsDoris) {
+                        Pair pair = (Pair) caesarParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        engineMap.put(key, value);
+                    }
+                    executeScript.setEngineParams(engineMap);
+                }
+
+                // 3 parse custom parameters ,execute
+                List<CaesarParams> customParamsDoris = paramsConfig.getCustomParams();
+                if(customParamsDoris.size()>0) {
+                    Map<String, String> customVariableMap = new HashMap<>();
+                    for (CaesarParams customParam : customParamsDoris) {
+                        Pair pair = (Pair) customParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        customVariableMap.put(key,value);
+
+                        if (pair.getValue().startsWith("${") && pair.getValue().endsWith("}")) {
+                            String variable = pair.getValue().replaceAll("\\$\\{", "").replaceAll("\\}", "");
+                            customVariableMap.put(variable, pair.getValue());
+                        }
+                    }
+                    executeScript.setCustomParamValues(customVariableMap);
+                }
+                break;
             default:
                 throw new EngineNotDefineException("模板定义引擎"+engine.getEngine()+"暂时不被支持");
         }
@@ -155,6 +260,8 @@ public class TemplateUtils {
         scriptBuffer.append(etlProcess.getContent());
 
         executeScript.setScript(scriptBuffer.toString());
+        executeScript.setSchema(schemaDefine.getContent());
+        executeScript.setCode(etlProcess.getContent());
 
         return executeScript;
     }
@@ -214,10 +321,13 @@ public class TemplateUtils {
 
     @Data
     public static class ExecuteScript{
+        String taskName;
         EngineEnum engine;
         Map<String, String> systemParams;
         Map<String, String> engineParams;
         Map<String, String> customParamValues;
         String script;
+        String schema;
+        String code;
     }
 }
