@@ -1,11 +1,11 @@
 package com.caesar.doris.factory;
 
 import com.caesar.constant.EngineConstant;
+import com.caesar.doris.engine.DorisEngine;
 import com.caesar.engine.Engine;
 import com.caesar.enums.EngineEnum;
 import com.caesar.factory.EngineFactory;
 import com.caesar.factory.EngineFactoryType;
-import com.caesar.mysql.engine.MySQLEngine;
 
 import java.util.Map;
 
@@ -21,7 +21,7 @@ public class DorisEngineFactory extends EngineFactoryType implements EngineFacto
         String jdbcUrl = config.get(EngineConstant.URL);
         String username = config.get(EngineConstant.USERNAME);
         String password = config.get(EngineConstant.PASSWORD);
-        return new MySQLEngine(jdbcDriver,jdbcUrl,username,password);
+        return new DorisEngine(jdbcDriver,jdbcUrl,username,password);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class DorisEngineFactory extends EngineFactoryType implements EngineFacto
 
     @Override
     public void setEngineEnum() {
-        this.engineEnum = EngineEnum.MYSQL;
+        this.engineEnum = EngineEnum.DORIS;
     }
 
 }
