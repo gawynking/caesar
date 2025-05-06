@@ -3,7 +3,7 @@ package com.caesar.engine;
 import com.caesar.factory.EngineFactory;
 import com.caesar.factory.EngineFactoryRegistry;
 import com.caesar.runner.ExecutionResult;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 
 
 public class EngineManager {

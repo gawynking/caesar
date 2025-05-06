@@ -6,7 +6,7 @@ import com.caesar.engine.Engine;
 import com.caesar.enums.EngineEnum;
 import com.caesar.factory.EngineFactory;
 import com.caesar.factory.EngineFactoryRegistry;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;

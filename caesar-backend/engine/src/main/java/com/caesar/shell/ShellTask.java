@@ -1,9 +1,7 @@
 package com.caesar.shell;
 
 
-import com.caesar.constant.EngineConfig;
-import com.caesar.constant.EngineConstant;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.task.Task;
 import com.caesar.util.StringUtils;

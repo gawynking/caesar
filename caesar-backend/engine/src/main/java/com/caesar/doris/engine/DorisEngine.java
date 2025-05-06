@@ -1,20 +1,14 @@
 package com.caesar.doris.engine;
 
-import com.caesar.constant.EngineConfig;
-import com.caesar.constant.EngineConstant;
 import com.caesar.doris.shell.DorisCommand;
 import com.caesar.engine.Engine;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
 import com.caesar.util.JdbcUrlParserUtils;
 import com.caesar.util.StringUtils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 

@@ -1,7 +1,7 @@
 package com.caesar.engine;
 
 import com.caesar.runner.ExecutionResult;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 
 public interface Engine {
 

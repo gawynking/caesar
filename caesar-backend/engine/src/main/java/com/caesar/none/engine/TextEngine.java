@@ -2,7 +2,7 @@ package com.caesar.none.engine;
 
 import com.caesar.engine.Engine;
 import com.caesar.runner.ExecutionResult;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 import com.caesar.util.FileUtils;
 
 import java.io.File;

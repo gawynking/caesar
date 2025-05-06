@@ -1,6 +1,5 @@
 package com.caesar.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.CaesarTaskExecutePlan;
@@ -18,7 +17,7 @@ import com.caesar.model.code.config.TemplateConstants;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.Executor;
 import com.caesar.service.TaskExecuteService;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 import com.caesar.util.JSONUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -94,9 +93,11 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
             return false;
         }
 
+        // 参数检查
         Set<String> tmpParameterSet = JSONUtils.getJSONObjectFromString(parameter).keySet();
-        for(String param: executeScript.getCustomParamValues().keySet()){
-            if(!tmpParameterSet.contains(param)){
+        Map<String, String> tmpCustomParams = executeScript.getCustomParamValues();
+        for(String param: tmpCustomParams.keySet()){
+            if(null == tmpCustomParams.get(param) && !tmpParameterSet.contains(param)){
                 logger.info(String.format("本次任务传入参数{%s}没有完全覆盖,请检查后重试!",executeScript.getCustomParamValues()));
                 return false;
             }

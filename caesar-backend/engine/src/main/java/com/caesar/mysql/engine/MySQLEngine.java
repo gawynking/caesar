@@ -5,7 +5,7 @@ import com.caesar.constant.EngineConstant;
 import com.caesar.engine.Engine;
 import com.caesar.mysql.shell.MySQLCommand;
 import com.caesar.runner.ExecutionResult;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
 import com.caesar.util.JdbcUrlParserUtils;
@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 

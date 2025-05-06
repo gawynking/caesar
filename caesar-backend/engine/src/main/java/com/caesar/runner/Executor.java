@@ -1,7 +1,7 @@
 package com.caesar.runner;
 
 import com.caesar.engine.EngineManager;
-import com.caesar.params.TaskInfo;
+import com.caesar.runner.params.TaskInfo;
 
 public class Executor {
 
