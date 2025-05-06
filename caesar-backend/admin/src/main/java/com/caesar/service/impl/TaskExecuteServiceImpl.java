@@ -1,5 +1,6 @@
 package com.caesar.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.CaesarTaskExecutePlan;
@@ -71,7 +72,12 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
             return false;
         }
 
+        logger.info("");
+        logger.info(String.format("脚本外传参数(shell)为: %s",parameter));
+        logger.info(String.format("脚本外传参数(code)为: %s",executeScript.getCustomParamValues()));
+        logger.info("");
         logger.info(String.format("本次执行脚本如下: \n%s",executeScript.getScript()));
+        logger.info("");
 
         if(null == engine || engine != executeScript.getEngine()){
             logger.info(String.format("任务执行失败，模板中定义engine:%s 和系统创建指定engine:%s 不一致",executeScript.getEngine(),engine));
@@ -86,6 +92,14 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         if(!(taskTags[0]+"."+taskTags[1]).equals(executeScript.getTaskName())){
             logger.info("任务执行失败，模板中定义任务名称"+executeScript.getTaskName()+"和系统创建指定任务名称"+(taskTags[0]+"."+taskTags[1])+"不一致");
             return false;
+        }
+
+        Set<String> tmpParameterSet = JSONUtils.getJSONObjectFromString(parameter).keySet();
+        for(String param: executeScript.getCustomParamValues().keySet()){
+            if(!tmpParameterSet.contains(param)){
+                logger.info(String.format("本次任务传入参数{%s}没有完全覆盖,请检查后重试!",executeScript.getCustomParamValues()));
+                return false;
+            }
         }
 
         String code = executeScript.getScript();
@@ -120,7 +134,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         }
 
         String dsConfig = datasourceMapper.findDatasourceInfoByEnvAndEngine(engine.getTag(), datasourceType);
-        taskConfig.putAll(JSONUtils.getMapFromJSONObject(JSONUtils.getJSONObjectFromString(dsConfig)));
+        taskConfig.putAll(Optional.ofNullable(JSONUtils.getMapFromJSONObject(JSONUtils.getJSONObjectFromString(dsConfig))).orElse(new HashMap()));
         task.setConfig(taskConfig);
 
 

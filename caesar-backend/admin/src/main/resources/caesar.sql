@@ -264,10 +264,10 @@ create table caesar_engine(
 comment '数据引擎表'
 ;
 
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(101,'Hive','hive','2',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(102,'Spark','spark','3',1);
-insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(103,'Flink','flink','1.8',1);
 insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(301,'Doris','doris','2',1);
-
+insert into caesar_engine(id,engine_type,engine_name,engine_version,is_activated)values(401,'MySQL','mysql','8',1);
 
 -- 任务执行计划
 drop table if exists caesar_task_execute_plan;

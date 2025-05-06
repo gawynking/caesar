@@ -11,10 +11,7 @@ import com.caesar.util.DateUtils;
 import com.caesar.util.JSONUtils;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,19 +88,23 @@ public class TemplateUtils {
                 List<CaesarParams> customParamsHive = paramsConfig.getCustomParams();
                 if(customParamsHive.size()>0) {
                     Map<String, String> customVariableMap = new HashMap<>();
+                    Map<String, String> tmpKeySet = new HashMap<>();
                     for (CaesarParams customParam : customParamsHive) {
                         CaesarParams.ParamsType type = customParam.getType();
                         switch (type) {
                             case Pair:
                                 Pair pair = (Pair) customParam;
-//                                String key = pair.getKey().trim();
-//                                String value = pair.getValue().trim();
-//                                customVariableMap.put(key,value);
+                                String key = pair.getKey().trim();
+                                tmpKeySet.put(key,null);
 
-                                if (pair.getValue().startsWith("${") && pair.getValue().endsWith("}")) {
-                                    String variable = pair.getValue().replaceAll("\\$\\{", "").replaceAll("\\}", "");
-                                    customVariableMap.put(variable, pair.getValue());
+                                String value = pair.getValue().trim();
+                                Set<String> paramSet = extractParameters(value);
+                                for(String param: paramSet){
+                                    if(!tmpKeySet.containsKey(param)){
+                                        customVariableMap.put(param,null);
+                                    }
                                 }
+
 
                                 if (pair.getKey().startsWith("hivevar:") || pair.getKey().startsWith("hiveconf:")) {
                                     scriptBuffer
@@ -138,6 +139,13 @@ public class TemplateUtils {
                     }
                     executeScript.setCustomParamValues(customVariableMap);
                 }
+                // parse schema and etl
+                scriptBuffer.append(schemaDefine.getContent()).append("\n");
+                scriptBuffer.append(etlProcess.getContent());
+
+                executeScript.setScript(scriptBuffer.toString());
+                executeScript.setSchema(schemaDefine.getContent());
+                executeScript.setCode(etlProcess.getContent());
                 break;
             case SPARK:
                 // 1 parse system parameters ,not execute
@@ -170,18 +178,21 @@ public class TemplateUtils {
                 List<CaesarParams> customParamsSpark = paramsConfig.getCustomParams();
                 if(customParamsSpark.size()>0) {
                     Map<String, String> customVariableMap = new HashMap<>();
+                    Map<String, String> tmpKeySet = new HashMap<>();
                     for (CaesarParams customParam : customParamsSpark) {
                         CaesarParams.ParamsType type = customParam.getType();
                         switch (type) {
                             case Pair:
                                 Pair pair = (Pair) customParam;
-//                                String key = pair.getKey().trim();
-//                                String value = pair.getValue().trim();
-//                                customVariableMap.put(key,value);
+                                String key = pair.getKey().trim();
+                                tmpKeySet.put(key,null);
 
-                                if (pair.getValue().startsWith("${") && pair.getValue().endsWith("}")) {
-                                    String variable = pair.getValue().replaceAll("\\$\\{", "").replaceAll("\\}", "");
-                                    customVariableMap.put(variable, pair.getValue());
+                                String value = pair.getValue().trim();
+                                Set<String> paramSet = extractParameters(value);
+                                for(String param: paramSet){
+                                    if(!tmpKeySet.containsKey(param)) {
+                                        customVariableMap.put(param, null);
+                                    }
                                 }
 
                                 scriptBuffer
@@ -205,6 +216,13 @@ public class TemplateUtils {
                     }
                     executeScript.setCustomParamValues(customVariableMap);
                 }
+                // parse schema and etl
+                scriptBuffer.append(schemaDefine.getContent()).append("\n");
+                scriptBuffer.append(etlProcess.getContent());
+
+                executeScript.setScript(scriptBuffer.toString());
+                executeScript.setSchema(schemaDefine.getContent());
+                executeScript.setCode(etlProcess.getContent());
                 break;
             case DORIS:
                 // 1 parse system parameters ,not execute
@@ -237,31 +255,92 @@ public class TemplateUtils {
                 List<CaesarParams> customParamsDoris = paramsConfig.getCustomParams();
                 if(customParamsDoris.size()>0) {
                     Map<String, String> customVariableMap = new HashMap<>();
+                    Map<String, String> tmpKeySet = new HashMap<>();
                     for (CaesarParams customParam : customParamsDoris) {
                         Pair pair = (Pair) customParam;
                         String key = pair.getKey().trim();
                         String value = pair.getValue().trim();
                         customVariableMap.put(key,value);
+                        tmpKeySet.put(key,null);
 
-                        if (pair.getValue().startsWith("${") && pair.getValue().endsWith("}")) {
-                            String variable = pair.getValue().replaceAll("\\$\\{", "").replaceAll("\\}", "");
-                            customVariableMap.put(variable, pair.getValue());
+                        Set<String> paramSet = extractParameters(value);
+                        for(String param: paramSet){
+                            if(!tmpKeySet.containsKey(param)) {
+                                customVariableMap.put(param, null);
+                            }
                         }
                     }
                     executeScript.setCustomParamValues(customVariableMap);
                 }
+
+                // parse schema and etl
+                scriptBuffer.append(schemaDefine.getContent()).append("\n");
+                scriptBuffer.append(etlProcess.getContent());
+
+                executeScript.setScript(scriptBuffer.toString());
+                executeScript.setSchema(schemaDefine.getContent());
+                executeScript.setCode(etlProcess.getContent());
+                break;
+            case MYSQL:
+                // 1 parse system parameters ,not execute
+                List<CaesarParams> systemParamsMySQL = paramsConfig.getSystemParams();
+                if(systemParamsMySQL.size()>0) {
+                    Map<String, String> systemMap = new HashMap<>();
+                    for (CaesarParams systemParam : systemParamsMySQL) {
+                        Pair pair = (Pair) systemParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        systemMap.put(key, value);
+                    }
+                    executeScript.setSystemParams(systemMap);
+                }
+
+                // 2 parse engine parameters ,not execute
+                List<CaesarParams> engineParamsMySQL = paramsConfig.getEngineParams();
+                if(engineParamsMySQL.size()>0) {
+                    Map<String, String> engineMap = new HashMap<>();
+                    for (CaesarParams caesarParam : engineParamsMySQL) {
+                        Pair pair = (Pair) caesarParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        engineMap.put(key, value);
+                    }
+                    executeScript.setEngineParams(engineMap);
+                }
+
+                // 3 parse custom parameters ,execute
+                List<CaesarParams> customParamsMySQL = paramsConfig.getCustomParams();
+                if(customParamsMySQL.size()>0) {
+                    Map<String, String> customVariableMap = new HashMap<>();
+                    Map<String, String> tmpKeySet = new HashMap<>();
+                    for (CaesarParams customParam : customParamsMySQL) {
+                        Pair pair = (Pair) customParam;
+                        String key = pair.getKey().trim();
+                        String value = pair.getValue().trim();
+                        customVariableMap.put(key,value);
+                        tmpKeySet.put(key,null);
+
+                        Set<String> paramSet = extractParameters(value);
+                        for(String param: paramSet){
+                            if(!tmpKeySet.containsKey(param)) {
+                                customVariableMap.put(param, null);
+                            }
+                        }
+                    }
+                    executeScript.setCustomParamValues(customVariableMap);
+                }
+
+                // parse schema and etl
+                scriptBuffer.append(schemaDefine.getContent()).append("\n");
+                scriptBuffer.append(etlProcess.getContent());
+
+                executeScript.setScript(scriptBuffer.toString());
+                executeScript.setSchema(schemaDefine.getContent());
+                executeScript.setCode(etlProcess.getContent());
                 break;
             default:
                 throw new EngineNotDefineException("模板定义引擎"+engine.getEngine()+"暂时不被支持");
         }
-
-        // parse schema and etl
-        scriptBuffer.append(schemaDefine.getContent()).append("\n");
-        scriptBuffer.append(etlProcess.getContent());
-
-        executeScript.setScript(scriptBuffer.toString());
-        executeScript.setSchema(schemaDefine.getContent());
-        executeScript.setCode(etlProcess.getContent());
 
         return executeScript;
     }
@@ -318,6 +397,17 @@ public class TemplateUtils {
         return modifiedStatement.toString();
     }
 
+    private static Set<String> extractParameters(String text) {
+        Set<String> parameters = new HashSet<>();
+        // 正则匹配 ${param}、${hivevar:param} 或 ${hiveconf:param} 中的 param
+        Pattern pattern = Pattern.compile("\\$\\{(?:hivevar:|hiveconf:)?([^}]+)\\}");
+        Matcher matcher = pattern.matcher(text);
+
+        while (matcher.find()) {
+            parameters.add(matcher.group(1));
+        }
+        return parameters;
+    }
 
     @Data
     public static class ExecuteScript{
