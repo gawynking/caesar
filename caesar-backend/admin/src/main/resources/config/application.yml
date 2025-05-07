@@ -24,24 +24,48 @@ schedule:
   level: workflow
 
 
+## 执行引擎配置信息
 engine:
   priority: shell
+
+  text:
+    file-system: file
+    code-dir: /Users/chavinking/test/caesar
+
   environment:
+    ## 调度集群
     scheduler-cluster: 127.0.0.1,localhost
+
+    ## Hive依赖
     hive:
       home: /opt/hive
+
+    ## Spark依赖
     spark:
       home: /opt/spark
+
+    ## Doris数据源信息
     doris:
       username: root
       password: mysql
       hostname: 127.0.0.1
       port: 3306
+
+      username-test: root
+      password-test: mysql
+      hostname-test: 127.0.0.1
+      port-test: 3306
+
+    ## MySQL数据源信息
     mysql:
       username: root
       password: mysql
       hostname: 127.0.0.1
       port: 3306
-  text:
-    file-system: file
-    code-dir: /Users/chavinking/test/caesar
+
+      username-test: root
+      password-test: mysql
+      hostname-test: 127.0.0.1
+      port-test: 3306
+
+

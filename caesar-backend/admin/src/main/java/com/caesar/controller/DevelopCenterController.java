@@ -271,6 +271,7 @@ public class DevelopCenterController {
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
+                        caesarTaskExecuteRecordDto.setPeriod("day");
                         taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
                         startDate = DateUtils.dateAdd(startDate, 1, false);
                     }
@@ -288,6 +289,7 @@ public class DevelopCenterController {
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
+                        caesarTaskExecuteRecordDto.setPeriod("month");
                         taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
                         startDate = DateUtils.addMonth(startDate, 1);
                     }

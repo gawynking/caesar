@@ -10,9 +10,11 @@ public class ScriptInfo {
     List<String> schedulerCluster;
 
     String testSqlFile;
+    String testScriptFile;
     String testScript;
 
     String prodSqlFile;
+    String prodScriptFile;
     String prodScript;
 
 }

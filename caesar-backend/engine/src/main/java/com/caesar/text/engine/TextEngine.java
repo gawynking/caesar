@@ -3,6 +3,7 @@ package com.caesar.text.engine;
 import com.caesar.constant.EngineConfig;
 import com.caesar.engine.Engine;
 import com.caesar.enums.EngineEnum;
+import com.caesar.enums.EnvironmentEnum;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.params.TaskInfo;
 import com.caesar.text.model.ScriptInfo;
@@ -46,6 +47,10 @@ public class TextEngine implements Engine {
         /**
          * 项目路径设计类似如下风格: code-dir 指定绝对路径
          *  - dw-project/
+         *      - bin/
+         *          - ods/
+         *          - dim/
+         *          - dwd/
          *      - sql/
          *          - ods/
          *          - dim/
@@ -55,12 +60,26 @@ public class TextEngine implements Engine {
         String taskName = task.getTaskName();
         String code = task.getCode();
         EngineEnum engine = task.getEngine();
+        EnvironmentEnum environment = task.getEnvironment();
         Map<String, String> customParamValues = task.getCustomParamValues();
         Map<String, String> taskInputParams = task.getTaskInputParams();
 
         ScriptInfo scriptInfo = new ScriptInfo();
         scriptInfo.setSchedulerCluster(this.schedulerCluster);
         if("file".equals(this.fileSystem)){
+            // Shell File
+            String shellBasePath = this.codeDir + "bin" + SEP + dbLevel;
+            String testShellFile = shellBasePath + SEP + taskName + "__test.sh";
+            String prodShellFile = shellBasePath + SEP + taskName + ".sh";
+
+            FileUtils.createDirectoryIfNotExists(shellBasePath);
+            FileUtils.createFile(testShellFile);
+            FileUtils.createFile(prodShellFile);
+
+            scriptInfo.setTestScriptFile(testShellFile);
+            scriptInfo.setProdScriptFile(prodShellFile);
+
+            // SQL File
             String sqlBasePath = this.codeDir + "sql" + SEP + dbLevel;
             String testSqlFile = sqlBasePath + SEP + taskName + "__test.sql";
             String prodSqlFile = sqlBasePath + SEP + taskName + ".sql";
@@ -84,58 +103,69 @@ public class TextEngine implements Engine {
                     String hiveShellTemplate = EngineConfig.getString("HIVE_SHELL");
 //                    logger.info(String.format("Hive Shell 模板: \n %s",hiveScriptTemplate));
 
-                    // 测试脚本
-                    Map<String, String> testHiveScriptParams = new HashMap<>();
-                    StringBuffer testHiveCustomParamsDefineBuffer = new StringBuffer();
-                    StringBuffer testHiveParamsBuffer = new StringBuffer();
+                    if(environment == EnvironmentEnum.TEST) { // 测试脚本
+                        Map<String, String> testHiveScriptParams = new HashMap<>();
+                        StringBuffer testHiveCustomParamsDefineBuffer = new StringBuffer();
+                        StringBuffer testHiveParamsBuffer = new StringBuffer();
 
-                    for(String key :customParamValues.keySet()){
-                        testHiveCustomParamsDefineBuffer
-                                .append(key)
-                                .append("=")
-                                .append(taskInputParams.get(key))
-                                .append("\n");
+                        for (String key : customParamValues.keySet()) {
+                            testHiveCustomParamsDefineBuffer
+                                    .append(key)
+                                    .append("=")
+                                    .append(taskInputParams.get(key))
+                                    .append("\n");
 
-                        testHiveParamsBuffer
-                                .append("--hivevar")
-                                .append(" ")
-                                .append(key)
-                                .append("=")
-                                .append(taskInputParams.get(key))
-                                .append(" ");
+                            testHiveParamsBuffer
+                                    .append("--hivevar")
+                                    .append(" ")
+                                    .append(key)
+                                    .append("=")
+                                    .append("'")
+                                    .append(taskInputParams.get(key))
+                                    .append("'")
+                                    .append(" ");
+                        }
+                        testHiveScriptParams.put("customParamsDefine", testHiveCustomParamsDefineBuffer.toString());
+                        testHiveScriptParams.put("hiveParams", testHiveParamsBuffer.toString());
+                        testHiveScriptParams.put("sqlFile", testSqlFile);
+                        String testHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, testHiveScriptParams);
+                        scriptInfo.setTestScript(testHiveScript);
+
+                        // 生成Shell脚本文件
+                        FileUtils.writeToFile(testShellFile, testHiveScript);
+                        FileDistributorUtils.distributeFile(testShellFile,this.schedulerCluster,testShellFile);
+                    } else if(environment == EnvironmentEnum.PRODUCTION) { // 生产脚本
+                        Map<String, String> prodHiveScriptParams = new HashMap<>();
+                        StringBuffer prodHiveCustomParamsDefineBuffer = new StringBuffer();
+                        StringBuffer prodHiveParamsBuffer = new StringBuffer();
+
+                        for (String key : customParamValues.keySet()) {
+                            prodHiveCustomParamsDefineBuffer
+                                    .append(key)
+                                    .append("=")
+                                    .append(customParamValues.get(key))
+                                    .append("\n");
+
+                            prodHiveParamsBuffer
+                                    .append("--hivevar")
+                                    .append(" ")
+                                    .append(key)
+                                    .append("=")
+                                    .append("'")
+                                    .append(customParamValues.get(key))
+                                    .append("'")
+                                    .append(" ");
+                        }
+                        prodHiveScriptParams.put("customParamsDefine", prodHiveCustomParamsDefineBuffer.toString());
+                        prodHiveScriptParams.put("hiveParams", prodHiveParamsBuffer.toString());
+                        prodHiveScriptParams.put("sqlFile", prodSqlFile);
+                        String prodHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, prodHiveScriptParams);
+                        scriptInfo.setProdScript(prodHiveScript);
+
+                        // 生成Shell脚本文件
+                        FileUtils.writeToFile(prodShellFile, prodHiveScript);
+                        FileDistributorUtils.distributeFile(prodShellFile,this.schedulerCluster,prodShellFile);
                     }
-                    testHiveScriptParams.put("customParamsDefine",testHiveCustomParamsDefineBuffer.toString());
-                    testHiveScriptParams.put("hiveParams",testHiveParamsBuffer.toString());
-                    testHiveScriptParams.put("sqlFile",testSqlFile);
-                    String testHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, testHiveScriptParams);
-                    scriptInfo.setTestScript(testHiveScript);
-
-                    // *************************************************************************************************
-                    // 生产调度脚本
-                    Map<String, String> prodHiveScriptParams = new HashMap<>();
-                    StringBuffer prodHiveCustomParamsDefineBuffer = new StringBuffer();
-                    StringBuffer prodHiveParamsBuffer = new StringBuffer();
-
-                    for(String key :customParamValues.keySet()){
-                        prodHiveCustomParamsDefineBuffer
-                                .append(key)
-                                .append("=")
-                                .append(customParamValues.get(key))
-                                .append("\n");
-
-                        prodHiveParamsBuffer
-                                .append("--hivevar")
-                                .append(" ")
-                                .append(key)
-                                .append("=")
-                                .append(customParamValues.get(key))
-                                .append(" ");
-                    }
-                    prodHiveScriptParams.put("customParamsDefine",prodHiveCustomParamsDefineBuffer.toString());
-                    prodHiveScriptParams.put("hiveParams",prodHiveParamsBuffer.toString());
-                    prodHiveScriptParams.put("sqlFile",prodSqlFile);
-                    String prodHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, prodHiveScriptParams);
-                    scriptInfo.setProdScript(prodHiveScript);
                     break;
                 case SPARK:
                     String sparkShell = EngineConfig.getString("SPARK_SHELL");
@@ -152,54 +182,89 @@ public class TextEngine implements Engine {
                         connectionConfig = (Map)EngineConfig.getMap("environment").get("mysql");
                     }
 
-                    Map<String, String> prodMysqlScriptParams = new HashMap<>();
-                    StringBuffer prodMysqlConnectionBuffer = new StringBuffer();
+                    if(environment == EnvironmentEnum.TEST){
+                        Map<String, String> testMysqlScriptParams = new HashMap<>();
+                        StringBuffer testMysqlConnectionBuffer = new StringBuffer();
 
-                    prodMysqlConnectionBuffer
-                            .append("-u")
-                            .append(connectionConfig.get("username"))
-                            .append(" ")
-                            .append("-p")
-                            .append(connectionConfig.get("password"))
-                            .append(" ")
-                            .append("-h")
-                            .append(connectionConfig.get("hostname"))
-                            .append(" ")
-                            .append("-P")
-                            .append(connectionConfig.get("port"));
+                        testMysqlConnectionBuffer
+                                .append("-u")
+                                .append(connectionConfig.get("username-test"))
+                                .append(" ")
+                                .append("-p")
+                                .append("'")
+                                .append(connectionConfig.get("password-test"))
+                                .append("'")
+                                .append(" ")
+                                .append("-h")
+                                .append(connectionConfig.get("hostname-test"))
+                                .append(" ")
+                                .append("-P")
+                                .append(connectionConfig.get("port-test"));
 
-                    prodMysqlScriptParams.put("connection",prodMysqlConnectionBuffer.toString());
-                    prodMysqlScriptParams.put("sqlFile",prodSqlFile);
+                        testMysqlScriptParams.put("connection", testMysqlConnectionBuffer.toString());
+                        testMysqlScriptParams.put("sqlFile", testSqlFile);
 
-                    String prodMysqlScript = ShellTemplateProcessorUtils.processTemplate(mysqlShellTemplate, prodMysqlScriptParams);
-                    scriptInfo.setProdScript(prodMysqlScript);
+                        String testMysqlScript = ShellTemplateProcessorUtils.processTemplate(mysqlShellTemplate, testMysqlScriptParams);
+                        scriptInfo.setTestScript(testMysqlScript);
 
-                    prodMysqlScriptParams.put("sqlFile",testSqlFile);
-                    String testMysqlScript = ShellTemplateProcessorUtils.processTemplate(mysqlShellTemplate, prodMysqlScriptParams);
-                    scriptInfo.setTestScript(testMysqlScript);
+                        // 生成Shell脚本文件
+                        FileUtils.writeToFile(testShellFile, testMysqlScript);
+                        FileDistributorUtils.distributeFile(testShellFile,this.schedulerCluster,testShellFile);
+                    }else if(environment == EnvironmentEnum.PRODUCTION) {
+                        Map<String, String> prodMysqlScriptParams = new HashMap<>();
+                        StringBuffer prodMysqlConnectionBuffer = new StringBuffer();
+
+                        prodMysqlConnectionBuffer
+                                .append("-u")
+                                .append(connectionConfig.get("username"))
+                                .append(" ")
+                                .append("-p")
+                                .append("'")
+                                .append(connectionConfig.get("password"))
+                                .append("'")
+                                .append(" ")
+                                .append("-h")
+                                .append(connectionConfig.get("hostname"))
+                                .append(" ")
+                                .append("-P")
+                                .append(connectionConfig.get("port"));
+
+                        prodMysqlScriptParams.put("connection", prodMysqlConnectionBuffer.toString());
+                        prodMysqlScriptParams.put("sqlFile", prodSqlFile);
+
+                        String prodMysqlScript = ShellTemplateProcessorUtils.processTemplate(mysqlShellTemplate, prodMysqlScriptParams);
+                        scriptInfo.setProdScript(prodMysqlScript);
+
+                        // 生成Shell脚本文件
+                        FileUtils.writeToFile(prodShellFile, prodMysqlScript);
+                        FileDistributorUtils.distributeFile(prodShellFile,this.schedulerCluster,prodShellFile);
+                    }
                     break;
                 default:
                     throw new RuntimeException(String.format("发现不支持引擎%s",engine.getTag()));
             }
 
         }else if("hdfs".equals(this.fileSystem)){
-
         }
 
         logger.info("");
-        logger.info(String.format(
-                "本次任务 %s 测试脚本路径: %s \n 生产脚本如下: \n%s ",
-                dbLevel+"."+taskName,
-                scriptInfo.getTestSqlFile(),
-                scriptInfo.getTestScript()
-        ));
-        logger.info("");
-        logger.info(String.format(
-                "本次任务 %s 生产脚本路径: %s \n 生产脚本如下: \n%s ",
-                dbLevel+"."+taskName,
-                scriptInfo.getProdSqlFile(),
-                scriptInfo.getProdScript()
+        if(environment == EnvironmentEnum.TEST) {
+            logger.info(String.format(
+                    "本次任务 %s 测试SQL脚本路径: %s\n 测试Shell脚本路径: %s\n 测试Shell脚本如下: \n%s ",
+                    dbLevel + "." + taskName,
+                    scriptInfo.getTestSqlFile(),
+                    scriptInfo.getTestScriptFile(),
+                    scriptInfo.getTestScript()
             ));
+        }else if(environment == EnvironmentEnum.PRODUCTION) {
+            logger.info(String.format(
+                    "本次任务 %s 生产SQL脚本路径: %s\n 生产Shell脚本路径: %s\n 生产Shell脚本如下: \n%s ",
+                    dbLevel + "." + taskName,
+                    scriptInfo.getProdSqlFile(),
+                    scriptInfo.getProdScriptFile(),
+                    scriptInfo.getProdScript()
+            ));
+        }
         logger.info("");
 
         return scriptInfo;

@@ -1,5 +1,6 @@
 package com.caesar.entity.dto;
 
+import com.caesar.model.code.enums.DatePeriod;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,5 +19,6 @@ public class CaesarTaskExecuteRecordDto {
     String taskLog;
     // JSON结构
     String parameter;
+    String period;
 
 }
