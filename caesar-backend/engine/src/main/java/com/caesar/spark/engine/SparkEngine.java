@@ -11,6 +11,7 @@ import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
 import com.caesar.spark.shell.SparkCommand;
+import com.caesar.text.model.ScriptInfo;
 import com.caesar.util.FileUtils;
 
 import java.util.HashMap;
@@ -28,10 +29,10 @@ public class SparkEngine extends ShellTask implements Engine {
     }
 
     @Override
-    public String buildCodeScript(String dbLevel,String taskName,String code) {
-        EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.NONE);
+    public ScriptInfo buildCodeScript(TaskInfo task) {
+        EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.TEXT);
         Engine engine = engineFactory.createEngine(new HashMap<>());
-        return engine.buildCodeScript(dbLevel,taskName,code);
+        return engine.buildCodeScript(task);
     }
 
     @Override
@@ -142,8 +143,8 @@ public class SparkEngine extends ShellTask implements Engine {
         String dbLevel = taskInfo.getDbLevel();
         String taskName = taskInfo.getTaskName();
 
-        String sqlFilePath = buildCodeScript(dbLevel,taskName,taskInfo.getCode());
-        String shellFilePath = buildShellScript(taskInfo,sqlFilePath);
+        ScriptInfo sqlFilePath = buildCodeScript(taskInfo);
+        String shellFilePath = buildShellScript(taskInfo,sqlFilePath.getProdSqlFile());
 
         super.systemUser = taskInfo.getSystemUser();
         List<String> commands = super.getJobPrefix();
@@ -152,7 +153,7 @@ public class SparkEngine extends ShellTask implements Engine {
         commands.add(shellFilePath);
         // caesar执行，这里要替换成变量对应的具体值
         Map<String, String> customParamValues = taskInfo.getCustomParamValues(); // 脚本解析参数
-        Map<String, String> taskParams = taskInfo.getTaskParams(); // 前端设置参数
+        Map<String, String> taskParams = taskInfo.getTaskInputParams(); // 前端设置参数
         for(String variable:customParamValues.keySet()){
             variable = variable.trim();
             if(taskParams.containsKey(variable)){

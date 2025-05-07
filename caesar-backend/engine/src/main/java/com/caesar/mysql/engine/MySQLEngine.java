@@ -8,6 +8,7 @@ import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.params.TaskInfo;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
+import com.caesar.text.model.ScriptInfo;
 import com.caesar.util.JdbcUrlParserUtils;
 import com.caesar.util.StringUtils;
 
@@ -33,7 +34,7 @@ public class MySQLEngine extends ShellTask implements Engine {
     }
 
     @Override
-    public String buildCodeScript(String dbLevel, String taskName, String code) {
+    public ScriptInfo buildCodeScript(TaskInfo task) {
         return null;
     }
 

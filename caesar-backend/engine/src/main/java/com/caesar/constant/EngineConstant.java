@@ -13,6 +13,7 @@ public interface EngineConstant {
 
     public static final String FILE_SYSTEM = "file-system";
     public static final String CODE_DIR = "code-dir";
+    public static final String SCHEDULER_CLUSTER = "scheduler-cluster";
 
     public static final String ENVIRONMENT = "environment";
 

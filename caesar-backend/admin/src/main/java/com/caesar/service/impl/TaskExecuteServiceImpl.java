@@ -119,7 +119,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
         task.setEngineParams(executeScript.getEngineParams());
         task.setCustomParamValues(executeScript.getCustomParamValues());
         task.setCode(code);
-        task.setTaskParams(JSONUtils.getMapFromJSONObject(JSONUtils.getJSONObjectFromString(parameter)));
+        task.setTaskInputParams(JSONUtils.getMapFromJSONObject(JSONUtils.getJSONObjectFromString(parameter)));
 
         int datasourceType = -1;
         switch (environment){

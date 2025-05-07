@@ -8,6 +8,8 @@ import com.caesar.runner.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.ShellTask;
 import com.caesar.spark.engine.SparkEngine;
+import com.caesar.text.model.ScriptInfo;
+
 import java.util.HashMap;
 
 
@@ -18,10 +20,10 @@ public class HiveEngine extends ShellTask implements Engine {
     }
 
     @Override
-    public String buildCodeScript(String dbLevel, String taskName, String code) {
-        EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.NONE);
+    public ScriptInfo buildCodeScript(TaskInfo task) {
+        EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.TEXT);
         Engine engine = engineFactory.createEngine(new HashMap<>());
-        return engine.buildCodeScript(dbLevel,taskName,code);
+        return engine.buildCodeScript(task);
     }
 
     @Override

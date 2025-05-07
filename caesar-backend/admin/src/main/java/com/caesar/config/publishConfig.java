@@ -78,11 +78,11 @@ public class publishConfig {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            engineConfig.put(shell.toLowerCase().trim(),shellScript);
+            engineConfig.put(shell.toUpperCase().trim(),shellScript);
         }
 
         EngineConfig.setConfigMap(engineConfig);
-        LOGGER.info("Engine Configuration: " + engineConfig);
+//        LOGGER.info("Engine Configuration: " + engineConfig);
     }
 
 

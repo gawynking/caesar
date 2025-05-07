@@ -2,7 +2,7 @@ package com.caesar.enums;
 
 public enum EngineEnum {
 
-    NONE(1,"None"),
+    TEXT(1,"None"),
 
     HIVE(101, "Hive"),
     SPARK(102, "Spark"),

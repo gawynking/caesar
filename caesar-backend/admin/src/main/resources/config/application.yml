@@ -25,11 +25,23 @@ schedule:
 
 
 engine:
-  priority: jdbc
+  priority: shell
   environment:
-    mysql: /opt/homebrew/Cellar/mysql@5.7/5.7.32/bin/mysql
-    hive: /opt/xxx
-    spark: /opt/xxx
-  none:
+    scheduler-cluster: 127.0.0.1,localhost
+    hive:
+      home: /opt/hive
+    spark:
+      home: /opt/spark
+    doris:
+      username: root
+      password: mysql
+      hostname: 127.0.0.1
+      port: 3306
+    mysql:
+      username: root
+      password: mysql
+      hostname: 127.0.0.1
+      port: 3306
+  text:
     file-system: file
     code-dir: /Users/chavinking/test/caesar
