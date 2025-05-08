@@ -1,5 +1,6 @@
 #!/bin/bash
 source ~/.bash_profile
+## Params: customParamsDefine hiveParams sqlFile
 
 # 打印开始时间
 echo "Task start at: $(date '+%Y-%m-%d %H:%M:%S')"

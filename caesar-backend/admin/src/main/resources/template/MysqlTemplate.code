@@ -15,8 +15,7 @@ set caesar.system_user = root;
 ## 引擎参数
 
 ## 自定义UDF&参数
-set start_date = ${etl_date};
-set end_date = ${etl_date};
+
 
 ### Part Two ###############################################################################################
 ### Schema定义

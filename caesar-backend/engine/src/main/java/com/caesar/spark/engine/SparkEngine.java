@@ -49,8 +49,8 @@ public class SparkEngine extends ShellTask implements Engine {
          *          - dim/
          *          - dwd/
          */
-        String dbLevel = taskInfo.getDbLevel();
-        String taskName = taskInfo.getTaskName();
+        String dbLevel = taskInfo.getDbName();
+        String taskName = taskInfo.getTableName();
         String sparkShell = EngineConfig.getString(EngineConstant.SPARK_SHELL);
         String codeDir = (String) EngineConfig.getMap("none").get(EngineConstant.CODE_DIR);
         String shellDirPath = codeDir+SEP+"sbin"+SEP+dbLevel;
@@ -140,8 +140,8 @@ public class SparkEngine extends ShellTask implements Engine {
          *          - dim/
          *          - dwd/
          */
-        String dbLevel = taskInfo.getDbLevel();
-        String taskName = taskInfo.getTaskName();
+        String dbLevel = taskInfo.getDbName();
+        String taskName = taskInfo.getTableName();
 
         ScriptInfo sqlFilePath = buildCodeScript(taskInfo);
         String shellFilePath = buildShellScript(taskInfo,sqlFilePath.getProdSqlFile());

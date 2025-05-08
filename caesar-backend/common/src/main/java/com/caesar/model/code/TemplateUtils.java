@@ -54,16 +54,16 @@ public class TemplateUtils {
 
             switch (period){
                 case DAY:
-                    parameter.put("etl_date", "$(date -d 'yesterday' +'%Y-%m-%d')");
-                    parameter.put("start_date", "$(date -d 'yesterday' +'%Y-%m-%d')");
-                    parameter.put("end_date", "$(date -d 'yesterday' +'%Y-%m-%d')");
+                    parameter.put("etl_date", "$(date -d \"yesterday\" +\"%Y-%m-%d\")");
+                    parameter.put("start_date", "$(date -d \"yesterday\" +\"%Y-%m-%d\")");
+                    parameter.put("end_date", "$(date -d \"yesterday\" +\"%Y-%m-%d\")");
                     break;
                 case WEEK:
                     break;
                 case MONTH:
-                    parameter.put("etl_date", "$(date -d 'yesterday' +'%Y-%m-%d')");
-                    parameter.put("start_date", "$(date -d '$(date -d 'yesterday' +'%Y-%m-01')' +'%Y-%m-%d')");
-                    parameter.put("end_date", "$(date -d '$(date -d '$(date -d 'yesterday' +'%Y-%m-01') +1 month' -1 day' +'%Y-%m-%d')");
+                    parameter.put("etl_date", "$(date -d \"yesterday\" +\"%Y-%m-%d\")");
+                    parameter.put("start_date", "$(date -d \"yesterday\" +\"%Y-%m-01\")");
+                    parameter.put("end_date", "$(date -d \"$(date -d yesterday +'%Y-%m-01') + 1 month - 1 day\" +'%Y-%m-%d')");
                     break;
                 default:
                     throw new RuntimeException("调度周期仅支持 日 周 月");

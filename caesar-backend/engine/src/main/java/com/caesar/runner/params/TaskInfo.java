@@ -17,8 +17,9 @@ public class TaskInfo {
     private String systemUser; // 执行操作系统用户
     private EnvironmentEnum environment; // 执行环境 test prod
     private DatePeriod period; // 调度周期
-    private String dbLevel; // 目标数据库
     private String taskName; // 任务名称
+    private String dbName; // 目标数据库
+    private String tableName; // 目标表名称
     private String code; // 可执行代码
     private Map<String, String> config; // 任务配置信息
     private Map<String, String> taskInputParams; // 任务传入参数

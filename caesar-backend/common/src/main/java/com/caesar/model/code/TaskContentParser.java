@@ -78,9 +78,9 @@ public class TaskContentParser {
                 continue;
             }
 
-            if(TemplateSectionEnum.META == flag && !line.replaceAll("\\s","").startsWith("#") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim())){
+            if(TemplateSectionEnum.META == flag && !line.replaceAll("\\s","").startsWith("#") && !line.replaceAll("\\s","").startsWith("--") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim())){
                 meta.add(line);
-            } else if(TemplateSectionEnum.PARAMS == flag && !line.replaceAll("\\s","").startsWith("#") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim())){
+            } else if(TemplateSectionEnum.PARAMS == flag && !line.replaceAll("\\s","").startsWith("#") && !line.replaceAll("\\s","").startsWith("--") && StringUtils.isNotEmpty(line.replaceAll("\\s","").trim())){
                 switch (paramsCategory){
                     case SYSTEM:
                         params.addSystemParams(line);
@@ -92,9 +92,9 @@ public class TaskContentParser {
                         params.addCustomParams(line);
                         break;
                 }
-            } else if(TemplateSectionEnum.SCHEMA == flag && !line.replaceAll("\\s","").startsWith("#")){
+            } else if(TemplateSectionEnum.SCHEMA == flag && !line.replaceAll("\\s","").startsWith("#") && !line.replaceAll("\\s","").startsWith("--")){
                 schema.add(line);
-            } else if(TemplateSectionEnum.ETL == flag && !line.replaceAll("\\s","").startsWith("#")){
+            } else if(TemplateSectionEnum.ETL == flag && !line.replaceAll("\\s","").startsWith("#") && !line.replaceAll("\\s","").startsWith("--")){
                 etl.add(line);
             }
         }

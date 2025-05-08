@@ -1,6 +1,7 @@
 package com.caesar.util;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -212,4 +213,21 @@ public class FileUtils {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 从文件读取内容数据
+     *
+     * @param filePath
+     * @return
+     */
+    public static String readFile(String filePath) {
+        try {
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
+            return new String(fileBytes, StandardCharsets.UTF_8);
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }

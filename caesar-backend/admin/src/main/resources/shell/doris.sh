@@ -1,11 +1,9 @@
 #!/bin/bash
 source ~/.bash_profile
+## Params: connection sqlFile
 
 # 打印开始时间
 echo "Task start at: $(date '+%Y-%m-%d %H:%M:%S')"
-
-# 自定义参数
-@{{ customParamsDefine }}
 
 # 任务逻辑部分
 mysql @{{ connection }} < @{{ sqlFile }}

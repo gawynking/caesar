@@ -71,15 +71,21 @@ public class TaskUtils {
             tmpCustomParams.put(param,schedulerParameterByShell.get(param));
         }
 
+
+        String code = String.format("-- Technical Support: GawynKing \n");
+        code = code + String.format("-- Author WeChat: gawynking \n");
+        code = code + String.format("-- Docs: https://gawynking.blog.csdn.net/category_12960755.html \n");
+        code = code + String.format("-- Task: %s\n",caesarTask.getTaskName());
+        code = code + String.format("-- Version: %s\n\n",caesarTask.getVersion());
+        code = code + executeScript.getScript();
+
         logger.info("");
         logger.info(String.format("脚本外传参数(shell)为: %s",parameter));
         logger.info(String.format("脚本外传参数(code)为: %s",executeScript.getCustomParamValues()));
         logger.info("");
-        logger.info(String.format("本次执行脚本如下: \n%s",executeScript.getScript()));
+        logger.info(String.format("本次执行脚本如下: \n%s",code));
         logger.info("");
 
-
-        String code = executeScript.getScript();
         Map<String, String> systemParams = executeScript.getSystemParams();
         if(null != systemParams) {
             for (String systemParam : systemParams.keySet()) {
@@ -90,8 +96,9 @@ public class TaskUtils {
             }
         }
         task.setEngine(engine);
-        task.setDbLevel(taskTags[0]);
-        task.setTaskName(String.join(".", Arrays.copyOfRange(taskTags, 1, taskTags.length)));
+        task.setTaskName(caesarTask.getTaskName());
+        task.setDbName(taskTags[0]);
+        task.setTableName(String.join(".", Arrays.copyOfRange(taskTags, 1, taskTags.length)));
         task.setEngineParams(executeScript.getEngineParams());
         task.setCustomParamValues(executeScript.getCustomParamValues());
         task.setCode(code);

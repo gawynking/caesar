@@ -7,18 +7,16 @@ import com.caesar.enums.EnvironmentEnum;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.params.TaskInfo;
 import com.caesar.text.model.ScriptInfo;
+import com.caesar.util.CodeUtils;
 import com.caesar.util.FileDistributorUtils;
 import com.caesar.util.FileUtils;
 import com.caesar.util.ShellTemplateProcessorUtils;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 
@@ -56,21 +54,23 @@ public class TextEngine implements Engine {
          *          - dim/
          *          - dwd/
          */
-        String dbLevel = task.getDbLevel();
-        String taskName = task.getTaskName();
+        String taskTag = task.getTaskName().replaceAll(task.getDbName()+"\\.","").replaceAll("\\.","__");
+        String dbName = task.getDbName();
+        String tableName = task.getTableName();
         String code = task.getCode();
         EngineEnum engine = task.getEngine();
         EnvironmentEnum environment = task.getEnvironment();
-        Map<String, String> customParamValues = task.getCustomParamValues();
-        Map<String, String> taskInputParams = task.getTaskInputParams();
+        Map<String, String> customParamValues = Optional.ofNullable(task.getCustomParamValues()).orElse(new HashMap<>());
+        Map<String, String> taskInputParams = Optional.ofNullable(task.getTaskInputParams()).orElse(new HashMap<>());
+        Map<String, String> engineParams = Optional.ofNullable(task.getEngineParams()).orElse(new HashMap<>());
 
         ScriptInfo scriptInfo = new ScriptInfo();
         scriptInfo.setSchedulerCluster(this.schedulerCluster);
         if("file".equals(this.fileSystem)){
             // Shell File
-            String shellBasePath = this.codeDir + "bin" + SEP + dbLevel;
-            String testShellFile = shellBasePath + SEP + taskName + "__test.sh";
-            String prodShellFile = shellBasePath + SEP + taskName + ".sh";
+            String shellBasePath = this.codeDir + "bin" + SEP + dbName;
+            String testShellFile = shellBasePath + SEP + taskTag + "___test.sh";
+            String prodShellFile = shellBasePath + SEP + taskTag + ".sh";
 
             FileUtils.createDirectoryIfNotExists(shellBasePath);
             FileUtils.createFile(testShellFile);
@@ -80,20 +80,13 @@ public class TextEngine implements Engine {
             scriptInfo.setProdScriptFile(prodShellFile);
 
             // SQL File
-            String sqlBasePath = this.codeDir + "sql" + SEP + dbLevel;
-            String testSqlFile = sqlBasePath + SEP + taskName + "__test.sql";
-            String prodSqlFile = sqlBasePath + SEP + taskName + ".sql";
+            String sqlBasePath = this.codeDir + "sql" + SEP + dbName;
+            String testSqlFile = sqlBasePath + SEP + taskTag + "___test.sql";
+            String prodSqlFile = sqlBasePath + SEP + taskTag + ".sql";
 
             FileUtils.createDirectoryIfNotExists(sqlBasePath);
             FileUtils.createFile(testSqlFile);
             FileUtils.createFile(prodSqlFile);
-
-            // 更新临时脚本文件，带${xxx}或${hivevar:xxx}参数SQL脚本
-            FileUtils.writeToFile(testSqlFile, code.replaceAll(dbLevel+"."+taskName,dbLevel+"_test."+taskName));
-            FileUtils.writeToFile(prodSqlFile, code);
-
-            FileDistributorUtils.distributeFile(testSqlFile,this.schedulerCluster,testSqlFile);
-            FileDistributorUtils.distributeFile(prodSqlFile,this.schedulerCluster,prodSqlFile);
 
             scriptInfo.setTestSqlFile(testSqlFile);
             scriptInfo.setProdSqlFile(prodSqlFile);
@@ -108,6 +101,19 @@ public class TextEngine implements Engine {
                         StringBuffer testHiveCustomParamsDefineBuffer = new StringBuffer();
                         StringBuffer testHiveParamsBuffer = new StringBuffer();
 
+                        StringBuffer codePrefixBuffer = new StringBuffer();
+                        for(String key: engineParams.keySet()){
+                            codePrefixBuffer
+                                    .append("set")
+                                    .append(" ")
+                                    .append(key)
+                                    .append("=")
+                                    .append(engineParams.get(key))
+                                    .append(";")
+                                    .append("\n");
+                        }
+                        codePrefixBuffer.append("\n");
+
                         for (String key : customParamValues.keySet()) {
                             testHiveCustomParamsDefineBuffer
                                     .append(key)
@@ -120,9 +126,9 @@ public class TextEngine implements Engine {
                                     .append(" ")
                                     .append(key)
                                     .append("=")
-                                    .append("'")
-                                    .append(taskInputParams.get(key))
-                                    .append("'")
+                                    .append("\"")
+                                    .append("${"+key+"}")
+                                    .append("\"")
                                     .append(" ");
                         }
                         testHiveScriptParams.put("customParamsDefine", testHiveCustomParamsDefineBuffer.toString());
@@ -131,6 +137,10 @@ public class TextEngine implements Engine {
                         String testHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, testHiveScriptParams);
                         scriptInfo.setTestScript(testHiveScript);
 
+                        // 生成SQL脚本
+                        FileUtils.writeToFile(testSqlFile, CodeUtils.addEngineParamsForHive(code.replaceAll(dbName+"."+tableName,dbName+"_test."+tableName),codePrefixBuffer.toString()));
+                        FileDistributorUtils.distributeFile(testSqlFile,this.schedulerCluster,testSqlFile);
+
                         // 生成Shell脚本文件
                         FileUtils.writeToFile(testShellFile, testHiveScript);
                         FileDistributorUtils.distributeFile(testShellFile,this.schedulerCluster,testShellFile);
@@ -138,6 +148,20 @@ public class TextEngine implements Engine {
                         Map<String, String> prodHiveScriptParams = new HashMap<>();
                         StringBuffer prodHiveCustomParamsDefineBuffer = new StringBuffer();
                         StringBuffer prodHiveParamsBuffer = new StringBuffer();
+
+                        StringBuffer codePrefixBuffer = new StringBuffer();
+                        for(String key: engineParams.keySet()){
+                            codePrefixBuffer
+                                    .append("set")
+                                    .append(" ")
+                                    .append(key)
+                                    .append("=")
+                                    .append(engineParams.get(key))
+                                    .append(";")
+                                    .append("\n");
+                        }
+                        codePrefixBuffer.append("\n");
+
 
                         for (String key : customParamValues.keySet()) {
                             prodHiveCustomParamsDefineBuffer
@@ -151,9 +175,9 @@ public class TextEngine implements Engine {
                                     .append(" ")
                                     .append(key)
                                     .append("=")
-                                    .append("'")
-                                    .append(customParamValues.get(key))
-                                    .append("'")
+                                    .append("\"")
+                                    .append("${"+key+"}")
+                                    .append("\"")
                                     .append(" ");
                         }
                         prodHiveScriptParams.put("customParamsDefine", prodHiveCustomParamsDefineBuffer.toString());
@@ -161,6 +185,10 @@ public class TextEngine implements Engine {
                         prodHiveScriptParams.put("sqlFile", prodSqlFile);
                         String prodHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, prodHiveScriptParams);
                         scriptInfo.setProdScript(prodHiveScript);
+
+                        // 生成SQL脚本文件
+                        FileUtils.writeToFile(prodSqlFile, CodeUtils.addEngineParamsForHive(code,codePrefixBuffer.toString()));
+                        FileDistributorUtils.distributeFile(prodSqlFile,this.schedulerCluster,prodSqlFile);
 
                         // 生成Shell脚本文件
                         FileUtils.writeToFile(prodShellFile, prodHiveScript);
@@ -248,23 +276,27 @@ public class TextEngine implements Engine {
         }
 
         logger.info("");
+        logger.info("*******************************************************************************************");
         if(environment == EnvironmentEnum.TEST) {
             logger.info(String.format(
-                    "本次任务 %s 测试SQL脚本路径: %s\n 测试Shell脚本路径: %s\n 测试Shell脚本如下: \n%s ",
-                    dbLevel + "." + taskName,
+                    "\n本次任务 %s \n测试SQL脚本路径: %s \n测试SQL脚本: \n%s \n测试Shell脚本路径: %s\n测试Shell脚本如下: \n%s ",
+                    dbName + "." + taskTag,
                     scriptInfo.getTestSqlFile(),
+                    FileUtils.readFile(scriptInfo.getTestSqlFile()),
                     scriptInfo.getTestScriptFile(),
                     scriptInfo.getTestScript()
             ));
         }else if(environment == EnvironmentEnum.PRODUCTION) {
             logger.info(String.format(
-                    "本次任务 %s 生产SQL脚本路径: %s\n 生产Shell脚本路径: %s\n 生产Shell脚本如下: \n%s ",
-                    dbLevel + "." + taskName,
+                    "\n本次任务 %s \n生产SQL脚本路径: %s \n生产SQL脚本: \n%s \n生产Shell脚本路径: %s\n生产Shell脚本如下: \n%s ",
+                    dbName + "." + taskTag,
                     scriptInfo.getProdSqlFile(),
+                    FileUtils.readFile(scriptInfo.getProdSqlFile()),
                     scriptInfo.getProdScriptFile(),
                     scriptInfo.getProdScript()
             ));
         }
+        logger.info("*******************************************************************************************");
         logger.info("");
 
         return scriptInfo;
@@ -273,27 +305,14 @@ public class TextEngine implements Engine {
     @Override
     public ExecutionResult execute(TaskInfo task) {
 
-        String scriptPath = this.codeDir + task.getDbLevel() + "/" + task.getTaskName() + ".sql";
-        File scriptFile = new File(scriptPath);
+        ScriptInfo scriptInfo = buildCodeScript(task);
 
-        try {
-            if (scriptFile.exists()) {
-                new FileWriter(scriptFile, false).close();
-            } else {
-                Files.createDirectories(Paths.get(scriptFile.getParent()));
-                scriptFile.createNewFile();
-            }
+        System.out.println(scriptInfo.getTestScriptFile());
+        System.out.println(scriptInfo.getTestSqlFile());
+        System.out.println(scriptInfo.getProdScriptFile());
+        System.out.println(scriptInfo.getProdSqlFile());
 
-            try (FileWriter writer = new FileWriter(scriptFile)) {
-                writer.write(task.getCode());
-            }
-
-            return new ExecutionResult(true, "File written successfully.", scriptPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ExecutionResult(false, "Error writing file: " + e.getMessage());
-        }
-
+        return new ExecutionResult(true, "File written successfully.", scriptInfo);
     }
 
 }
