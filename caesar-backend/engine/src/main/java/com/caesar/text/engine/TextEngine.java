@@ -135,6 +135,7 @@ public class TextEngine implements Engine {
                         testHiveScriptParams.put("hiveParams", testHiveParamsBuffer.toString());
                         testHiveScriptParams.put("sqlFile", testSqlFile);
                         String testHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, testHiveScriptParams);
+                        testHiveScript = CodeUtils.dosToUnix(testHiveScript);
                         scriptInfo.setTestScript(testHiveScript);
 
                         // 生成SQL脚本
@@ -184,6 +185,7 @@ public class TextEngine implements Engine {
                         prodHiveScriptParams.put("hiveParams", prodHiveParamsBuffer.toString());
                         prodHiveScriptParams.put("sqlFile", prodSqlFile);
                         String prodHiveScript = ShellTemplateProcessorUtils.processTemplate(hiveShellTemplate, prodHiveScriptParams);
+                        prodHiveScript = CodeUtils.dosToUnix(prodHiveScript);
                         scriptInfo.setProdScript(prodHiveScript);
 
                         // 生成SQL脚本文件
@@ -227,13 +229,18 @@ public class TextEngine implements Engine {
                                 .append(connectionConfig.get("hostname-test"))
                                 .append(" ")
                                 .append("-P")
-                                .append(connectionConfig.get("port-test"));
+                                .append(String.valueOf(connectionConfig.get("port-test")));
 
                         testMysqlScriptParams.put("connection", testMysqlConnectionBuffer.toString());
                         testMysqlScriptParams.put("sqlFile", testSqlFile);
 
                         String testMysqlScript = ShellTemplateProcessorUtils.processTemplate(mysqlShellTemplate, testMysqlScriptParams);
+                        testMysqlScript = CodeUtils.dosToUnix(testMysqlScript);
                         scriptInfo.setTestScript(testMysqlScript);
+
+                        // 生成SQL脚本
+                        FileUtils.writeToFile(testSqlFile, code.replaceAll(dbName+"."+tableName,dbName+"_test."+tableName));
+                        FileDistributorUtils.distributeFile(testSqlFile,this.schedulerCluster,testSqlFile);
 
                         // 生成Shell脚本文件
                         FileUtils.writeToFile(testShellFile, testMysqlScript);
@@ -255,13 +262,18 @@ public class TextEngine implements Engine {
                                 .append(connectionConfig.get("hostname"))
                                 .append(" ")
                                 .append("-P")
-                                .append(connectionConfig.get("port"));
+                                .append(String.valueOf(connectionConfig.get("port")));
 
                         prodMysqlScriptParams.put("connection", prodMysqlConnectionBuffer.toString());
                         prodMysqlScriptParams.put("sqlFile", prodSqlFile);
 
                         String prodMysqlScript = ShellTemplateProcessorUtils.processTemplate(mysqlShellTemplate, prodMysqlScriptParams);
+                        prodMysqlScript = CodeUtils.dosToUnix(prodMysqlScript);
                         scriptInfo.setProdScript(prodMysqlScript);
+
+                        // 生成SQL脚本
+                        FileUtils.writeToFile(prodSqlFile, code.replaceAll(dbName+"."+tableName,dbName+"_test."+tableName));
+                        FileDistributorUtils.distributeFile(prodSqlFile,this.schedulerCluster,prodSqlFile);
 
                         // 生成Shell脚本文件
                         FileUtils.writeToFile(prodShellFile, prodMysqlScript);

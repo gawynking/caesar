@@ -1,22 +1,27 @@
 package com.caesar.hive.engine;
 
+import com.caesar.constant.EngineConfig;
 import com.caesar.engine.Engine;
 import com.caesar.enums.EngineEnum;
 import com.caesar.factory.EngineFactory;
 import com.caesar.factory.EngineFactoryRegistry;
+import com.caesar.hive.shell.HiveCommand;
 import com.caesar.runner.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
+import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
-import com.caesar.spark.engine.SparkEngine;
 import com.caesar.text.model.ScriptInfo;
 
-import java.util.HashMap;
+import java.util.*;
 
 
-public class HiveEngine extends ShellTask implements Engine {
+public class HiveEngine implements Engine {
 
+    private String hiveHome;
+    private ScriptInfo scriptInfo;
 
     public HiveEngine() {
+        this.hiveHome = (String) ((Map)((Map)EngineConfig.getMap("environment")).get("hive")).get("home");
     }
 
     @Override
@@ -32,8 +37,23 @@ public class HiveEngine extends ShellTask implements Engine {
     }
 
 
-    public ExecutionResult executeShell(TaskInfo taskInfo) {
-        return new SparkEngine().execute(taskInfo);
+    public ExecutionResult executeShell(TaskInfo task) {
+        this.scriptInfo = buildCodeScript(task);
+        this.scriptInfo.setExecuteUser(task.getSystemUser());
+        this.scriptInfo.setEnvironment(task.getEnvironment());
+        this.scriptInfo.setFullTaskName(task.getDbName() + "." + task.getTaskName());
+
+        try {
+            Invoker invoker = new Invoker(new HiveCommand(this.scriptInfo));
+            ExecutionResult<ShellTask> result = invoker.executeCommand();
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            ShellTask shellTask = new ShellTask();
+            shellTask.setFullTaskName(this.scriptInfo.getFullTaskName());
+            return new ExecutionResult(false, e.getMessage(),shellTask);
+        }
+
     }
 
 }

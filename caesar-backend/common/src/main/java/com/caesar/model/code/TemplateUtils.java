@@ -378,6 +378,17 @@ public class TemplateUtils {
                 throw new EngineNotDefineException("模板定义引擎"+engine.getEngine()+"暂时不被支持");
         }
 
+        // 验证集合不能为null，避免空指针异常发生
+        if(null == executeScript.getSystemParams()){
+            executeScript.setSystemParams(new HashMap<>());
+        }
+        if(null == executeScript.getEngineParams()){
+            executeScript.setEngineParams(new HashMap<>());
+        }
+        if(null == executeScript.getCustomParamValues()){
+            executeScript.setCustomParamValues(new HashMap<>());
+        }
+
         return executeScript;
     }
 

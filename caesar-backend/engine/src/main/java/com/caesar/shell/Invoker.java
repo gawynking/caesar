@@ -19,8 +19,8 @@ public class Invoker {
         return command.execute();
     }
 
-    public ExecutionResult cancelCommand(Task task) {
-        return command.cancel(task);
+    public ExecutionResult cancelCommand() {
+        return command.cancel();
     }
     
 }

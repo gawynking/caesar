@@ -32,4 +32,8 @@ public class CodeUtils {
         return finalSqlCode.toString();
     }
 
+    public static String dosToUnix(String script) {
+        return script.replaceAll("\r\n", "\n");
+    }
+
 }

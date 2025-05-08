@@ -1,25 +1,20 @@
 package com.caesar.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.caesar.config.PublishConfig;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.CaesarTaskExecutePlan;
 import com.caesar.entity.CaesarTaskExecuteRecord;
 import com.caesar.entity.dto.CaesarTaskExecuteRecordDto;
-import com.caesar.enums.EngineEnum;
 import com.caesar.enums.EnvironmentEnum;
-import com.caesar.exception.EngineNotDefineException;
 import com.caesar.mapper.DatasourceMapper;
 import com.caesar.mapper.TaskExecuteMapper;
 import com.caesar.mapper.TaskExecutePlanMapper;
 import com.caesar.mapper.TaskMapper;
-import com.caesar.model.code.TemplateUtils;
-import com.caesar.model.code.config.TemplateConstants;
-import com.caesar.model.code.enums.DatePeriod;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.Executor;
 import com.caesar.service.TaskExecuteService;
 import com.caesar.runner.params.TaskInfo;
-import com.caesar.util.JSONUtils;
 import com.caesar.util.TaskUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -27,12 +22,17 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @Service
 public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, CaesarTaskExecuteRecord> implements TaskExecuteService {
 
     private static final Logger logger = Logger.getLogger(TaskExecuteServiceImpl.class);
+
+    private static final ExecutorService workService = Executors.newFixedThreadPool((Integer) ((Map)new PublishConfig().getCaesarConfig().get("engine")).get("max-parallel-number"));
+
 
     @Resource
     TaskExecutePlanMapper taskExecutePlanMapper;
@@ -45,6 +45,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
 
     @Resource
     DatasourceMapper datasourceMapper;
+
 
     @Override
     public Boolean saveExecutePlan(CaesarTaskExecutePlan taskExecutePlan) {
@@ -72,14 +73,31 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
 
         switch (environment){
             case TEST:
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
+                this.workService.submit(()->{
+                    taskExecuteMapper.insert(taskExecuteRecord);
+                    int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
+                    taskExecuteRecord.setId(id);
+                    try {
+                        ExecutionResult execute = Executor.execute(task); // 执行测试任务
+                        taskExecuteRecord.setEndTime(LocalDateTime.now());
+                        taskExecuteRecord.setIsSuccess(1);
+                    }catch (Exception e){
+                        taskExecuteRecord.setIsSuccess(0);
+                        e.printStackTrace();
+                    }
+                    taskExecuteMapper.updateExecuteState(taskExecuteRecord.getIsSuccess(),taskExecuteRecord.getEndTime(),taskExecuteRecord.getId());
+
+                });
+                break;
+            case PRODUCTION:
+                boolean isOnline = null != taskMapper.checkOnlineById(taskExecuteRecord.getTaskId())?true:false;
+                if(isOnline){
+                    this.workService.submit(()->{
                         taskExecuteMapper.insert(taskExecuteRecord);
                         int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
                         taskExecuteRecord.setId(id);
                         try {
-                            ExecutionResult execute = Executor.execute(task); // 执行测试任务
+                            ExecutionResult execute = Executor.execute(task); // 执行任务
                             taskExecuteRecord.setEndTime(LocalDateTime.now());
                             taskExecuteRecord.setIsSuccess(1);
                         }catch (Exception e){
@@ -87,29 +105,7 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                             e.printStackTrace();
                         }
                         taskExecuteMapper.updateExecuteState(taskExecuteRecord.getIsSuccess(),taskExecuteRecord.getEndTime(),taskExecuteRecord.getId());
-                    }
-                }).start();
-                break;
-            case PRODUCTION:
-                boolean isOnline = null != taskMapper.checkOnlineById(taskExecuteRecord.getTaskId())?true:false;
-                if(isOnline){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            taskExecuteMapper.insert(taskExecuteRecord);
-                            int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
-                            taskExecuteRecord.setId(id);
-                            try {
-                                ExecutionResult execute = Executor.execute(task); // 执行任务
-                                taskExecuteRecord.setEndTime(LocalDateTime.now());
-                                taskExecuteRecord.setIsSuccess(1);
-                            }catch (Exception e){
-                                taskExecuteRecord.setIsSuccess(0);
-                                e.printStackTrace();
-                            }
-                            taskExecuteMapper.updateExecuteState(taskExecuteRecord.getIsSuccess(),taskExecuteRecord.getEndTime(),taskExecuteRecord.getId());
-                        }
-                    }).start();
+                    });
                 }else{
                     logger.info(String.format("不能执行未发版任务"));
                     return false;

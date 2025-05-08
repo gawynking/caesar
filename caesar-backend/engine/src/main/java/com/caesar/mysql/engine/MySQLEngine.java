@@ -3,6 +3,11 @@ package com.caesar.mysql.engine;
 import com.caesar.constant.EngineConfig;
 import com.caesar.constant.EngineConstant;
 import com.caesar.engine.Engine;
+import com.caesar.enums.EngineEnum;
+import com.caesar.enums.EnvironmentEnum;
+import com.caesar.factory.EngineFactory;
+import com.caesar.factory.EngineFactoryRegistry;
+import com.caesar.hive.shell.HiveCommand;
 import com.caesar.mysql.shell.MySQLCommand;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.params.TaskInfo;
@@ -16,33 +21,37 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
-public class MySQLEngine extends ShellTask implements Engine {
+public class MySQLEngine implements Engine {
 
+    private Map<String,String> connectionConfig;
     private String jdbcDriver;
     private String jdbcUrl;
     private String username;
     private String password;
 
-    public MySQLEngine(String jdbcDriver, String jdbcUrl, String username, String password) {
-        this.jdbcDriver = jdbcDriver;
-        this.jdbcUrl = jdbcUrl;
-        this.username = username;
-        this.password = password;
+    private ScriptInfo scriptInfo;
+
+    public MySQLEngine() {
+        this.connectionConfig = (Map)EngineConfig.getMap("environment").get("mysql");
     }
 
     @Override
     public ScriptInfo buildCodeScript(TaskInfo task) {
-        return null;
+        EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.TEXT);
+        Engine engine = engineFactory.createEngine(new HashMap<>());
+        return engine.buildCodeScript(task);
     }
 
     @Override
     public ExecutionResult execute(TaskInfo taskInfo) {
 
-        String priority = EngineConfig.getString(EngineConstant.PRIORITY);
-        if("jdbc".equals(priority)){
+        String style = connectionConfig.get("style");
+        if("jdbc".equals(style)){
             return executeJdbc(taskInfo);
         }else {
             return executeShell(taskInfo);
@@ -51,7 +60,17 @@ public class MySQLEngine extends ShellTask implements Engine {
     }
 
 
-    public ExecutionResult executeJdbc(TaskInfo taskInfo){
+    public ExecutionResult<ShellTask> executeJdbc(TaskInfo taskInfo){
+        EnvironmentEnum environment = taskInfo.getEnvironment();
+        switch (environment){
+            case TEST:
+                break;
+            case PRODUCTION:
+                break;
+            default:
+                throw new RuntimeException();
+        }
+
         // 显式加载 MySQL JDBC 驱动
         try {
             Class.forName(jdbcDriver);
@@ -72,50 +91,21 @@ public class MySQLEngine extends ShellTask implements Engine {
         }
     }
 
-    public ExecutionResult executeShell(TaskInfo taskInfo) {
-
-
-        super.systemUser = taskInfo.getSystemUser();
-        List<String> commands = super.getJobPrefix();
-
-        JdbcUrlParserUtils.JdbcUrlInfo jdbcUrlInfo = JdbcUrlParserUtils.parseJdbcUrl(this.jdbcUrl);
-
-        commands.add("mysql");
-        commands.add("-u"+this.username);
-        commands.add("-p"+this.password);
-        commands.add("-h"+jdbcUrlInfo.getHostname());
-        commands.add("-P"+jdbcUrlInfo.getPort());
-        if(StringUtils.isNotEmpty(jdbcUrlInfo.getDatabase())){
-            commands.add(jdbcUrlInfo.getDatabase());
-        }
-        commands.add("-e");
-        commands.add(taskInfo.getCode());
-
-
-//        String[] commands = new String[]{
-//                "/opt/homebrew/Cellar/mysql@5.7/5.7.32/bin/mysql",
-//                "-u"+this.username,
-//                "-p"+this.password,
-//                "-h"+jdbcUrlInfo.getHostname(),
-//                "-P"+jdbcUrlInfo.getPort(),
-//                StringUtils.isNotEmpty(jdbcUrlInfo.getDatabase())?jdbcUrlInfo.getDatabase():null,
-//                "-e",
-//                taskInfo.getCode()
-//        };
-
+    public ExecutionResult<ShellTask> executeShell(TaskInfo task) {
+        this.scriptInfo = buildCodeScript(task);
+        this.scriptInfo.setExecuteUser(task.getSystemUser());
+        this.scriptInfo.setEnvironment(task.getEnvironment());
+        this.scriptInfo.setFullTaskName(task.getDbName() + "." + task.getTaskName());
 
         try {
-            Invoker invoker = new Invoker(new MySQLCommand(commands.toArray(new String[0])));
+            Invoker invoker = new Invoker(new MySQLCommand(this.scriptInfo));
             ExecutionResult<ShellTask> result = invoker.executeCommand();
-            if (result.isSuccess()) {
-                return new ExecutionResult(true, "Task submit execute.");
-            } else {
-                return new ExecutionResult(false, "Failed to submit task.");
-            }
-
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return new ExecutionResult(false, e.getMessage());
+            ShellTask shellTask = new ShellTask();
+            shellTask.setFullTaskName(this.scriptInfo.getFullTaskName());
+            return new ExecutionResult(false, e.getMessage(),shellTask);
         }
     }
 

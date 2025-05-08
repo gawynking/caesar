@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class TaskManager {
@@ -16,39 +17,37 @@ public class TaskManager {
     public static final CacheContext<String,Task> tasks = new CacheContext<>(new LocalCacheStrategy<String,Task>());
 
 
-    public ExecutionResult<Task> submitTask(String[] command) {
-        Task task = new ShellTask();
-        task.setId(UUID.randomUUID().toString());
-        task.setCommand(command);
-        tasks.put(task.getId(), task);
+    public ExecutionResult<ShellTask> submitTask(ShellTask task) throws ExecutionException, InterruptedException {
 
-        CompletableFuture taskRunResult = CompletableFuture.runAsync(() -> {
+        tasks.put(task.getFullTaskName(), task);
+
+        CompletableFuture<ExecutionResult<ShellTask>> taskRunResult = CompletableFuture.supplyAsync(() -> {
             try {
-                task.run();
+                ExecutionResult<ShellTask> result = task.run();
+                // 你可以在这里记录日志或状态
+                return new ExecutionResult<ShellTask>(true, "Shell command executed successfully.", task);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                // 处理异常
+                e.printStackTrace();
+                return new ExecutionResult<ShellTask>(false, "Shell command execution failed: " + e.getMessage(), task);
             }
-            return;
         });
 
-//        taskRunResult.thenRunAsync((task)->{
-//            tasks.remove();
-//        });
-
-        return new ExecutionResult<Task>(true, "Submit shell command.", task);
+        return taskRunResult.get();
     }
 
 
-    public Task getTask(String taskId) {
-        return tasks.get(taskId);
+    public Task getTask(String fullTaskName) {
+        return tasks.get(fullTaskName);
     }
 
-    public ExecutionResult<Boolean> terminateTask(String taskId) {
-        Task task = tasks.get(taskId);
-        if (task != null && task.isRunning()) {
+
+    public ExecutionResult<ShellTask> terminateTask(String fullTaskName) {
+        Task task = tasks.get(fullTaskName);
+        if (task != null && task.getStatus().isRunning()) {
             task.getProcess().destroy();
         }
-        return new ExecutionResult<Boolean>(true, "Terminate shell command.");
+        return new ExecutionResult<ShellTask>(true, "Terminate shell command.", (ShellTask) task);
     }
 
 }

@@ -1,35 +1,41 @@
 package com.caesar.doris.engine;
 
+import com.caesar.constant.EngineConfig;
 import com.caesar.doris.shell.DorisCommand;
 import com.caesar.engine.Engine;
+import com.caesar.enums.EngineEnum;
+import com.caesar.factory.EngineFactory;
+import com.caesar.factory.EngineFactoryRegistry;
 import com.caesar.runner.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Invoker;
 import com.caesar.shell.ShellTask;
 import com.caesar.text.model.ScriptInfo;
-import com.caesar.util.JdbcUrlParserUtils;
-import com.caesar.util.StringUtils;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
-public class DorisEngine extends ShellTask implements Engine {
+public class DorisEngine implements Engine {
+
+    private Map<String,String> connectionConfig;
 
     private String jdbcDriver;
     private String jdbcUrl;
     private String username;
     private String password;
 
-    public DorisEngine(String jdbcDriver, String jdbcUrl, String username, String password) {
-        this.jdbcDriver = jdbcDriver;
-        this.jdbcUrl = jdbcUrl;
-        this.username = username;
-        this.password = password;
+    private ScriptInfo scriptInfo;
+
+    public DorisEngine() {
+        this.connectionConfig = (Map) EngineConfig.getMap("environment").get("mysql");
     }
 
     @Override
     public ScriptInfo buildCodeScript(TaskInfo task) {
-        return null;
+        EngineFactory engineFactory = new EngineFactoryRegistry().getEngineFactory(EngineEnum.TEXT);
+        Engine engine = engineFactory.createEngine(new HashMap<>());
+        return engine.buildCodeScript(task);
     }
 
     @Override
@@ -38,37 +44,21 @@ public class DorisEngine extends ShellTask implements Engine {
     }
 
 
-    public ExecutionResult executeShell(TaskInfo taskInfo) {
-
-
-        super.systemUser = taskInfo.getSystemUser();
-        List<String> commands = super.getJobPrefix();
-
-        JdbcUrlParserUtils.JdbcUrlInfo jdbcUrlInfo = JdbcUrlParserUtils.parseJdbcUrl(this.jdbcUrl);
-
-        commands.add("mysql");
-        commands.add("-u"+this.username);
-        commands.add("-p"+this.password);
-        commands.add("-h"+jdbcUrlInfo.getHostname());
-        commands.add("-P"+jdbcUrlInfo.getPort());
-        if(StringUtils.isNotEmpty(jdbcUrlInfo.getDatabase())){
-            commands.add(jdbcUrlInfo.getDatabase());
-        }
-        commands.add("-e");
-        commands.add(taskInfo.getCode());
+    public ExecutionResult executeShell(TaskInfo task) {
+        this.scriptInfo = buildCodeScript(task);
+        this.scriptInfo.setExecuteUser(task.getSystemUser());
+        this.scriptInfo.setEnvironment(task.getEnvironment());
+        this.scriptInfo.setFullTaskName(task.getDbName() + "." + task.getTaskName());
 
         try {
-            Invoker invoker = new Invoker(new DorisCommand(commands.toArray(new String[0])));
+            Invoker invoker = new Invoker(new DorisCommand(this.scriptInfo));
             ExecutionResult<ShellTask> result = invoker.executeCommand();
-            if (result.isSuccess()) {
-                return new ExecutionResult(true, "Task submit execute.");
-            } else {
-                return new ExecutionResult(false, "Failed to submit task.");
-            }
-
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return new ExecutionResult(false, e.getMessage());
+            ShellTask shellTask = new ShellTask();
+            shellTask.setFullTaskName(this.scriptInfo.getFullTaskName());
+            return new ExecutionResult(false, e.getMessage(),shellTask);
         }
     }
 

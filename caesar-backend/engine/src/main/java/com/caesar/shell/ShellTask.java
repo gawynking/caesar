@@ -1,7 +1,6 @@
 package com.caesar.shell;
 
 
-import com.caesar.runner.params.TaskInfo;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.task.Task;
 import com.caesar.util.StringUtils;
@@ -17,11 +16,11 @@ import java.util.logging.Logger;
 
 public class ShellTask extends Task {
 
-    private static final Logger LOGGER = Logger.getLogger(ShellTask.class.getName());
+    private static final Logger logger = Logger.getLogger(ShellTask.class.getName());
 
     protected String SEP = File.separator;
 
-    protected String systemUser;
+    protected String executeUser;
 
     @Override
     public List<String> getCommandList(){
@@ -35,27 +34,24 @@ public class ShellTask extends Task {
         return commandList;
     }
 
-    protected String buildShellScript(TaskInfo taskInfo,String sqlFilePath){
+    protected List<String> buildCommand(){
         throw new RuntimeException();
     }
 
     @Override
-    public ExecutionResult<Task> run() throws Exception {
+    public ExecutionResult<ShellTask> run() throws Exception {
 
         String[] commands = this.getCommand();
+        logger.info(String.format("任务 %s 执行命令: %s",this.getFullTaskName(),String.join(" ",commands)));
 
-        ProcessBuilder processBuilder = new ProcessBuilder(commands);
-
+        StringBuilder executionLog = new StringBuilder();
         try {
+            ProcessBuilder processBuilder = new ProcessBuilder(commands);
             Map<String, String> environment = processBuilder.environment();
-            environment.putAll(this.genEnvironment());
-
-            LOGGER.info("Environment: " + environment);
 
             Process process = processBuilder.start();
-//            long pid = process.pid();
             this.setProcess(process);
-            this.setRunning(true);
+            this.setStatus(ExecuteStatus.RUNNING);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -63,31 +59,39 @@ public class ShellTask extends Task {
             String line;
             StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
+                logger.info(line);
                 output.append(line).append("\n");
+                executionLog.append("[STDOUT] ").append(line).append("\n");
             }
 
             StringBuilder errorOutput = new StringBuilder();
             while ((line = errorReader.readLine()) != null) {
+                logger.warning(line);
                 errorOutput.append(line).append("\n");
+                executionLog.append("[STDERR] ").append(line).append("\n");
             }
 
-            System.out.println("output = " + output);
-            System.out.println("errorOutput = " + errorOutput);
-
             process.waitFor();
+
             if (process.exitValue() == 0) {
+                this.setStatus(ExecuteStatus.SUCCESS);
                 this.setOutput(output.toString());
             } else {
-                this.setOutput("Error executing task: " + errorOutput.toString());
+                this.setStatus(ExecuteStatus.FAILED);
+                this.setOutput("Error executing task:\n" + errorOutput.toString());
             }
 
         } catch (Exception e) {
+            this.setStatus(ExecuteStatus.FAILED);
             this.setOutput("Error executing task: " + e.getMessage());
+            executionLog.append("[EXCEPTION] ").append(e.getMessage()).append("\n");
             e.printStackTrace();
-        } finally {
-            this.setRunning(false);
         }
-        return new ExecutionResult<>(this);
+
+        // 将执行日志一并返回
+        this.setExecutionLog(executionLog.toString());
+        ExecutionResult<ShellTask> result = new ExecutionResult<>(this);
+        return result;
     }
 
 
@@ -97,15 +101,15 @@ public class ShellTask extends Task {
         if (StringUtils.isEmpty(loginUser)) {
             return commands;
         }
-        if(StringUtils.isEmpty(systemUser)){
+        if(StringUtils.isEmpty(executeUser)){
             return commands;
         }
-        if(!loginUser.equals(systemUser.toLowerCase())){
+        if(!loginUser.equals(executeUser.toLowerCase())){
             commands.add("sudo");
             commands.add("-s");
             commands.add("-E");
             commands.add("-u");
-            commands.add(systemUser);
+            commands.add(executeUser);
             return commands;
         }
         return commands;
@@ -129,9 +133,5 @@ public class ShellTask extends Task {
         return loginUser;
     }
 
-
-    protected String dosToUnix(String script) {
-        return script.replaceAll("\r\n", "\n");
-    }
 
 }

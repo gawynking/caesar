@@ -18,9 +18,9 @@ import java.util.logging.Logger;
 
 @Component
 @Configuration
-public class publishConfig {
+public class PublishConfig {
 
-    private static final Logger LOGGER = Logger.getLogger(publishConfig.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PublishConfig.class.getName());
 
 
     private static Map<String, Object> caesarConfig;
@@ -29,7 +29,7 @@ public class publishConfig {
         LOGGER.info("Start Initializing Caesar Configuration");
         Yaml yaml = new Yaml();
         try {
-            InputStream inputStream = publishConfig.class.getClassLoader().getResourceAsStream("config/application.yml");
+            InputStream inputStream = PublishConfig.class.getClassLoader().getResourceAsStream("config/application.yml");
             if (inputStream == null) {
                 throw new IllegalArgumentException("File not found: config/application.yml");
             }

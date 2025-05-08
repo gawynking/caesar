@@ -7,6 +7,6 @@ public interface Command {
 
     ExecutionResult execute();
 
-    ExecutionResult cancel(Task task);
+    ExecutionResult cancel();
 
 }

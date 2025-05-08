@@ -17,11 +17,7 @@ public class MySQLEngineFactory extends EngineFactoryType implements EngineFacto
 
     @Override
     public Engine createEngine(Map<String, String> config) {
-        String jdbcDriver = config.get(EngineConstant.DRIVER);
-        String jdbcUrl = config.get(EngineConstant.URL);
-        String username = config.get(EngineConstant.USERNAME);
-        String password = config.get(EngineConstant.PASSWORD);
-        return new MySQLEngine(jdbcDriver,jdbcUrl,username,password);
+        return new MySQLEngine();
     }
 
     @Override

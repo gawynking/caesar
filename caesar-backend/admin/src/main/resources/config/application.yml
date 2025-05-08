@@ -26,7 +26,7 @@ schedule:
 
 ## 执行引擎配置信息
 engine:
-  priority: shell
+  max-parallel-number: 16
 
   text:
     file-system: file
@@ -58,6 +58,7 @@ engine:
 
     ## MySQL数据源信息
     mysql:
+      style: shell ## JDBC SHELL
       username: root
       password: mysql
       hostname: 127.0.0.1

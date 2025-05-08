@@ -5,19 +5,36 @@ import com.caesar.shell.ShellTask;
 import com.caesar.shell.TaskManager;
 import com.caesar.task.Task;
 
+import java.util.concurrent.ExecutionException;
+
 public class SparkReceiver {
 
     private static TaskManager taskManager = new TaskManager();
 
+    private ShellTask task;
+
     ExecutionResult<ShellTask> result;
 
-    public ExecutionResult<Task> runSparkQuery(String[] command) {
-        ExecutionResult<Task> result = taskManager.submitTask(command);
+
+    public SparkReceiver(ShellTask task){
+        this.task = task;
+    }
+
+
+    public ExecutionResult<ShellTask> runSparkQuery()  {
+        ExecutionResult<ShellTask> result = null;
+        try {
+            result = taskManager.submitTask(task);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return result;
     }
 
-    public ExecutionResult cancelSparkQuery(String taskId) {
-        return taskManager.terminateTask(taskId);
+    public ExecutionResult cancelSparkQuery() {
+        return taskManager.terminateTask(task.getFullTaskName());
     }
 
 }
