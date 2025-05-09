@@ -46,7 +46,7 @@ public class SparkEngine implements Engine {
         this.scriptInfo = buildCodeScript(task);
         this.scriptInfo.setExecuteUser(task.getSystemUser());
         this.scriptInfo.setEnvironment(task.getEnvironment());
-        this.scriptInfo.setFullTaskName(task.getDbName() + "." + task.getTaskName());
+        this.scriptInfo.setFullTaskName(task.getTaskName());
 
         try {
             Invoker invoker = new Invoker(new SparkCommand(this.scriptInfo));
@@ -54,7 +54,7 @@ public class SparkEngine implements Engine {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
-            ShellTask shellTask = new ShellTask();
+            ShellTask shellTask = new SparkCommand(null);
             shellTask.setFullTaskName(this.scriptInfo.getFullTaskName());
             return new ExecutionResult(false, e.getMessage(),shellTask);
         }

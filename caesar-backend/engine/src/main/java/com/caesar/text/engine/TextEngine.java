@@ -6,6 +6,7 @@ import com.caesar.enums.EngineEnum;
 import com.caesar.enums.EnvironmentEnum;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.params.TaskInfo;
+import com.caesar.shell.ShellTask;
 import com.caesar.spark.config.SparkConfig;
 import com.caesar.text.model.ScriptInfo;
 import com.caesar.util.*;
@@ -437,7 +438,7 @@ public class TextEngine implements Engine {
     }
 
     @Override
-    public ExecutionResult execute(TaskInfo task) {
+    public ExecutionResult<ShellTask> execute(TaskInfo task) {
 
         ScriptInfo scriptInfo = buildCodeScript(task);
 

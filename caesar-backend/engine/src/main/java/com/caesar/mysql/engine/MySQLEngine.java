@@ -48,7 +48,7 @@ public class MySQLEngine implements Engine {
     }
 
     @Override
-    public ExecutionResult execute(TaskInfo taskInfo) {
+    public ExecutionResult<ShellTask> execute(TaskInfo taskInfo) {
 
         String style = connectionConfig.get("style");
         if("jdbc".equals(style)){
@@ -95,7 +95,7 @@ public class MySQLEngine implements Engine {
         this.scriptInfo = buildCodeScript(task);
         this.scriptInfo.setExecuteUser(task.getSystemUser());
         this.scriptInfo.setEnvironment(task.getEnvironment());
-        this.scriptInfo.setFullTaskName(task.getDbName() + "." + task.getTaskName());
+        this.scriptInfo.setFullTaskName(task.getTaskName());
 
         try {
             Invoker invoker = new Invoker(new MySQLCommand(this.scriptInfo));
@@ -103,7 +103,7 @@ public class MySQLEngine implements Engine {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
-            ShellTask shellTask = new ShellTask();
+            ShellTask shellTask = new MySQLCommand(null);
             shellTask.setFullTaskName(this.scriptInfo.getFullTaskName());
             return new ExecutionResult(false, e.getMessage(),shellTask);
         }

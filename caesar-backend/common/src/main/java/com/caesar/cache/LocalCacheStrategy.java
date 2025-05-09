@@ -25,4 +25,9 @@ public class LocalCacheStrategy<K, V> implements CacheStrategy<K, V> {
         cache.remove(key);
     }
 
+    @Override
+    public Map<K, V> getAll() {
+        return cache;
+    }
+
 }

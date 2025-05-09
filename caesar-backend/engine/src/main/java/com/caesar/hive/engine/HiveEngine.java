@@ -32,16 +32,16 @@ public class HiveEngine implements Engine {
     }
 
     @Override
-    public ExecutionResult execute(TaskInfo taskInfo) {
+    public ExecutionResult<ShellTask> execute(TaskInfo taskInfo) {
         return executeShell(taskInfo);
     }
 
 
-    public ExecutionResult executeShell(TaskInfo task) {
+    public ExecutionResult<ShellTask> executeShell(TaskInfo task) {
         this.scriptInfo = buildCodeScript(task);
         this.scriptInfo.setExecuteUser(task.getSystemUser());
         this.scriptInfo.setEnvironment(task.getEnvironment());
-        this.scriptInfo.setFullTaskName(task.getDbName() + "." + task.getTaskName());
+        this.scriptInfo.setFullTaskName(task.getTaskName());
 
         try {
             Invoker invoker = new Invoker(new HiveCommand(this.scriptInfo));
@@ -49,7 +49,7 @@ public class HiveEngine implements Engine {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
-            ShellTask shellTask = new ShellTask();
+            ShellTask shellTask = new HiveCommand(null);
             shellTask.setFullTaskName(this.scriptInfo.getFullTaskName());
             return new ExecutionResult(false, e.getMessage(),shellTask);
         }

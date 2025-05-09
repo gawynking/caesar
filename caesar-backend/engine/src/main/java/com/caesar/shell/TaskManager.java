@@ -10,9 +10,12 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 
 @Component
 public class TaskManager {
+
+    private static final Logger logger = Logger.getLogger(TaskManager.class.getName());
 
     public static final CacheContext<String,Task> tasks = new CacheContext<>(new LocalCacheStrategy<String,Task>());
 
@@ -47,6 +50,8 @@ public class TaskManager {
         if (task != null && task.getStatus().isRunning()) {
             task.getProcess().destroy();
         }
+        tasks.remove(fullTaskName);
+        logger.info(String.format("移除任务 %s",fullTaskName));
         return new ExecutionResult<ShellTask>(true, "Terminate shell command.", (ShellTask) task);
     }
 

@@ -4,6 +4,7 @@ import com.caesar.factory.EngineFactory;
 import com.caesar.factory.EngineFactoryRegistry;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.params.TaskInfo;
+import com.caesar.shell.ShellTask;
 
 
 public class EngineManager {
@@ -18,7 +19,7 @@ public class EngineManager {
     }
 
 
-    public ExecutionResult execute(TaskInfo task) {
+    public ExecutionResult<ShellTask> execute(TaskInfo task) {
         EngineFactory factory = registry.getEngineFactory(task.getEngine());
         Engine engine = factory.createEngine(task.getConfig());
         if (engine == null) {

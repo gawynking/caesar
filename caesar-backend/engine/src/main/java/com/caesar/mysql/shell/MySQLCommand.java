@@ -47,13 +47,13 @@ public class MySQLCommand extends ShellTask implements Command {
 
 
     @Override
-    public ExecutionResult execute() {
+    public ExecutionResult<ShellTask> execute() {
         this.buildCommand();
         return receiver.runMysqlJob();
     }
 
     @Override
-    public ExecutionResult cancel() {
+    public ExecutionResult<ShellTask> cancel() {
         return receiver.cancelMysqlJob();
     }
 

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class ShellTask extends Task {
+public abstract class ShellTask extends Task implements Command{
 
     private static final Logger logger = Logger.getLogger(ShellTask.class.getName());
 

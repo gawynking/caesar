@@ -3,7 +3,6 @@ package com.caesar.doris.shell;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.ShellTask;
 import com.caesar.shell.TaskManager;
-import com.caesar.task.Task;
 
 import java.util.concurrent.ExecutionException;
 
@@ -19,7 +18,7 @@ public class DorisReceiver {
         this.shellTask = shellTask;
     }
 
-    public ExecutionResult<ShellTask> runMysqlJob() {
+    public ExecutionResult<ShellTask> runDorisJob() {
 
         ExecutionResult<ShellTask> result = null;
         try {
@@ -32,7 +31,7 @@ public class DorisReceiver {
         return result;
     }
 
-    public ExecutionResult cancelMysqlJob() {
+    public ExecutionResult cancelDorisJob() {
         return new TaskManager().terminateTask(shellTask.getFullTaskName());
     }
 

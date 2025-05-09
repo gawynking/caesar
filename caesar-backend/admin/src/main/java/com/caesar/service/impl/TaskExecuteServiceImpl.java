@@ -15,6 +15,8 @@ import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.Executor;
 import com.caesar.service.TaskExecuteService;
 import com.caesar.runner.params.TaskInfo;
+import com.caesar.shell.ShellTask;
+import com.caesar.task.Task;
 import com.caesar.util.TaskUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -78,9 +80,16 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                     int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
                     taskExecuteRecord.setId(id);
                     try {
-                        ExecutionResult execute = Executor.execute(task); // 执行测试任务
-                        taskExecuteRecord.setEndTime(LocalDateTime.now());
-                        taskExecuteRecord.setIsSuccess(1);
+                        ExecutionResult<ShellTask> job = Executor.execute(task); // 执行测试任务
+                        ShellTask jobTask = job.getData();
+                        if(jobTask.getStatus().isSuccess()){
+                            taskExecuteRecord.setEndTime(LocalDateTime.now());
+                            taskExecuteRecord.setIsSuccess(1);
+                        }else {
+                            taskExecuteRecord.setEndTime(LocalDateTime.now());
+                            taskExecuteRecord.setIsSuccess(0);
+                        }
+                        jobTask.cancel();
                     }catch (Exception e){
                         taskExecuteRecord.setIsSuccess(0);
                         e.printStackTrace();
@@ -97,9 +106,16 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
                         int id = taskExecuteMapper.findIdFromUUID(taskExecuteRecord);
                         taskExecuteRecord.setId(id);
                         try {
-                            ExecutionResult execute = Executor.execute(task); // 执行任务
-                            taskExecuteRecord.setEndTime(LocalDateTime.now());
-                            taskExecuteRecord.setIsSuccess(1);
+                            ExecutionResult<ShellTask> job = Executor.execute(task); // 执行任务
+                            ShellTask jobTask = job.getData();
+                            if(jobTask.getStatus().isSuccess()){
+                                taskExecuteRecord.setEndTime(LocalDateTime.now());
+                                taskExecuteRecord.setIsSuccess(1);
+                            }else {
+                                taskExecuteRecord.setEndTime(LocalDateTime.now());
+                                taskExecuteRecord.setIsSuccess(0);
+                            }
+                            jobTask.cancel();
                         }catch (Exception e){
                             taskExecuteRecord.setIsSuccess(0);
                             e.printStackTrace();

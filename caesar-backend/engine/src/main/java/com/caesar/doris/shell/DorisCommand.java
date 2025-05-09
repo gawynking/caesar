@@ -4,7 +4,6 @@ import com.caesar.enums.EnvironmentEnum;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.shell.Command;
 import com.caesar.shell.ShellTask;
-import com.caesar.task.Task;
 import com.caesar.text.model.ScriptInfo;
 
 import java.util.List;
@@ -48,14 +47,14 @@ public class DorisCommand extends ShellTask implements Command {
 
 
     @Override
-    public ExecutionResult execute() {
+    public ExecutionResult<ShellTask> execute() {
         this.buildCommand();
-        return receiver.runMysqlJob();
+        return receiver.runDorisJob();
     }
 
     @Override
-    public ExecutionResult cancel() {
-        return receiver.cancelMysqlJob();
+    public ExecutionResult<ShellTask> cancel() {
+        return receiver.cancelDorisJob();
     }
 
 }

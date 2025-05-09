@@ -72,14 +72,14 @@
             <outputDirectory>/sql</outputDirectory>
         </fileSet>
 
-        <!-- Templates -->
+        <!-- Shell Script -->
         <fileSet>
-            <directory>${basedir}/${project.build.directory}/classes/template</directory>
+            <directory>${basedir}/${project.build.directory}/classes/shell</directory>
             <includes>
-                <include>*.code</include>
+                <include>*.sh</include>
             </includes>
             <fileMode>600</fileMode>
-            <outputDirectory>/template</outputDirectory>
+            <outputDirectory>/shell</outputDirectory>
         </fileSet>
 
     </fileSets>
