@@ -6,11 +6,9 @@ import com.caesar.enums.EngineEnum;
 import com.caesar.enums.EnvironmentEnum;
 import com.caesar.runner.ExecutionResult;
 import com.caesar.runner.params.TaskInfo;
+import com.caesar.spark.config.SparkConfig;
 import com.caesar.text.model.ScriptInfo;
-import com.caesar.util.CodeUtils;
-import com.caesar.util.FileDistributorUtils;
-import com.caesar.util.FileUtils;
-import com.caesar.util.ShellTemplateProcessorUtils;
+import com.caesar.util.*;
 
 import java.io.File;
 import java.util.HashMap;
@@ -18,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import static org.apache.logging.log4j.ThreadContext.containsKey;
 
 
 public class TextEngine implements Engine {
@@ -198,7 +198,129 @@ public class TextEngine implements Engine {
                     }
                     break;
                 case SPARK:
-                    String sparkShell = EngineConfig.getString("SPARK_SHELL");
+                    String sparkShellTemplate = EngineConfig.getString("SPARK_SHELL");
+
+                    StringBuffer sparkCoreConf = new StringBuffer();
+                    StringBuffer sparkAppConf = new StringBuffer();
+                    StringBuffer sparkSqlConf = new StringBuffer();
+
+                    Map<String, String> sparkCoreConfMap = SparkConfig.getCoreConf();
+
+                    for(String key: engineParams.keySet()){
+                        if(sparkCoreConfMap.containsKey(key.toLowerCase())){
+                            sparkCoreConf
+                                    .append("--")
+                                    .append(key.toLowerCase())
+                                    .append(" ")
+                                    .append(Optional.ofNullable(engineParams.get(key)).orElse(sparkCoreConfMap.get(key)))
+                                    .append(" ");
+                        }else if(key.toLowerCase().startsWith("spark.sql.")){
+                            if(StringUtils.isNotEmpty(engineParams.get(key))){
+                                sparkSqlConf
+                                        .append("set")
+                                        .append(" ")
+                                        .append(key.toLowerCase())
+                                        .append("=")
+                                        .append(engineParams.get(key))
+                                        .append(";")
+                                        .append("\n");
+                            }
+                        }else if(key.toLowerCase().startsWith("spark.")){
+                            if(StringUtils.isNotEmpty(engineParams.get(key))){
+                                sparkAppConf
+                                        .append("--conf ")
+                                        .append(key.toLowerCase())
+                                        .append("=")
+                                        .append(engineParams.get(key))
+                                        .append(" ");
+                            }
+                        }else {
+                            if(StringUtils.isNotEmpty(engineParams.get(key))){
+                                sparkSqlConf
+                                        .append("set")
+                                        .append(" ")
+                                        .append(key.toLowerCase())
+                                        .append("=")
+                                        .append(engineParams.get(key))
+                                        .append(";")
+                                        .append("\n");
+                            }
+                        }
+                    }
+
+                    // 核心引擎参数补全
+                    for (String key: sparkCoreConfMap.keySet()){
+                        if(!engineParams.containsKey(key)){
+                            sparkCoreConf
+                                    .append("--")
+                                    .append(key.toLowerCase())
+                                    .append(" ")
+                                    .append(sparkCoreConfMap.get(key))
+                                    .append(" ");
+                        }
+                    }
+
+
+                    if(environment == EnvironmentEnum.PRODUCTION) { // 测试脚本
+                        Map<String,String> customParams = new HashMap<>();
+                        for (String key : customParamValues.keySet()) {
+                            customParams.put(key,taskInputParams.get(key));
+                        }
+
+                        Map<String, String> testScriptParams = new HashMap<>();
+                        testScriptParams.put("coreConf", sparkCoreConf.toString());
+                        testScriptParams.put("appConf", sparkAppConf.toString());
+                        testScriptParams.put("sqlFile", testSqlFile);
+                        testScriptParams.put("customParams",JSONUtils.getJSONObjectFromMap(customParams).toString());
+
+                        String sparkShellScript = ShellTemplateProcessorUtils.processTemplate(sparkShellTemplate, testScriptParams);
+                        sparkShellScript = CodeUtils.dosToUnix(sparkShellScript);
+                        scriptInfo.setTestScript(sparkShellScript);
+
+                        // 生成SQL脚本
+                        FileUtils.writeToFile(testSqlFile, CodeUtils.dosToUnix(CodeUtils.addEngineParamsForSpark(code.replaceAll(dbName+"."+tableName,dbName+"_test."+tableName),sparkSqlConf.toString())));
+                        FileDistributorUtils.distributeFile(testSqlFile,this.schedulerCluster,testSqlFile);
+
+                        // 生成Shell脚本文件
+                        FileUtils.writeToFile(testShellFile, sparkShellScript);
+                        FileDistributorUtils.distributeFile(testShellFile,this.schedulerCluster,testShellFile);
+                    } else if (environment == EnvironmentEnum.TEST) { // 生产流程
+
+                        StringBuffer customParamsBuffer = new StringBuffer();
+                        StringBuffer customArgsBuffer = new StringBuffer();
+                        for (String key : customParamValues.keySet()) {
+                            customParamsBuffer
+                                    .append(key)
+                                    .append("=")
+                                    .append(customParamValues.get(key))
+                                    .append("\n");
+
+                            customArgsBuffer
+                                    .append(key)
+                                    .append("=")
+                                    .append("${").append(key).append("}")
+                                    .append(" ");
+                        }
+
+                        Map<String, String> prodScriptParams = new HashMap<>();
+                        prodScriptParams.put("coreConf", sparkCoreConf.toString());
+                        prodScriptParams.put("appConf", sparkAppConf.toString());
+                        prodScriptParams.put("sqlFile", testSqlFile);
+                        prodScriptParams.put("customParams", customParamsBuffer.toString());
+                        prodScriptParams.put("customArgs",customArgsBuffer.deleteCharAt(customArgsBuffer.length() - 1).toString());
+
+                        String sparkShellScript = ShellTemplateProcessorUtils.processTemplate(sparkShellTemplate, prodScriptParams);
+                        sparkShellScript = CodeUtils.dosToUnix(sparkShellScript);
+                        scriptInfo.setTestScript(sparkShellScript);
+
+                        // 生成SQL脚本
+                        FileUtils.writeToFile(prodSqlFile, CodeUtils.dosToUnix(CodeUtils.addEngineParamsForSpark(code,sparkSqlConf.toString())));
+                        FileDistributorUtils.distributeFile(prodSqlFile,this.schedulerCluster,testSqlFile);
+
+                        // 生成Shell脚本文件
+                        FileUtils.writeToFile(prodShellFile, sparkShellScript);
+                        FileDistributorUtils.distributeFile(prodShellFile,this.schedulerCluster,prodShellFile);
+                    }
                     break;
                 case DORIS:
                 case MYSQL:
