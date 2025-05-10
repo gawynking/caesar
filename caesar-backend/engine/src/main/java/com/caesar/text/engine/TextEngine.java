@@ -12,10 +12,8 @@ import com.caesar.text.model.ScriptInfo;
 import com.caesar.util.*;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.ParseException;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static org.apache.logging.log4j.ThreadContext.containsKey;
@@ -55,6 +53,7 @@ public class TextEngine implements Engine {
          *          - dim/
          *          - dwd/
          */
+        String taskName = task.getTaskName();
         String taskTag = task.getTaskName().replaceAll(task.getDbName()+"\\.","").replaceAll("\\.","__");
         String dbName = task.getDbName();
         String tableName = task.getTableName();
@@ -64,6 +63,13 @@ public class TextEngine implements Engine {
         Map<String, String> customParamValues = Optional.ofNullable(task.getCustomParamValues()).orElse(new HashMap<>());
         Map<String, String> taskInputParams = Optional.ofNullable(task.getTaskInputParams()).orElse(new HashMap<>());
         Map<String, String> engineParams = Optional.ofNullable(task.getEngineParams()).orElse(new HashMap<>());
+
+        String curTime = null;
+        try {
+            curTime = DateUtils.dateFormat(new Date(),"yyyyMMddHHmmss");
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
 
         ScriptInfo scriptInfo = new ScriptInfo();
         scriptInfo.setSchedulerCluster(this.schedulerCluster);
@@ -103,6 +109,7 @@ public class TextEngine implements Engine {
                         StringBuffer testHiveParamsBuffer = new StringBuffer();
 
                         StringBuffer codePrefixBuffer = new StringBuffer();
+                        codePrefixBuffer.append("set").append(" ").append("mapreduce.job.name").append("=").append(taskName).append(".").append("test").append(".").append(curTime).append(";").append("\n");
                         for(String key: engineParams.keySet()){
                             codePrefixBuffer
                                     .append("set")
@@ -152,6 +159,7 @@ public class TextEngine implements Engine {
                         StringBuffer prodHiveParamsBuffer = new StringBuffer();
 
                         StringBuffer codePrefixBuffer = new StringBuffer();
+                        codePrefixBuffer.append("set").append(" ").append("mapreduce.job.name").append("=").append(taskName).append(".").append(curTime).append(";").append("\n");
                         for(String key: engineParams.keySet()){
                             codePrefixBuffer
                                     .append("set")
@@ -261,18 +269,31 @@ public class TextEngine implements Engine {
                         }
                     }
 
+                    if(environment == EnvironmentEnum.TEST) { // 测试脚本
 
-                    if(environment == EnvironmentEnum.PRODUCTION) { // 测试脚本
-                        Map<String,String> customParams = new HashMap<>();
+                        StringBuffer customParamsBuffer = new StringBuffer();
+                        StringBuffer customArgsBuffer = new StringBuffer();
                         for (String key : customParamValues.keySet()) {
-                            customParams.put(key,taskInputParams.get(key));
+                            customParamsBuffer
+                                    .append(key)
+                                    .append("=")
+                                    .append(taskInputParams.get(key))
+                                    .append("\n");
+
+                            customArgsBuffer
+                                    .append(key)
+                                    .append("=")
+                                    .append("${").append(key).append("}")
+                                    .append(" ");
                         }
 
                         Map<String, String> testScriptParams = new HashMap<>();
+                        testScriptParams.put("appName",taskName+".test."+curTime);
                         testScriptParams.put("coreConf", sparkCoreConf.toString());
                         testScriptParams.put("appConf", sparkAppConf.toString());
                         testScriptParams.put("sqlFile", testSqlFile);
-                        testScriptParams.put("customParams",JSONUtils.getJSONObjectFromMap(customParams).toString());
+                        testScriptParams.put("customParams", customParamsBuffer.toString());
+                        testScriptParams.put("customArgs",customArgsBuffer.deleteCharAt(customArgsBuffer.length() - 1).toString());
 
                         String sparkShellScript = ShellTemplateProcessorUtils.processTemplate(sparkShellTemplate, testScriptParams);
                         sparkShellScript = CodeUtils.dosToUnix(sparkShellScript);
@@ -285,7 +306,7 @@ public class TextEngine implements Engine {
                         // 生成Shell脚本文件
                         FileUtils.writeToFile(testShellFile, sparkShellScript);
                         FileDistributorUtils.distributeFile(testShellFile,this.schedulerCluster,testShellFile);
-                    } else if (environment == EnvironmentEnum.TEST) { // 生产流程
+                    } else if (environment == EnvironmentEnum.PRODUCTION) { // 生产流程
 
                         StringBuffer customParamsBuffer = new StringBuffer();
                         StringBuffer customArgsBuffer = new StringBuffer();
@@ -304,6 +325,7 @@ public class TextEngine implements Engine {
                         }
 
                         Map<String, String> prodScriptParams = new HashMap<>();
+                        prodScriptParams.put("appName",taskName+"."+curTime);
                         prodScriptParams.put("coreConf", sparkCoreConf.toString());
                         prodScriptParams.put("appConf", sparkAppConf.toString());
                         prodScriptParams.put("sqlFile", testSqlFile);

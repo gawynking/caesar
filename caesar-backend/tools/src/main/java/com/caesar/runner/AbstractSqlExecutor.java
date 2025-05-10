@@ -2,11 +2,11 @@ package com.caesar.runner;
 
 
 import com.caesar.util.DateUtils;
+import com.caesar.util.FileUtils;
+import com.caesar.util.OsUtils;
 import com.caesar.util.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,10 +21,8 @@ public abstract class AbstractSqlExecutor<T> implements SqlExecutor<T> {
 
     private static final Logger logger = Logger.getLogger(AbstractSqlExecutor.class.getName());
 
-    // 集群标识，定义任务执行在哪里
-    protected String clusterTag;
 
-    private String separator = File.separator;
+    private String SEP = File.separator;
     protected T t;
     private Integer counter = 0;
 
@@ -37,19 +35,18 @@ public abstract class AbstractSqlExecutor<T> implements SqlExecutor<T> {
         // 1 解析参数
         Map<String, String> params = parseParams(args);
 
-        clusterTag = params.get(Constants.CLUSTER_TAG);
-        if(null == clusterTag) clusterTag = "unknown";
         String sqlFile = params.get(Constants.SUBMIT_SQL_FILE);
         if(StringUtils.isEmpty(sqlFile)){
             throw new RuntimeException("任务没有正确指定SQL文件目录地址: " + Constants.SUBMIT_SQL_FILE + " = []");
         }
         String[] split = null;
-        if (System.getProperty("os.name").contains("Windows")) {
+        if (OsUtils.isWindowsOs()) {
             split = sqlFile.split("\\\\");
         }else{
-            split = sqlFile.split(separator);
+            split = sqlFile.split(SEP);
         }
         String taskName = split[split.length-1].replace(".sql","");
+
         // 2 连接数据库
         t = openConnect(taskName);
 
@@ -68,7 +65,7 @@ public abstract class AbstractSqlExecutor<T> implements SqlExecutor<T> {
                 executeSQL(t,finalSql,handler);
             } catch (Exception e) {
                 if(enableAlert()){
-                    alert(clusterTag,taskName,getCounter(),sql);
+                    alert(taskName,getCounter(),sql);
                 }
                 logger.warning("Error executing SQL: " + sql + ". Error: " + e.getMessage());
                 e.printStackTrace();
@@ -115,27 +112,13 @@ public abstract class AbstractSqlExecutor<T> implements SqlExecutor<T> {
     private List<String> readSqlFromSqlFile(String sqlFile){
         List<String> sqls = new ArrayList<>();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(sqlFile));
-            StringBuilder sqlBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // 跳过空行和注释
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("--")) {
-                    continue;
-                }
-
-                // 累积 SQL 语句，遇到分号时执行
-                sqlBuilder.append(line).append(" ");
-                if (line.endsWith(";")) {
-                    String sql = sqlBuilder.toString().replace(";","").trim();
-                    if(StringUtils.isNotEmpty(sql)) sqls.add(sql);
-                    sqlBuilder.setLength(0); // 清空 StringBuilder
+            String sqlText = FileUtils.readFile(sqlFile);
+            String[] sqlSplit = sqlText.split(";");
+            for(String sql: sqlSplit){
+                if(null != sql && !"".equals(sql.replaceAll("\\s",""))){
+                    sqls.add(sql);
                 }
             }
-            String sql = sqlBuilder.toString().replace(";","");
-            if(StringUtils.isNotEmpty(sql)) sqls.add(sql);
-            reader.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -169,7 +152,7 @@ public abstract class AbstractSqlExecutor<T> implements SqlExecutor<T> {
         return false;
     }
 
-    protected abstract void alert(String clusterTag ,String taskName, Integer counter, String sql);
+    protected abstract void alert(String taskName, Integer counter, String sql);
 
     protected Boolean enableLogging(){
          return false;

@@ -4,6 +4,7 @@ package com.caesar.runner.batch.spark;
 
 import com.caesar.runner.AbstractSqlExecutor;
 import com.caesar.runner.extend.SqlExtendCreateTableFromFile;
+import com.caesar.util.OsUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 
@@ -38,7 +39,11 @@ public class SparkSqlExecutor extends AbstractSqlExecutor<SparkSession> {
                             break;
                     }
                 }else {
-                    sparkSession.sql(sql).show();
+                    if(OsUtils.isTest()){
+                        sparkSession.sql(sql).show();
+                    }else{
+                        sparkSession.sql(sql);
+                    }
                 }
             }
         });
@@ -47,7 +52,7 @@ public class SparkSqlExecutor extends AbstractSqlExecutor<SparkSession> {
 
     @Override
     protected SparkSession openConnect(String taskName) {
-        if (System.getProperty("os.name").contains("Windows") || System.getProperty("os.name").contains("Mac")) {
+        if (OsUtils.isTest()) {
             return SparkSession.builder()
                     .appName(taskName)
                     .master("local[*]")
@@ -76,7 +81,7 @@ public class SparkSqlExecutor extends AbstractSqlExecutor<SparkSession> {
     }
 
     @Override
-    protected void alert(String clusterTag, String taskName, Integer counter, String sql) {
+    protected void alert(String taskName, Integer counter, String sql) {
 
     }
 

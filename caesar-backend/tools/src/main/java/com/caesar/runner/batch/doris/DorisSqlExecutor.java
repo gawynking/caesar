@@ -12,7 +12,6 @@ public class DorisSqlExecutor extends AbstractSqlExecutor<Connection> {
         new DorisSqlExecutor().execute(args, new HandlerCallback<Connection>() {
             @Override
             public void process(Connection connection, String sql) throws Exception {
-
             }
         });
     }
@@ -32,7 +31,7 @@ public class DorisSqlExecutor extends AbstractSqlExecutor<Connection> {
     }
 
     @Override
-    protected void alert(String clusterTag, String taskName, Integer counter, String sql) {
+    protected void alert(String taskName, Integer counter, String sql) {
 
     }
 

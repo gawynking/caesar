@@ -24,7 +24,7 @@ spark_jar=${CAESAR_HOME}/tool/tools-0.1.0.jar
 #  --class XXX \
 #  /opt/XXX.jar
 
-spark-submit --master yarn --deploy-mode cluster --class com.caesar.runner.batch.spark.SparkSqlExecutor  @{{ coreConf }} @{{ appConf }} ${spark_jar} @{{ sqlFile }} "@{{ customArgs }}"
+spark-submit --name @{{ appName }} --master yarn --deploy-mode cluster --class com.caesar.runner.batch.spark.SparkSqlExecutor  @{{ coreConf }} @{{ appConf }} ${spark_jar} sql.file.path=@{{ sqlFile }} @{{ customArgs }}
 
 # 获取 hive 的退出状态码
 status=$?

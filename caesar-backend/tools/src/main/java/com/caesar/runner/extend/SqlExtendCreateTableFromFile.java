@@ -32,7 +32,7 @@ public class SqlExtendCreateTableFromFile implements ExtendSql<SqlExtendCreateTa
 
     /**
      * 功能：通过扩展SQL语句将文件解析成表
-     * 语法: create temporary table tbl_tablename use files 'D:\data\fp\r06.json';
+     * 语法: create temporary table tbl_text use files '/Users/chavinking/test/1.txt';
      */
     @Override
     public ExtendSqlModel parseMeta(String extendSql){
