@@ -20,7 +20,7 @@
             <span slot="title">代码审核</span>
         </el-menu-item>
 
-        <el-submenu index="env-manager">
+        <!-- <el-submenu index="env-manager">
             <template slot="title">
                 <i class="el-icon-menu"></i>
                 <span slot="title">环境管理</span>
@@ -31,16 +31,16 @@
                 <span slot="title">数据源管理</span>
             </el-menu-item>
 
-            <!-- <el-menu-item index="data-dev-manager" disabled>
+            <el-menu-item index="data-dev-manager" disabled>
                 <i class="el-icon-menu"></i>
                 <span slot="title">数据开发环境管理</span>
-            </el-menu-item> -->
+            </el-menu-item>
 
             <el-menu-item index="schedule-manager">
                 <i class="el-icon-menu"></i>
                 <span slot="title">调度配置</span>
             </el-menu-item>
-        </el-submenu>
+        </el-submenu> -->
         
     </fragment>
 </template>
