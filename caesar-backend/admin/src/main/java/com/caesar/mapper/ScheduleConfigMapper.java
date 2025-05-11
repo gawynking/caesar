@@ -1,5 +1,6 @@
 package com.caesar.mapper;
 
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarScheduleConfig;
 import com.caesar.entity.dto.CaesarScheduleConfigDto;
@@ -117,8 +118,10 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
 
     @Select("select t1.* \n" +
             "from caesar_schedule_config t1 \n" +
-            "where t1.task_name = #{taskName}\n" +
+            "where t1.task_name like '#{taskName}%'\n" +
             "  and t1.period = #{period}\n" +
             "  and t1.release_status = 1")
     List<CaesarScheduleConfigDto> findTaskScheduleConfigListFromTaskNameAndPeriod(String taskName, String period);
+
+    List<CaesarScheduleConfig> getAllCaesarSchedulerConfig();
 }

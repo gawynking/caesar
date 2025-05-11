@@ -11,6 +11,8 @@ import com.caesar.scheduler.dolphin.DolphinSchedulerWorkflowInstance;
 import com.caesar.scheduler.dolphin.model.*;
 import com.caesar.scheduler.dolphin.process.DolphinSchedulerAPI;
 import com.caesar.scheduler.dolphin.process.DolphinSchedulerAPI320;
+import com.caesar.util.HttpUtils;
+import com.caesar.util.JSONUtils;
 import com.caesar.util.SchedulerUtils;
 import org.junit.jupiter.api.Test;
 
@@ -436,6 +438,17 @@ public class DolphinSchedulerApiTest {
 //        schedulerModel.setDelete(true);
         ScheduleResponse response = schedulerFacade.deployTask(schedulerModel);
         System.out.println("----------------- " + response);
+
+    }
+
+
+    @Test
+    public void test36() throws Exception{
+
+        // http://127.0.0.1:12345/dolphinscheduler/ui/projects/17606131924800/workflow/definitions/17606141664448
+
+        System.out.println(JSONUtils.getJSONObjectFromString(HttpUtils.doGet("http://127.0.0.1:12345/dolphinscheduler/ui/projects/17606131924800/workflow/definitions/17606141664448", null, token)));
+
 
     }
 

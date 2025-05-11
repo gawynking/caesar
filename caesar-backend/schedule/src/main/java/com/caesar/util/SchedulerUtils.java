@@ -9,15 +9,17 @@ import com.caesar.scheduler.SchedulerFacade;
 public class SchedulerUtils {
 
 
+    private static SchedulerFacade schedulerFacade;
+
     public static SchedulerFacade getScheduler(){
-        SchedulerFacade schedulerFacade = new SchedulerFacade(getSchedulerEnum());
+        schedulerFacade = new SchedulerFacade(getSchedulerEnum());
         return schedulerFacade;
     }
 
 
     public static SchedulerEnum getSchedulerEnum(){
         String schedulerType = SchedulerConfig.getString(SchedulerConstant.SCHEDULER_TYPE).toLowerCase();
-        return SchedulerEnum.fromKey(schedulerType);
+        return getSchedulerEnumFromString(schedulerType);
     }
 
 

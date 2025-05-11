@@ -781,7 +781,7 @@ export default {
                 const response = await this.$axios.get('/scheduler/getTaskDependencies', {
                     params: {
                         taskName: currentTab.taskInfo.taskName,
-                        version: currentTab.taskInfo.version,
+                        taskVersion: currentTab.taskInfo.version,
                         period: currentTab.scheduleConfig.period
                     }
                 });

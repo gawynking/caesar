@@ -19,12 +19,12 @@ import java.util.Map;
 public class SQLParserUtils {
 
     /**
-     * hive SQL解析，返回SQL 目标表 及依赖原始表信息
+     * SQL解析，返回SQL 目标表 及依赖原始表信息
      *
      */
-    public static List<Map<String, Integer>> getTableFromTo(String sql) throws Exception {
+    public static List<Map<String, Integer>> getTableFromTo(String sql, DbType dbType) throws Exception {
 
-        List<SQLStatement> stmts = SQLUtils.parseStatements(sql, JdbcConstants.HIVE);
+        List<SQLStatement> stmts = SQLUtils.parseStatements(sql, dbType);
         if (stmts == null) {
             return null;
         }
@@ -36,7 +36,7 @@ public class SQLParserUtils {
         String database = "default";
         for (SQLStatement stmt : stmts) {
 
-            SchemaStatVisitor statVisitor = SQLUtils.createSchemaStatVisitor(JdbcConstants.HIVE);
+            SchemaStatVisitor statVisitor = SQLUtils.createSchemaStatVisitor(dbType);
             if (stmt instanceof SQLUseStatement) {
                 database = ((SQLUseStatement) stmt).getDatabase().getSimpleName().toLowerCase();
             }
@@ -87,7 +87,7 @@ public class SQLParserUtils {
 
 
 
-    public static DbType engineType2DruidDbType(EngineEnum engineType){
+    public static DbType CaesarEngineType2DruidDbType(EngineEnum engineType){
 
         if(null == engineType){
             return null;
@@ -100,6 +100,15 @@ public class SQLParserUtils {
         if(engineType == EngineEnum.SPARK){
             return DbType.hive;
         }
+
+        if(engineType == EngineEnum.DORIS){ // Druid暂时没有Doris枚举对象，返回MySQL，但可能出现SQL不能解析异常
+            return DbType.mysql;
+        }
+
+        if(engineType == EngineEnum.MYSQL){
+            return DbType.mysql;
+        }
+
 
         return null;
     }

@@ -55,7 +55,6 @@ public interface ScheduleDependencyMapper extends BaseMapper<CaesarScheduleDepen
             "\tfrom caesar_schedule_config \n" +
             "\twhere schedule_name = #{scheduleName}\n" +
             "\tgroup by schedule_code \n" +
-            ") t2 on t1.schedule_code = t2.schdule_code \n" +
-            "and t1.version = t2.version")
+            ") t2 on t1.schedule_code = t2.schdule_code")
     List<CaesarScheduleDependency> getTaskScheduleDependency(String scheduleName);
 }

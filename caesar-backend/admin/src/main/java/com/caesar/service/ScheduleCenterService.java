@@ -6,7 +6,9 @@ import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
 import com.caesar.entity.vo.response.ScheduleInfoVo;
 import com.caesar.entity.vo.response.TaskDependency;
+import com.caesar.exception.CaesarScheduleConfigSyncException;
 import com.caesar.exception.SqlParseException;
+import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 
 import java.util.List;
 
@@ -26,6 +28,7 @@ public interface ScheduleCenterService extends IService<CaesarScheduleConfig> {
 
     ScheduleInfoVo getTaskSchedule(String scheduleName);
 
-    List<TaskDependency> getTaskDependencies(String taskName, Integer version, String period) throws SqlParseException;
+    List<TaskDependency> getTaskDependencies(String taskName, Integer taskVersion, String period) throws SqlParseException;
 
+    List<CaesarScheduleConfig> syncCaesarSchedulerConfig() throws CaesarScheduleConfigSyncException;
 }

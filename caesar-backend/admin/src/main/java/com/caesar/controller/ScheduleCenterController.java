@@ -1,13 +1,12 @@
 package com.caesar.controller;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.caesar.entity.CaesarScheduleCluster;
 import com.caesar.entity.vo.CaesarScheduleClusterVo;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
 import com.caesar.entity.vo.response.ScheduleInfoVo;
 import com.caesar.entity.vo.response.TaskDependency;
+import com.caesar.exception.CaesarScheduleConfigSyncException;
 import com.caesar.exception.SqlParseException;
 import com.caesar.model.JsonResponse;
 import com.caesar.service.ScheduleCenterService;
@@ -30,6 +29,7 @@ public class ScheduleCenterController {
 
 
 
+    // 调度管理信息
     @GetMapping("/getScheduleClusters")
     public JsonResponse<List<CaesarScheduleCluster>> getScheduleClusters(){
         try {
@@ -93,6 +93,7 @@ public class ScheduleCenterController {
 
 
 
+    // 调度配置信息
     @GetMapping("/getScheduleBaseInfo")
     public JsonResponse<ScheduleBaseInfoVo> getScheduleBaseInfo(){
 
@@ -128,10 +129,24 @@ public class ScheduleCenterController {
     }
 
 
+    @GetMapping("/getTaskDependencies")
+    public JsonResponse<List<TaskDependency>> getTaskDependencies(
+            @RequestParam String taskName,
+            @RequestParam Integer taskVersion,
+            @RequestParam String period){
+        try {
+            return JsonResponse.success(scheduleCenterService.getTaskDependencies(taskName,taskVersion,period));
+        } catch (SqlParseException e) {
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取调度依赖任务失败");
+    }
+
+
+
     @PostMapping("/genTaskSchedule")
     public JsonResponse<String> genTaskSchedule(@RequestBody GeneralScheduleInfoVo scheduleInfo){
         try {
-            System.out.println("--------------"+scheduleInfo);
             if(scheduleCenterService.genTaskSchedule(scheduleInfo)) {
                 return JsonResponse.success("生成任务新调度任务成功");
             }
@@ -168,18 +183,17 @@ public class ScheduleCenterController {
     }
 
 
-    @GetMapping("/getTaskDependencies")
-    public JsonResponse<List<TaskDependency>> getTaskDependencies(
-            @RequestParam String taskName,
-            @RequestParam Integer version,
-            @RequestParam String period){
+    @PostMapping("/syncCaesarSchedulerConfig")
+    public JsonResponse<Boolean> syncCaesarSchedulerConfig(){
         try {
-            return JsonResponse.success(scheduleCenterService.getTaskDependencies(taskName,version,period));
-        } catch (SqlParseException e) {
+            if(scheduleCenterService.syncCaesarSchedulerConfig().size()>0){
+                return JsonResponse.success(true);
+            }
+        }catch (CaesarScheduleConfigSyncException e){
             e.printStackTrace();
         }
-        return JsonResponse.fail("获取调度依赖任务失败");
-    }
 
+        return JsonResponse.fail();
+    }
 
 }
