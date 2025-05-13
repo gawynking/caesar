@@ -25,4 +25,6 @@ public interface SchedulerInstance {
 
     JSONObject queryTaskList(String project,String workFlow) throws ProjectNotExistsException,GenTaskCodeFaildException;
 
+    JSONObject queryProcessTaskList(String project,String workFlow) throws ProjectNotExistsException,GenTaskCodeFaildException;
+
 }

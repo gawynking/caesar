@@ -86,7 +86,7 @@ public class JSONUtils {
      */
     public static JSONArray getJSONArrayfromString(String jsonStr){
         try{
-            return JSONArray.parseArray(JSON.toJSONString(jsonStr));
+            return JSON.parseArray(jsonStr);
         }catch (Exception e){
             logger.info("String conversion json array failed : " + jsonStr );
             return null;

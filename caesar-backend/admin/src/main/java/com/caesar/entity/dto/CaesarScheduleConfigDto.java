@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class CaesarScheduleConfigDto {
 
+    String taskId;                  // 调度对应任务ID
     String taskName;                // 调度对应任务名称
     String taskVersion;             // 调度对应任务版本
     int scheduleCategory = 1;       // 调度类别: 1-DolphinScheduler 2-Hera

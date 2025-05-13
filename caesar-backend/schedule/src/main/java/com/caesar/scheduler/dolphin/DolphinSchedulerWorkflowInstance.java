@@ -351,4 +351,30 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         return processDefinitionList;
     }
 
+
+    @Override
+    public JSONObject queryProcessTaskList(String project, String workFlow) throws ProjectNotExistsException, GenTaskCodeFaildException {
+
+        Long projectCode = getProjectCodeFromProjectName(project);
+        Long processDefinitionCode = getProcessDefinitionCodeFromProcessDefinitionName(projectCode, workFlow);
+
+        if(null == projectCode){
+            throw new ProjectNotExistsException("DolphinScheduler没有定义指定Project");
+        }
+
+        if(null == processDefinitionCode){
+            throw new GenTaskCodeFaildException("更新的processDefinitionCode不存在");
+        }
+
+        JSONObject processDefinitionList = null;
+        try {
+            processDefinitionList = this.schedulerAPI.queryProcessDefinitionByCode(projectCode, processDefinitionCode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return processDefinitionList;
+
+    }
+
 }

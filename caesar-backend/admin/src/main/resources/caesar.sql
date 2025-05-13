@@ -361,6 +361,7 @@ comment '任务审核流程表'
 drop table if exists caesar_schedule_config;
 create table caesar_schedule_config(
     id                  int auto_increment                                                       comment 'ID',
+    task_id             int                                                                      comment '调度对应任务ID',
     task_name           varchar(128) not null                                                    comment '调度对应任务名称',
     task_version        int not null                                                             comment '调度对应任务版本',
     schedule_category   int not null                                                             comment '调度类别: 1-DolphinScheduler 2-Hera',
@@ -379,6 +380,7 @@ create table caesar_schedule_config(
     date_value          varchar(32) default 'today'                                              comment '依赖日期',
     owner_id            int                                                                      comment '创建人',
     version             int not null                                                             comment '版本号',
+    gen_type            int not null default 1                                                   comment '生成方式: 1-Caesar系统创建 2-同步自调度系统',
     create_time         timestamp not null default current_timestamp                             comment '创建时间戳',
     update_time         timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
     primary key(id),

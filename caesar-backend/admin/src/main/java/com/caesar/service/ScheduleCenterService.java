@@ -2,6 +2,7 @@ package com.caesar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.caesar.entity.CaesarScheduleConfig;
+import com.caesar.entity.bo.CaesarScheduleConfigInfoBo;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
 import com.caesar.entity.vo.response.ScheduleInfoVo;
@@ -30,5 +31,5 @@ public interface ScheduleCenterService extends IService<CaesarScheduleConfig> {
 
     List<TaskDependency> getTaskDependencies(String taskName, Integer taskVersion, String period) throws SqlParseException;
 
-    List<CaesarScheduleConfig> syncCaesarSchedulerConfig() throws CaesarScheduleConfigSyncException;
+    List<CaesarScheduleConfigInfoBo> syncCaesarSchedulerConfig() throws CaesarScheduleConfigSyncException;
 }

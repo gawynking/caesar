@@ -1,14 +1,13 @@
 package com.caesar.service.impl;
 
-import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.caesar.config.CaesarConfig;
 import com.caesar.entity.CaesarScheduleConfig;
 import com.caesar.entity.CaesarScheduleDependency;
+import com.caesar.entity.CaesarTask;
+import com.caesar.entity.bo.CaesarScheduleConfigInfoBo;
 import com.caesar.entity.dto.CaesarScheduleConfigDto;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
@@ -59,7 +58,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
     @Autowired
     CaesarConfig caesarConfig;
 
-    private static SchedulerFacade schedulerFacade = SchedulerUtils.getScheduler();
+    private static SchedulerFacade schedulerFacade = CaesarScheduleUtils.getSchedulerClient();
 
 
 
@@ -241,13 +240,11 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
 
 
     @Override
-    public List<CaesarScheduleConfig> syncCaesarSchedulerConfig() throws CaesarScheduleConfigSyncException {
+    public synchronized List<CaesarScheduleConfigInfoBo> syncCaesarSchedulerConfig() throws CaesarScheduleConfigSyncException {
 
-        List<CaesarScheduleConfig> allSchedulerConfig = new ArrayList<>();
+        List<CaesarScheduleConfigInfoBo> allSchedulerConfig = new ArrayList<>();
 
-        List<CaesarScheduleConfig> allCaesarSystemSchedulers = scheduleConfigMapper.getAllCaesarSchedulerConfig();
-
-        JSONArray allScheduleSystemSchedulers = null;
+        JSONObject processTaskDefine = null;
 
         ScheduleBaseInfoVo scheduleBaseInfo = getScheduleBaseInfo();
         String project = scheduleBaseInfo.getProject();
@@ -261,13 +258,78 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
             if(scheduleItems.length != 2){
                 throw new CaesarScheduleConfigSyncException(String.format("配置调度项目不符合规范，当前调度项目为: %s, 允许项目名称必须符合规范: ${project_name}___${workflow_name}", project));
             }
-            allScheduleSystemSchedulers = schedulerFacade.queryTaskList(scheduleItems[0],scheduleItems[1]).getJSONArray("data"); // 获取调度列表
+            processTaskDefine = schedulerFacade.queryProcessTaskList(scheduleItems[0], scheduleItems[1]);
+            if(!processTaskDefine.getBoolean("success")){
+                throw new CaesarScheduleConfigSyncException("获取调度配置信息失败.");
+            }
         } else if (scheduleBaseInfo.getScheduleLevel() == 2) { // project
-//            allScheduleSystemSchedulers = schedulerFacade.queryTaskList(project,null).getJSONArray("data"); // 获取调度列表
             throw new CaesarScheduleConfigSyncException("当前不支持 跨工作流级别 调度依赖模式(即当前仅支持 工作流定义内-任务级别依赖 模式调度).请修改配置文件'调度模式'为 schedule.level: workflow, 并重启服务.");
         }
 
 
+        // 分别获取Caesar系统所有调度配置和调度系统所有调度配置
+        List<CaesarScheduleConfigInfoBo> allCaesarSystemSchedulerConfigs = scheduleConfigMapper.getAllCaesarSystemSchedulerConfigs();
+        List<CaesarScheduleConfigInfoBo> allSchedulerSystemSchedulerConfigs = new ArrayList<>();
+        if(scheduleBaseInfo.getScheduleCategory() == 1) {
+            allSchedulerSystemSchedulerConfigs = CaesarScheduleUtils.parseDolphinSchedulerSchedulers(processTaskDefine);
+        }else {
+            throw new RuntimeException();
+        }
+
+
+        HashMap<String, List<CaesarScheduleConfigInfoBo>> diffScheduleConfigCache = new HashMap<>();
+        diffScheduleConfigCache.put("caesar",new ArrayList<>());
+        diffScheduleConfigCache.put("schedule",new ArrayList<>());
+        for(CaesarScheduleConfigInfoBo caesarSystemSchedulerConfig :allCaesarSystemSchedulerConfigs){
+            boolean equal = false;
+            for(CaesarScheduleConfigInfoBo schedulerSystemSchedulerConfig :allSchedulerSystemSchedulerConfigs){
+                if(caesarSystemSchedulerConfig.getScheduleCode().equals(schedulerSystemSchedulerConfig.getScheduleCode())){
+                    equal = true;
+                    break;
+                }
+            }
+            if(!equal){ // 说明Caesar系统调度没有正确同步到外部调度系统
+                diffScheduleConfigCache.get("caesar").add(caesarSystemSchedulerConfig);
+            }
+        }
+        for(CaesarScheduleConfigInfoBo schedulerSystemSchedulerConfig :allSchedulerSystemSchedulerConfigs){
+            boolean equal = false;
+            for(CaesarScheduleConfigInfoBo caesarSystemSchedulerConfig :allCaesarSystemSchedulerConfigs){
+                if(caesarSystemSchedulerConfig.getScheduleCode().equals(schedulerSystemSchedulerConfig.getScheduleCode())){
+                    equal = true;
+                    break;
+                }
+            }
+            if(!equal){
+                diffScheduleConfigCache.get("schedule").add(schedulerSystemSchedulerConfig);
+            }
+        }
+
+        // * 执行同步动作
+        try {
+            if (diffScheduleConfigCache.get("caesar").size() > 0) { // 这部分数据需要同步到Schedule系统
+                List<CaesarScheduleConfigInfoBo> caesarDiffSchedules = diffScheduleConfigCache.get("caesar");
+                logger.info(String.format("SYNC DIFF 1: 发现Caesar系统调度未及时同步外部调度系统情况，本次涉及差异调度信息为: %s",JSONUtils.getJSONArrayFromList(caesarDiffSchedules)));
+                for (CaesarScheduleConfigInfoBo caesarDiffSchedule : caesarDiffSchedules) {
+                    CaesarTask taskInfo = taskMapper.getTaskInfoFromId(caesarDiffSchedule.getTaskId());
+                    SchedulerModel schedulerModel = CaesarScheduleUtils.convertScheduleConfigFromScheduleInfoBo(caesarDiffSchedule, allCaesarSystemSchedulerConfigs,taskInfo);
+                    ScheduleResponse scheduleResponse = schedulerFacade.createTask(schedulerModel);
+                }
+            }
+            // 暂不实现
+            if (diffScheduleConfigCache.get("schedule").size() > 0) { // 这部分需要从Schedule同步到Caesar
+                List<CaesarScheduleConfigInfoBo> scheduleDiffCaesars = diffScheduleConfigCache.get("schedule");
+                logger.info(String.format("SYNC DIFF 2: 发现调度系统项目%s调度不在Caesar注册情况发生，本次涉及差异调度信息为: %s",project, JSONUtils.getJSONArrayFromList(scheduleDiffCaesars)));
+                for(CaesarScheduleConfigInfoBo scheduleDiffCaesar: scheduleDiffCaesars){
+
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        allSchedulerConfig.addAll(allCaesarSystemSchedulerConfigs);
+//        allSchedulerConfig.addAll(diffScheduleConfigCache.get("schedule")); // 暂不考虑
 
         if(OsUtils.isTest()){
             logger.info(String.format("项目 %s 部署调度任务列表: \n\t=> %s",project ,allSchedulerConfig.toString()));
@@ -280,16 +342,18 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
     @Override
     public Boolean genTaskSchedule(GeneralScheduleInfoVo scheduleInfo) {
 
+        logger.info(String.format("正在为任务%s创建调度,调度配置信息: %s",scheduleInfo.getTaskName(),scheduleInfo.toString()));
+
         Boolean flag = false;
         CaesarScheduleConfig scheduleConfig = BeanConverterTools.convert(scheduleInfo, CaesarScheduleConfig.class);
         scheduleConfig.setScheduleCode(UUID.randomUUID().toString().replaceAll("-",""));
         scheduleConfig.setVersion(ScheduleVersionUtils.getInstance(scheduleConfigMapper).getVersion());
         scheduleConfig.setOwnerId(userMapper.getUserIdFromUserName(scheduleInfo.getOwnerName()));
-        Boolean insertTaskScheduleFlag = scheduleConfigMapper.genTaskSchedule(scheduleConfig);
+        scheduleConfig.setTaskId(taskMapper.getTaskIdByVersion(scheduleInfo.getTaskVersion()));
+        flag = scheduleConfigMapper.genTaskSchedule(scheduleConfig);
 
-        flag = insertTaskScheduleFlag;
         String scheduleCode = scheduleConfig.getScheduleCode();
-        for(GeneralScheduleInfoVo.Dependency dependency:scheduleInfo.getDependency()){
+        for(GeneralScheduleInfoVo.Dependency dependency: Optional.ofNullable(scheduleInfo.getDependency()).orElse(new ArrayList<>())){
             dependency.setPreScheduleCode(scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(dependency.getPreScheduleName()));
             Boolean insertTaskDependencyFlag = updateTaskScheduleDenpendency(scheduleCode,dependency);
             if(!insertTaskDependencyFlag){
@@ -311,7 +375,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         logger.info("本次创建任务执行脚本如下: " + taskCode);
 
         SchedulerFacade schedulerClient = CaesarScheduleUtils.getSchedulerClient();
-        SchedulerModel schedulerModel = CaesarScheduleUtils.convertScheduleConfig(scheduleInfo);
+        SchedulerModel schedulerModel = CaesarScheduleUtils.convertScheduleConfigFromScheduleInfoVo(scheduleInfo);
         ScheduleResponse scheduleResponse = schedulerClient.deployTask(schedulerModel);
 
         logger.log(Level.INFO,"任务(0)创建(1),结果(2).",new String[]{scheduleInfo.getScheduleName(),scheduleResponse.getCode().toString(),scheduleResponse.getData().toString()});
@@ -356,7 +420,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         logger.info("本次创更新务执行脚本如下: " + taskCode);
 
         SchedulerFacade schedulerClient = CaesarScheduleUtils.getSchedulerClient();
-        SchedulerModel schedulerModel = CaesarScheduleUtils.convertScheduleConfig(scheduleInfo);
+        SchedulerModel schedulerModel = CaesarScheduleUtils.convertScheduleConfigFromScheduleInfoVo(scheduleInfo);
         ScheduleResponse scheduleResponse = schedulerClient.deployTask(schedulerModel);
 
         logger.log(Level.INFO,"任务(0)更新(1),结果(2).",new String[]{scheduleInfo.getScheduleName(),scheduleResponse.getCode().toString(),scheduleResponse.getData().toString()});

@@ -132,6 +132,7 @@ public class SchedulerFacade {
 
 
 
+    @Deprecated
     public JSONObject queryTaskList(String project,String workFlow) {
         SchedulerInstance instance = null;
         try {
@@ -142,6 +143,25 @@ public class SchedulerFacade {
         JSONObject jsonObject = null;
         try {
             jsonObject = instance.queryTaskList(project, workFlow);
+        } catch (ProjectNotExistsException e) {
+            throw new RuntimeException(e);
+        } catch (GenTaskCodeFaildException e) {
+            throw new RuntimeException(e);
+        }
+        return jsonObject;
+    }
+
+
+    public JSONObject queryProcessTaskList(String project,String workFlow) {
+        SchedulerInstance instance = null;
+        try {
+            instance = schedulerFactory.createScheduler();
+        } catch (NotExistsDolphinLevelException e) {
+            e.printStackTrace();
+        }
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = instance.queryProcessTaskList(project, workFlow);
         } catch (ProjectNotExistsException e) {
             throw new RuntimeException(e);
         } catch (GenTaskCodeFaildException e) {

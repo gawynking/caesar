@@ -209,4 +209,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             ") t2 on t1.task_name = t2.task_name \n" +
             "where t1.is_online = 1")
     CaesarTask getTaskOnlineVersionInfoFromReviewTaskId(int taskId);
+
+    @Select("select id from caesar_task where version = #{version}")
+    Integer getTaskIdByVersion(Integer version);
 }

@@ -25,10 +25,20 @@ public class DolphinSchedulerApiTest {
 
 
     String baseUrl = "http://localhost:12345/dolphinscheduler";
-    String token = "86c184558e3e773655504a39e01a1eb6";
-    long projectCode = 14576322429504l;
+    String token = "b8f1c0059e65d24d9175799caa3da893";
+    long projectCode = 17606131924800L;
     DolphinSchedulerAPI schedulerAPI = new DolphinSchedulerAPI320(baseUrl,token);
 
+
+    @Test
+    public void twoTest001() throws Exception{
+
+        long code = 17606141664448l;
+
+        JSONObject jsonObject = schedulerAPI.queryProcessDefinitionByCode(projectCode, code);
+        System.out.println(jsonObject);
+
+    }
 
 
     @Test

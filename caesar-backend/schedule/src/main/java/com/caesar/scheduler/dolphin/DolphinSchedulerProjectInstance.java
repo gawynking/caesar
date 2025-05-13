@@ -567,5 +567,10 @@ public class DolphinSchedulerProjectInstance extends DolphinSchedulerBaseInstanc
         return processList;
     }
 
+    @Override
+    public JSONObject queryProcessTaskList(String project, String workFlow) throws ProjectNotExistsException, GenTaskCodeFaildException {
+        return null;
+    }
+
 
 }

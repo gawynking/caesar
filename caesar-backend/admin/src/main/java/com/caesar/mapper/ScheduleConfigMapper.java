@@ -1,8 +1,9 @@
 package com.caesar.mapper;
 
-import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarScheduleConfig;
+import com.caesar.entity.CaesarScheduleDependency;
+import com.caesar.entity.bo.CaesarScheduleConfigInfoBo;
 import com.caesar.entity.dto.CaesarScheduleConfigDto;
 import org.apache.ibatis.annotations.*;
 
@@ -32,6 +33,7 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
     List<CaesarScheduleConfigDto> getTaskSchedules(String taskName);
 
     @Insert("insert into caesar_schedule_config(\n" +
+            "\ttask_id,\n" +
             "\ttask_name,\n" +
             "\ttask_version,\n" +
             "\tschedule_category,\n" +
@@ -51,6 +53,7 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
             "\tperiod,\n" +
             "\tdate_value\n" +
             ")values(\n" +
+            "\t#{taskId},\n" +
             "\t#{taskName},\n" +
             "\t#{taskVersion},\n" +
             "\t#{scheduleCategory},\n" +
@@ -75,6 +78,7 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
 
     @Update("update caesar_schedule_config\n" +
             "set \n" +
+            "task_id = #{taskId},\n" +
             "task_name = #{taskName},\n" +
             "task_version=#{taskVersion},\n" +
             "schedule_category = #{scheduleCategory},\n" +
@@ -123,5 +127,38 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
             "  and t1.release_status = 1")
     List<CaesarScheduleConfigDto> findTaskScheduleConfigListFromTaskNameAndPeriod(String taskName, String period);
 
-    List<CaesarScheduleConfig> getAllCaesarSchedulerConfig();
+
+    @Select("select * from caesar_schedule_config")
+    @Results({
+            @Result(property = "id", column = "id"),
+            @Result(property = "taskId", column = "task_id"),
+            @Result(property = "taskName", column = "task_name"),
+            @Result(property = "taskVersion", column = "task_version"),
+            @Result(property = "scheduleCategory", column = "schedule_category"),
+            @Result(property = "scheduleLevel", column = "schedule_level"),
+            @Result(property = "project", column = "project"),
+            @Result(property = "scheduleCode", column = "schedule_code"),
+            @Result(property = "scheduleName", column = "schedule_name"),
+            @Result(property = "releaseStatus", column = "release_status"),
+            @Result(property = "taskType", column = "task_type"),
+            @Result(property = "scheduleParams", column = "schedule_params"),
+            @Result(property = "taskPriority", column = "task_priority"),
+            @Result(property = "failRetryTimes", column = "fail_retry_times"),
+            @Result(property = "failRetryInterval", column = "fail_retry_interval"),
+            @Result(property = "beginTime", column = "begin_time"),
+            @Result(property = "ownerId", column = "owner_id"),
+            @Result(property = "version", column = "version"),
+            @Result(property = "period", column = "period"),
+            @Result(property = "dateValue", column = "date_value"),
+            @Result(property = "genType", column = "gen_type"),
+            @Result(property = "createTime", column = "create_time"),
+
+            @Result(property = "dependencys", column = "schedule_code", javaType = List.class, many = @Many(select = "getDependenciesByScheduleCode"))
+
+    })
+    List<CaesarScheduleConfigInfoBo> getAllCaesarSystemSchedulerConfigs();
+
+    @Select("select * from caesar_schedule_dependency where schedule_code = #{scheduleCode}")
+    CaesarScheduleDependency getDependenciesByScheduleCode(String scheduleCode);
 }
+
