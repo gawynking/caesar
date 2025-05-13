@@ -3,6 +3,7 @@ package com.caesar.entity.vo.request;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ToString
@@ -26,7 +27,7 @@ public class GeneralScheduleInfoVo {
     String period = "day";    // 调度周期
     String dateValue = "today"; // 依赖日期值
 
-    List<Dependency> dependency;
+    List<Dependency> dependency = new ArrayList<>();
 
     String ownerName; // 创建人标识
     String taskCode;

@@ -122,7 +122,7 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
 
     @Select("select t1.* \n" +
             "from caesar_schedule_config t1 \n" +
-            "where t1.task_name like '#{taskName}%'\n" +
+            "where t1.task_name like #{taskName}\n" +
             "  and t1.period = #{period}\n" +
             "  and t1.release_status = 1")
     List<CaesarScheduleConfigDto> findTaskScheduleConfigListFromTaskNameAndPeriod(String taskName, String period);
@@ -153,7 +153,7 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
             @Result(property = "genType", column = "gen_type"),
             @Result(property = "createTime", column = "create_time"),
 
-            @Result(property = "dependencys", column = "schedule_code", javaType = List.class, many = @Many(select = "getDependenciesByScheduleCode"))
+            @Result(property = "dependencies", column = "schedule_code", javaType = List.class, many = @Many(select = "getDependenciesByScheduleCode"))
 
     })
     List<CaesarScheduleConfigInfoBo> getAllCaesarSystemSchedulerConfigs();

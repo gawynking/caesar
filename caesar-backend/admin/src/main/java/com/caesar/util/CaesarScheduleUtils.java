@@ -58,7 +58,7 @@ public class CaesarScheduleUtils {
         schedulerModel.setIsDelete(scheduleInfo.getIsDelete());
 
         List<DependencyModel> dependencyModels = new ArrayList<>();
-        for(GeneralScheduleInfoVo.Dependency dependency:scheduleInfo.getDependency()){
+        for(GeneralScheduleInfoVo.Dependency dependency:Optional.ofNullable(scheduleInfo.getDependency()).orElse(new ArrayList<>())){
             DependencyModel dependencyModel = new DependencyModel();
             dependencyModel.setDependency(dependency.getPreScheduleName());
             dependencyModel.setPeriod(SchedulingPeriod.fromString(scheduleInfo.getPeriod()));
@@ -94,7 +94,7 @@ public class CaesarScheduleUtils {
         schedulerModel.setIsDelete(false);
 
         List<DependencyModel> dependencyModels = new ArrayList<>();
-        for(CaesarScheduleDependency dependency :scheduleConfigInfoBo.getDependencies()){
+        for(CaesarScheduleDependency dependency :Optional.ofNullable(scheduleConfigInfoBo.getDependencies()).orElse(new ArrayList<>())){
             DependencyModel dependencyModel = new DependencyModel();
             String preScheduleName = null;
             for(CaesarScheduleConfigInfoBo tmpScheduleConfigInfoBo :scheduleConfigInfoBos){
@@ -103,8 +103,8 @@ public class CaesarScheduleUtils {
                 }
             }
             dependencyModel.setDependency(preScheduleName); // 名称
-            dependencyModel.setPeriod(SchedulingPeriod.fromString(scheduleConfigInfoBo.getPeriod()));
-            dependencyModel.setDateValue(scheduleConfigInfoBo.getDateValue());
+            dependencyModel.setPeriod(SchedulingPeriod.fromString(scheduleConfigInfoBo.getPeriod())); // workflow无效
+            dependencyModel.setDateValue(scheduleConfigInfoBo.getDateValue()); // workflow无效
             dependencyModels.add(dependencyModel);
         }
         schedulerModel.setDependency(dependencyModels);
@@ -224,7 +224,7 @@ public class CaesarScheduleUtils {
                 continue;
             }
 //            caesarScheduleConfigInfoBo.setProject(); // 外部获取
-            caesarScheduleConfigInfoBo.setScheduleCode(schedulerConfig.getString("code"));
+//            caesarScheduleConfigInfoBo.setScheduleCode(schedulerConfig.getString("code")); // 两边scheduleCode代表并不相等
             caesarScheduleConfigInfoBo.setScheduleName(schedulerConfig.getString("name"));
             if(schedulerConfig.getString("flag").equals("YES")){
                 caesarScheduleConfigInfoBo.setReleaseStatus(1);
@@ -237,7 +237,7 @@ public class CaesarScheduleUtils {
                 continue;
             }
 
-            caesarScheduleConfigInfoBo.setScheduleParams(schedulerConfig.getString("taskParams"));
+//            caesarScheduleConfigInfoBo.setScheduleParams(schedulerConfig.getString("taskParams")); // 这俩参数并不相等
             if(schedulerConfig.getString("taskPriority").equals("HIGHEST") || schedulerConfig.getString("taskPriority").equals("HIGH")){
                 caesarScheduleConfigInfoBo.setTaskPriority(3);
             }else if(schedulerConfig.getString("taskPriority").equals("MEDIUM")){

@@ -3,10 +3,12 @@ package com.caesar.entity.bo;
 import com.caesar.entity.BaseEntity;
 import com.caesar.entity.CaesarScheduleDependency;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
 @Data
+@ToString
 public class CaesarScheduleConfigInfoBo extends BaseEntity{
 
     Integer taskId;                 // 调度对应任务名称
@@ -31,5 +33,7 @@ public class CaesarScheduleConfigInfoBo extends BaseEntity{
     int genType = 1;                // 生成方式: 1-Caesar系统创建 2-同步自调度系统
 
     List<CaesarScheduleDependency> dependencies; // 任务依赖
+
+
 
 }

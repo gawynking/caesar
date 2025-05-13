@@ -919,7 +919,8 @@ export default {
                 }
             } else {
                 // 发送 POST 请求到后端
-                await this.$axios.post('/scheduler/updateTaskSchedule', data)
+                // await this.$axios.post('/scheduler/updateTaskSchedule', data)
+                await this.$axios.post('/scheduler/genTaskSchedule', data)
                     .then(response => {
                         // 请求成功后的处理
                         if (response.data.data.success) {

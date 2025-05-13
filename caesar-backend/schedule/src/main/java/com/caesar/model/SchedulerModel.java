@@ -3,11 +3,13 @@ package com.caesar.model;
 import com.caesar.enums.SchedulerEnum;
 import com.caesar.enums.TaskTypeEnum;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
 
 @Data
+@ToString
 public class SchedulerModel {
 
     // 调度系统
