@@ -539,14 +539,14 @@ public abstract class DolphinSchedulerAPI {
      * @throws IOException
      */
     public JSONObject createTaskBindsWorkFlow(
-            long projectCode,
-            long processDefinitionCode,
-            String taskDefinitionJsonObj,
-            String upstreamCodes
+            long projectCode, // 项目编码
+            long processDefinitionCode, // 工作流编码
+            String taskDefinitionJsonObj, // 任务详情
+            String upstreamCodes // 上游依赖任务编码列表,逗号分隔
     ) throws IOException{
         String url = baseUrl + String.format("/projects/%d/task-definition/save-single",projectCode);
         Map<String, String> params = new HashMap<>();
-        /** processDefinitionCode格式：
+        /** taskDefinitionJsonObj格式: 对应 ShellModel
          * {
          *   "code": 14815478458304,
          *   "delayTime": "0",
@@ -594,10 +594,10 @@ public abstract class DolphinSchedulerAPI {
      * @throws IOException
      */
     public JSONObject updateTaskWithUpstream(
-            long projectCode,
-            long code,
-            String taskDefinitionJsonObj,
-            String upstreamCodes
+            long projectCode, // 项目编码
+            long code, // 工作流编码
+            String taskDefinitionJsonObj, // 项目详细信息
+            String upstreamCodes // 上游依赖任务编码列表,逗号分隔
     ) throws IOException{
         String url = baseUrl + String.format("/projects/%d/task-definition/%d/with-upstream",projectCode,code);
         Map<String, String> params = new HashMap<>();

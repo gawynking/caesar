@@ -12,7 +12,9 @@ import com.caesar.scheduler.dolphin.model.ShellModel;
 import com.caesar.util.StringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -119,8 +121,8 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         taskDefinitionJsonObj = shellModel.toJSONObject().toString();
 
         StringBuffer buffer = new StringBuffer();
-        List<DependencyModel> dependencyList = schedulerModel.getDependency();
-        for(DependencyModel dependency:dependencyList){
+        List<DependencyModel> dependencyList = Optional.ofNullable(schedulerModel.getDependency()).orElse(new ArrayList<>());
+        for(DependencyModel dependency :dependencyList){
             Long taskDefinitionCode = getTaskDefinitionCodeFromTaskDefinitionName(projectCode, processDefinitionCode, dependency.getDependency());
             if(null != taskDefinitionCode) {
                 buffer.append(taskDefinitionCode).append(",");
@@ -171,14 +173,17 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         if(StringUtils.isEmpty(project)){
             throw new ProjectNotExistsException("Project不能为空");
         }
+
         projectCode = getProjectCodeFromProjectName(project);
         if(null == projectCode){
             throw new ProjectNotExistsException("DolphinScheduler没有定义指定Project");
         }
+
         processDefinitionCode = super.getProcessDefinitionCodeFromProcessDefinitionName(projectCode, workFlow);
         if(null == processDefinitionCode){
             throw new GenTaskCodeFaildException("更新的processDefinitionCode不存在");
         }
+
         Long taskDefinitionCode = getTaskDefinitionCodeFromTaskDefinitionName(projectCode, processDefinitionCode, schedulerModel.getTaskNodeName());
         if(null == taskDefinitionCode){
             throw new TaskCodeNotNullException("TaskCode不能为空");
@@ -208,6 +213,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         if(buffer.length()>1) {
             upstreamCodes = buffer.delete(buffer.length() - 1, buffer.length()).toString();
         }
+
         JSONObject result = null;
         try {
             // 1 下线调度

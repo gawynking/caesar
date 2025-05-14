@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DependencyModel {
 
-    String dependency;
+    String dependency; // 依赖的调度名称
     SchedulingPeriod period = SchedulingPeriod.DAY;
     String dateValue = "today";
 

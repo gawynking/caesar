@@ -1,6 +1,8 @@
 package com.caesar.enums;
 
 public enum SchedulingPeriod {
+
+    HOUR("hour"),
     DAY("day"),
     WEEK("week"),
     MONTH("month");
