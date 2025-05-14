@@ -18,9 +18,6 @@ public class CaesarConfig {
     @Value("${schedule.system}")
     private String scheduleSystem;
 
-    @Value("${schedule.project}")
-    private String scheduleProject;
-
     @Value("${schedule.base-url}")
     private String scheduleBaseUrl;
 
@@ -32,5 +29,18 @@ public class CaesarConfig {
 
     @Value("${schedule.level}")
     private String scheduleLevel;
+
+
+//    @Value("${schedule.projects}")
+    private String scheduleProjects;
+
+    @Value("${schedule.projects.hour}")
+    private String scheduleProjectHour;
+    @Value("${schedule.projects.day}")
+    private String scheduleProjectDay;
+    @Value("${schedule.projects.week}")
+    private String scheduleProjectWeek;
+    @Value("${schedule.projects.month}")
+    private String scheduleProjectMonth;
 
 }

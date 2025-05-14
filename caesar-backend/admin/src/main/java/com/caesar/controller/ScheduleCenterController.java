@@ -107,17 +107,6 @@ public class ScheduleCenterController {
     }
 
 
-    @GetMapping("/getTaskSchedules")
-    public JsonResponse<List<ScheduleInfoVo>> getTaskSchedules(@RequestParam String taskName){
-        try {
-            return JsonResponse.success(scheduleCenterService.getTaskSchedules(taskName));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return JsonResponse.fail("获取任务调度列表信息失败");
-    }
-
-
     @GetMapping("/getTaskSchedule")
     public JsonResponse<ScheduleInfoVo> getTaskSchedule(@RequestParam String scheduleName){
         try {
@@ -126,6 +115,17 @@ public class ScheduleCenterController {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取任务调度信息失败");
+    }
+
+
+    @GetMapping("/getTaskSchedules")
+    public JsonResponse<List<ScheduleInfoVo>> getTaskSchedules(@RequestParam String taskName){
+        try {
+            return JsonResponse.success(scheduleCenterService.getTaskSchedules(taskName));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("获取任务调度列表信息失败");
     }
 
 

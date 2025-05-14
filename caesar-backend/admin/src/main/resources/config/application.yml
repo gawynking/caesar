@@ -14,14 +14,21 @@ spring:
     password: mysql
 
 
+
+## 调度模块配置信息
 schedule:
   category: dolphin
   system: dolphinscheduler
-  project: caesar___caesar
   base-url: http://127.0.0.1:12345/dolphinscheduler
   version: 3.2.0
   token: b8f1c0059e65d24d9175799caa3da893
   level: workflow
+  projects: ## 格式 ${project}___${workflow}
+    hour: caesar___caesar_hour
+    day: caesar___caesar_day
+    week: caesar___caesar_week
+    month: caesar___caesar_month
+
 
 
 ## 执行引擎配置信息

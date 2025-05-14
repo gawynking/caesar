@@ -7,6 +7,7 @@ import com.caesar.config.SchedulerConstant;
 import com.caesar.entity.CaesarScheduleDependency;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.bo.CaesarScheduleConfigInfoBo;
+import com.caesar.entity.dto.CaesarTaskExecuteRecordDto;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.enums.PriorityEnum;
 import com.caesar.enums.SchedulerEnum;
@@ -16,11 +17,14 @@ import com.caesar.exception.EngineNotDefineException;
 import com.caesar.model.DependencyModel;
 import com.caesar.model.SchedulerModel;
 import com.caesar.model.code.TemplateUtils;
+import com.caesar.model.code.enums.DatePeriod;
+import com.caesar.runner.params.TaskInfo;
 import com.caesar.scheduler.SchedulerFacade;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,6 +96,18 @@ public class CaesarScheduleUtils {
         schedulerModel.setGlobalParams(scheduleConfigInfoBo.getScheduleParams()); // 格式
         schedulerModel.setReleaseState(1);
         schedulerModel.setIsDelete(false);
+        schedulerModel.setSchedulingPeriod(scheduleConfigInfoBo.getPeriod());
+        if(scheduleConfigInfoBo.getPeriod().equals("hour")){
+            schedulerModel.setScheduleInterval(1);
+        } else if (scheduleConfigInfoBo.getPeriod().equals("day")) {
+            schedulerModel.setScheduleInterval(15);
+        } else if (scheduleConfigInfoBo.getPeriod().equals("week")) {
+            schedulerModel.setScheduleInterval(6);
+        } else if (scheduleConfigInfoBo.getPeriod().equals("month")) {
+            schedulerModel.setScheduleInterval(1);
+        }else {
+            throw new RuntimeException();
+        }
 
         List<DependencyModel> dependencyModels = new ArrayList<>();
         for(CaesarScheduleDependency dependency :Optional.ofNullable(scheduleConfigInfoBo.getDependencies()).orElse(new ArrayList<>())){
@@ -109,16 +125,24 @@ public class CaesarScheduleUtils {
         }
         schedulerModel.setDependency(dependencyModels);
 
-
-        String taskCode = null;
-        try {
-            taskCode = TemplateUtils.transformSqlTemplate(taskInfo.getTaskScript()).getScript();
-        } catch (EngineNotDefineException e) {
-            throw new Exception(e);
-        }
-        schedulerModel.setExecTaskScript(taskCode);
+        // 获取调度执行脚本
+        String executeScript = getTaskProductionExecuteScript(scheduleConfigInfoBo.getPeriod(),taskInfo);
+        schedulerModel.setExecTaskScript(executeScript);
 
         return schedulerModel;
+    }
+
+
+
+    public static String getTaskProductionExecuteScript(String period, CaesarTask taskInfo){
+        CaesarTaskExecuteRecordDto taskExecuteRecordDto = new CaesarTaskExecuteRecordDto();
+        JSONObject parameter = JSONUtils.getJSONObjectFromMap(TemplateUtils.generalRefreshParameter(DatePeriod.fromKey(period), new Date()));
+        taskExecuteRecordDto.setParameter(parameter.toJSONString());
+        taskExecuteRecordDto.setEnvironment("production");
+        taskExecuteRecordDto.setPeriod(period);
+        TaskInfo task = TaskUtils.generalTaskInfo(taskExecuteRecordDto, taskInfo);
+        String executeScript = EngineUtils.getTaskExecuteScript(task);
+        return executeScript;
     }
 
 
