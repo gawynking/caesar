@@ -203,6 +203,7 @@ public abstract class DolphinSchedulerBaseInstance {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         JSONArray taskDefinitionList = processDefinitionJson.getJSONObject("data").getJSONArray("taskDefinitionList");
         for(int i=0; i<taskDefinitionList.size(); i++){
             JSONObject tmpTaskDefinition = taskDefinitionList.getJSONObject(i);

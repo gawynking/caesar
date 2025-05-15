@@ -160,5 +160,41 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
 
     @Select("select * from caesar_schedule_dependency where schedule_code = #{scheduleCode}")
     CaesarScheduleDependency getDependenciesByScheduleCode(String scheduleCode);
+
+    @Select("select * from caesar_schedule_config where release_status = 1")
+    @Results({
+            @Result(property = "id", column = "id"),
+            @Result(property = "taskId", column = "task_id"),
+            @Result(property = "taskName", column = "task_name"),
+            @Result(property = "taskVersion", column = "task_version"),
+            @Result(property = "scheduleCategory", column = "schedule_category"),
+            @Result(property = "scheduleLevel", column = "schedule_level"),
+            @Result(property = "project", column = "project"),
+            @Result(property = "scheduleCode", column = "schedule_code"),
+            @Result(property = "scheduleName", column = "schedule_name"),
+            @Result(property = "releaseStatus", column = "release_status"),
+            @Result(property = "taskType", column = "task_type"),
+            @Result(property = "scheduleParams", column = "schedule_params"),
+            @Result(property = "taskPriority", column = "task_priority"),
+            @Result(property = "failRetryTimes", column = "fail_retry_times"),
+            @Result(property = "failRetryInterval", column = "fail_retry_interval"),
+            @Result(property = "beginTime", column = "begin_time"),
+            @Result(property = "ownerId", column = "owner_id"),
+            @Result(property = "version", column = "version"),
+            @Result(property = "period", column = "period"),
+            @Result(property = "dateValue", column = "date_value"),
+            @Result(property = "genType", column = "gen_type"),
+            @Result(property = "createTime", column = "create_time"),
+
+            @Result(property = "dependencies", column = "schedule_code", javaType = List.class, many = @Many(select = "getDependenciesByScheduleCode"))
+
+    })
+    List<CaesarScheduleConfigInfoBo> getAllOnlineCaesarSystemSchedulerConfigs();
+
+    @Select("select * from caesar_schedule_config where schedule_code = #{scheduleCode}")
+    CaesarScheduleConfig getSscheduleConfigByScheduleCode(String scheduleCode);
+
+    @Select("select * from caesar_schedule_config where schedule_name = #{scheduleName}")
+    CaesarScheduleConfigDto findScheduleConfigFromScheduleName(String scheduleName);
 }
 

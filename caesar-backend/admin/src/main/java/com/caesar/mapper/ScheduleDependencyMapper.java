@@ -2,10 +2,7 @@ package com.caesar.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.caesar.entity.CaesarScheduleDependency;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -36,7 +33,7 @@ public interface ScheduleDependencyMapper extends BaseMapper<CaesarScheduleDepen
             "\t#{joinType},\n" +
             "\t#{ownerId}\n" +
             ")")
-    Boolean updateTaskDependency(CaesarScheduleDependency dependency);
+    Boolean saveTaskDependency(CaesarScheduleDependency dependency);
 
 
     @Select("select * from caesar_schedule_dependency where schedule_code = #{scheduleCode}")
@@ -57,4 +54,7 @@ public interface ScheduleDependencyMapper extends BaseMapper<CaesarScheduleDepen
             "\tgroup by schedule_code \n" +
             ") t2 on t1.schedule_code = t2.schdule_code")
     List<CaesarScheduleDependency> getTaskScheduleDependency(String scheduleName);
+
+    @Update("update caesar_schedule_dependency set join_type = #{joinType},owner_id = #{ownerId} where schedule_code = #{scheduleCode} and pre_schedule_code = #{preScheduleCode}")
+    Boolean updateTaskDependency(CaesarScheduleDependency scheduleDependency);
 }

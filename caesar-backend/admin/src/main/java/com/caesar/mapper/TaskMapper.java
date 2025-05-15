@@ -212,4 +212,8 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
 
     @Select("select id from caesar_task where version = #{version}")
     Integer getTaskIdByVersion(Integer version);
+
+    @Select("select * from caesar_task where version = #{version}")
+    CaesarTask getTaskInfoFromVersion(Integer version);
+
 }

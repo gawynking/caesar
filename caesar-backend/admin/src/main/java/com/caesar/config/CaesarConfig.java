@@ -4,10 +4,6 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 @Configuration
 @Data
 public class CaesarConfig {
@@ -29,6 +25,11 @@ public class CaesarConfig {
 
     @Value("${schedule.level}")
     private String scheduleLevel;
+
+
+    @Value("${schedule.sync-mode}")
+    private String syncMode;
+
 
 
 //    @Value("${schedule.projects}")

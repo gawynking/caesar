@@ -1,6 +1,7 @@
 package com.caesar.scheduler.dolphin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.caesar.config.SchedulerConstant;
 import com.caesar.exception.GenTaskCodeFaildException;
 import com.caesar.exception.ProjectNotExistsException;
 import com.caesar.exception.TaskCodeNotNullException;
@@ -46,6 +47,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
             project = projectArray[0];
             workFlow = projectArray[1];
         }
+
         if(StringUtils.isEmpty(project)){
             throw new ProjectNotExistsException("Project不能为空");
         }
@@ -60,16 +62,15 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
             throw new GenTaskCodeFaildException("更新的processDefinitionCode不存在");
         }
 
+
         JSONObject result = null;
         Long taskDefinitionCode = getTaskDefinitionCodeFromTaskDefinitionName(projectCode, processDefinitionCode, schedulerModel.getTaskNodeName());
         if(null == taskDefinitionCode){
             result = this.createTask(schedulerModel);
+        }else if(schedulerModel.getIsDelete()){
+            result = deleteTask(schedulerModel);
         }else{
-            if(schedulerModel.getIsDelete()){
-                result = deleteTask(schedulerModel);
-            }else{
-                result = updateTask(schedulerModel);
-            }
+            result = updateTask(schedulerModel);
         }
 
         return result;
@@ -92,6 +93,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
             project = projectArray[0];
             workFlow = projectArray[1];
         }
+
         if(StringUtils.isEmpty(project)){
             throw new ProjectNotExistsException("Project不能为空");
         }
@@ -116,6 +118,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         ShellModel shellModel = (ShellModel) BaseModel.getModelMapper().get(ShellModel.class.getName()).getModel();
         shellModel.setCode(taskCode);
         shellModel.setName(schedulerModel.getTaskNodeName());
+        shellModel.setFlag(schedulerModel.getReleaseState()==1?"YES":"NO");
         shellModel.getTaskParams().setRawScript(schedulerModel.getExecTaskScript());
 
         taskDefinitionJsonObj = shellModel.toJSONObject().toString();
@@ -133,18 +136,21 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         }
 
         JSONObject result = null;
+        int tmpReleaseState = schedulerModel.getReleaseState();
         try {
             // 1 下线调度
             Integer scheduleId = getScheduleIdFromPorcessDefinitionCode(projectCode, processDefinitionCode);
             publishScheduleOffline(projectCode, scheduleId);
             // 2 下线工作流
             schedulerModel.setReleaseState(0);
-            release(schedulerModel);
+            releaseWorkflow(schedulerModel);
+            schedulerModel.setReleaseState(tmpReleaseState);
             // 3 创建新任务
             result = this.schedulerAPI.createTaskBindsWorkFlow(projectCode, processDefinitionCode, taskDefinitionJsonObj, upstreamCodes);
             // 4 上线工作流
             schedulerModel.setReleaseState(1);
-            release(schedulerModel);
+            releaseWorkflow(schedulerModel);
+            schedulerModel.setReleaseState(tmpReleaseState);
             // 5 上线调度
             publishScheduleOnline(projectCode, scheduleId);
         } catch (IOException e) {
@@ -170,6 +176,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
             project = projectArray[0];
             workFlow = projectArray[1];
         }
+
         if(StringUtils.isEmpty(project)){
             throw new ProjectNotExistsException("Project不能为空");
         }
@@ -188,6 +195,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         if(null == taskDefinitionCode){
             throw new TaskCodeNotNullException("TaskCode不能为空");
         }
+
         JSONObject taskDefinitionDetail = null;
         try {
             taskDefinitionDetail = this.schedulerAPI.queryTaskDefinitionDetail(projectCode, taskDefinitionCode);
@@ -198,6 +206,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         ShellModel shellModel = (ShellModel) BaseModel.getModelMapper().get(ShellModel.class.getName()).getModel();
         shellModel.setCode(taskDefinitionCode);
         shellModel.setName(schedulerModel.getTaskNodeName());
+        shellModel.setFlag(schedulerModel.getReleaseState()==1?"YES":"NO");
         shellModel.getTaskParams().setRawScript(schedulerModel.getExecTaskScript());
 
         taskDefinitionJsonObj = shellModel.toJSONObject().toString();
@@ -215,18 +224,21 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
         }
 
         JSONObject result = null;
+        int tmpReleaseState = schedulerModel.getReleaseState();
         try {
             // 1 下线调度
             Integer scheduleId = getScheduleIdFromPorcessDefinitionCode(projectCode, processDefinitionCode);
             publishScheduleOffline(projectCode, scheduleId);
             // 2 下线工作流
             schedulerModel.setReleaseState(0);
-            release(schedulerModel);
+            releaseWorkflow(schedulerModel);
+            schedulerModel.setReleaseState(tmpReleaseState);
             // 3 更新任务
             result = this.schedulerAPI.updateTaskWithUpstream(projectCode,taskDefinitionCode,taskDefinitionJsonObj,upstreamCodes);
             // 4 上线工作流
             schedulerModel.setReleaseState(1);
-            release(schedulerModel);
+            releaseWorkflow(schedulerModel);
+            schedulerModel.setReleaseState(tmpReleaseState);
             // 5 上线调度
             publishScheduleOnline(projectCode, scheduleId);
         } catch (IOException e) {
@@ -237,6 +249,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
 
     @Override
     public JSONObject deleteTask(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException,TaskCodeNotNullException {
+
         String projectStr = schedulerModel.getProject();
         String project = null;
         String workFlow = null;
@@ -245,35 +258,42 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
             project = projectArray[0];
             workFlow = projectArray[1];
         }
+
         if(StringUtils.isEmpty(project)){
             throw new ProjectNotExistsException("Project不能为空");
         }
+
         Long projectCode = getProjectCodeFromProjectName(project);
         if(null == projectCode){
             throw new ProjectNotExistsException("DolphinScheduler没有定义指定Project");
         }
+
         Long processDefinitionCode = super.getProcessDefinitionCodeFromProcessDefinitionName(projectCode, workFlow);
         if(null == processDefinitionCode){
             throw new GenTaskCodeFaildException("更新的processDefinitionCode不存在");
         }
+
         Long taskDefinitionCode = getTaskDefinitionCodeFromTaskDefinitionName(projectCode, processDefinitionCode, schedulerModel.getTaskNodeName());
         if(null == taskDefinitionCode){
             throw new TaskCodeNotNullException("TaskCode不能为空");
         }
 
         JSONObject result = null;
+        int tmpReleaseState = schedulerModel.getReleaseState();
         try {
             // 1 下线调度
             Integer scheduleId = getScheduleIdFromPorcessDefinitionCode(projectCode, processDefinitionCode);
             publishScheduleOffline(projectCode, scheduleId);
             // 2 下线工作流
             schedulerModel.setReleaseState(0);
-            release(schedulerModel);
+            releaseWorkflow(schedulerModel);
+            schedulerModel.setReleaseState(tmpReleaseState);
             // 3 删除任务
             result = this.schedulerAPI.deleteTaskDefinitionByCode(projectCode, taskDefinitionCode);
             // 4 上线工作流
             schedulerModel.setReleaseState(1);
-            release(schedulerModel);
+            releaseWorkflow(schedulerModel);
+            schedulerModel.setReleaseState(tmpReleaseState);
             // 5 上线调度
             publishScheduleOnline(projectCode, scheduleId);
         } catch (IOException e) {
@@ -283,8 +303,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
     }
 
 
-    @Override
-    public JSONObject release(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException {
+    public JSONObject releaseWorkflow(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException {
         String projectStr = schedulerModel.getProject();
         String nameStr = schedulerModel.getTaskNodeName();
 

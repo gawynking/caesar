@@ -1,6 +1,7 @@
 package com.caesar.controller;
 
 import com.caesar.entity.CaesarScheduleCluster;
+import com.caesar.entity.dto.CaesarScheduleConfigDto;
 import com.caesar.entity.vo.CaesarScheduleClusterVo;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.entity.vo.response.ScheduleBaseInfoVo;
@@ -15,11 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/scheduler")
 public class ScheduleCenterController {
 
+    private static final Logger logger = Logger.getLogger(ScheduleCenterController.class.getName());
 
     @Autowired
     ScheduleCenterService scheduleCenterService;
@@ -147,42 +150,71 @@ public class ScheduleCenterController {
     @PostMapping("/genTaskSchedule")
     public JsonResponse<String> genTaskSchedule(@RequestBody GeneralScheduleInfoVo scheduleInfo){
         try {
+
+            String scheduleName = scheduleInfo.getScheduleName();
+            CaesarScheduleConfigDto scheduleConfigDto = scheduleCenterService.findScheduleConfigFromScheduleName(scheduleName);
+            if(null != scheduleConfigDto){
+                logger.info(String.format("创建调度已经存在配置,专为更新: 入参 %s; 已存在配置: %s",scheduleInfo,scheduleConfigDto));
+                return this.updateTaskSchedule(scheduleInfo);
+            }
+
             if(scheduleCenterService.genTaskSchedule(scheduleInfo)) {
-                return JsonResponse.success("生成任务新调度任务成功");
+                return JsonResponse.success("生成新调度任务成功");
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return JsonResponse.fail("生成任务新调度任务失败");
+        return JsonResponse.fail("生成新调度任务失败");
     }
 
 
     @PostMapping("/updateTaskSchedule")
     public JsonResponse<String> updateTaskSchedule(@RequestBody GeneralScheduleInfoVo scheduleInfo){
         try {
+
+            String scheduleName = scheduleInfo.getScheduleName();
+            CaesarScheduleConfigDto scheduleConfigDto = scheduleCenterService.findScheduleConfigFromScheduleName(scheduleName);
+            if(null == scheduleConfigDto){
+                logger.info(String.format("更新调度不存在配置,转为创建任务: 入参 %s ",scheduleInfo));
+                return this.genTaskSchedule(scheduleInfo);
+            }
+
             if(scheduleCenterService.updateTaskSchedule(scheduleInfo)) {
-                return JsonResponse.success("更新任务调度任务成功");
+                return JsonResponse.success("更新调度任务成功");
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return JsonResponse.fail("更新任务调度任务失败");
+        return JsonResponse.fail("更新调度任务失败");
     }
 
 
     @PostMapping("/deleteTaskSchedule")
     public JsonResponse<String> deleteTaskSchedule(@RequestBody String scheduleName){
         try {
+
+            CaesarScheduleConfigDto scheduleConfigDto = scheduleCenterService.findScheduleConfigFromScheduleName(scheduleName);
+            if(null == scheduleConfigDto){
+                logger.info(String.format("删除任务不存在,入参: %s",scheduleName));
+                return JsonResponse.fail("删除调度任务不存在");
+            }
+
+
             if(scheduleCenterService.deleteTaskSchedule(scheduleName)) {
-                return JsonResponse.success("删除任务调度任务成功");
+                return JsonResponse.success("删除调度任务成功");
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return JsonResponse.fail("删除任务调度任务失败");
+        return JsonResponse.fail("删除调度任务失败");
     }
 
 
+    /**
+     * 用于手动同步
+     *
+     * @return
+     */
     @PostMapping("/syncCaesarSchedulerConfig")
     public JsonResponse<Boolean> syncCaesarSchedulerConfig(){
         try {

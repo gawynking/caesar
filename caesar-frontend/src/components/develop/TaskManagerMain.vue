@@ -760,7 +760,8 @@ export default {
                 } else {
                     currentTab.scheduleConfig.system = "Hera";
                 }
-                currentTab.scheduleConfig.project = baseInfo.project;
+                currentTab.scheduleConfig.projects = baseInfo.projects;
+                currentTab.scheduleConfig.project = baseInfo.projects.day;
                 currentTab.scheduleConfig.labelPosition = 'right';
                 currentTab.scheduleConfig.taskNodeName = currentTab.taskInfo.taskName + ".";
                 currentTab.scheduleConfig.taskNodeNameSuffix = "";
@@ -880,7 +881,7 @@ export default {
                 project: currentTab.scheduleConfig.project,
                 scheduleCode: null,
                 scheduleName: currentTab.taskInfo.taskName + "." + currentTab.scheduleConfig.taskNodeNameSuffix,
-                releaseStatus: 1,
+                releaseStatus: 2,
                 taskType: 1,
                 scheduleParams: "[]",
                 taskPriority: taskPriority,
