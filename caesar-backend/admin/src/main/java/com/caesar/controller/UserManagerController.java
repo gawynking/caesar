@@ -138,4 +138,19 @@ public class UserManagerController {
         return JsonResponse.fail("Username转userId失败");
     }
 
+
+    @GetMapping("/validAdminUser")
+    public JsonResponse<Boolean> validAdminUser(@RequestParam String userName){
+        try {
+            Boolean isAdmin = userService.validAdminUser(userName);
+            if(null != isAdmin && isAdmin){
+                return JsonResponse.success(true);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsonResponse.fail("false");
+    }
+
+
 }

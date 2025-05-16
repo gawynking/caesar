@@ -14,6 +14,7 @@ import com.caesar.entity.vo.request.TaskExecuteVo;
 import com.caesar.entity.vo.request.TaskRefreshVo;
 import com.caesar.entity.vo.response.CaesarTaskVersionVo;
 import com.caesar.entity.vo.response.MenuDbs;
+import com.caesar.entity.vo.response.ScheduleInfoVo;
 import com.caesar.model.JsonResponse;
 import com.caesar.model.MenuModel;
 import com.caesar.model.MenuNode;
@@ -59,6 +60,8 @@ public class DevelopCenterController {
     @Autowired
     TaskExecuteService taskExecuteService;
 
+    @Autowired
+    ScheduleCenterService scheduleCenterService;
 
 
     @GetMapping("/listTask")
@@ -122,6 +125,21 @@ public class DevelopCenterController {
     @GetMapping("/deleteTask")
     public JsonResponse<String> deleteTask(@RequestParam(value = "taskName", required = false) String taskName) {
         try {
+
+            List<CaesarTaskVo> taskInfos = developCenterService.getTaskInfos(taskName);
+            for(CaesarTaskVo task :taskInfos){
+                if(task.getIsReleased() == 1){
+                    return JsonResponse.fail("不能删除已发版任务");
+                }
+            }
+
+            List<ScheduleInfoVo> taskSchedules = scheduleCenterService.getTaskSchedules(taskName);
+            for(ScheduleInfoVo scheduleInfo :taskSchedules){
+                if(scheduleInfo.getReleaseStatus() == 1){
+                    return JsonResponse.fail("任务在线,不能删除在线任务");
+                }
+            }
+
             if (developCenterService.markDeletedTaskFromTaskName(taskName)) {
                 return JsonResponse.success("删除任务成功");
             }

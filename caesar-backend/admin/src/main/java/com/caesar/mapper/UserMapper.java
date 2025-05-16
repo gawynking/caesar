@@ -50,4 +50,12 @@ public interface UserMapper extends BaseMapper<CaesarUser> {
 
     @Select("select * from caesar_user")
     List<CaesarUserVo> getUserList();
+
+    @Select("select max(1)\n" +
+            "from caesar_user t1 \n" +
+            "join caesar_user_role t2 on t1.id = t2.user_id \n" +
+            "join caesar_role t3 on t2.role_id = t3.id \n" +
+            "where t3.id = 1 \n" +
+            "  and t1.username = #{userName}")
+    Boolean validAdminUser(String userName);
 }

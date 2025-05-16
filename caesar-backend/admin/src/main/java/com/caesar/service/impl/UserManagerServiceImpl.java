@@ -62,4 +62,9 @@ public class UserManagerServiceImpl extends ServiceImpl<UserMapper, CaesarUser> 
         return userMapper.getUserList();
     }
 
+    @Override
+    public Boolean validAdminUser(String userName) {
+        return userMapper.validAdminUser(userName);
+    }
+
 }

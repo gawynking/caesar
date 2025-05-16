@@ -248,6 +248,11 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
             return new ArrayList<>();
         }
 
+        Map<String, String> scheduleCodeSet = new HashMap<>();
+        List<CaesarScheduleConfig> selfScheduleConfigs = scheduleConfigMapper.getScheduleConfigsByTaskId(taskInfo.getId());
+        for(CaesarScheduleConfig selfScheduleConfig :selfScheduleConfigs){
+            scheduleCodeSet.put(selfScheduleConfig.getScheduleCode(), null);
+        }
 
         // 计算返回列表
         List<TaskDependency> effectiveDependencies = new ArrayList<>();
@@ -267,11 +272,13 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
                     List<CaesarScheduleConfigDto> caesarScheduleConfigs = Optional.ofNullable(scheduleConfigMapper.findTaskScheduleConfigListFromTaskNameAndPeriod(depTablename+"%",period.toLowerCase())).orElse(new ArrayList<>());
 
                     for(CaesarScheduleConfigDto caesarScheduleConfig :caesarScheduleConfigs){
-                        TaskDependency taskDependency = new TaskDependency();
-                        taskDependency.setDependencyName(caesarScheduleConfig.getScheduleName());
-                        taskDependency.setSchedulerCode(caesarScheduleConfig.getScheduleCode());
-                        taskDependency.setJoinTypeDesc("自动识别");
-                        effectiveDependencies.add(taskDependency);
+                        if(!scheduleCodeSet.containsKey(caesarScheduleConfig.getScheduleCode())) {
+                            TaskDependency taskDependency = new TaskDependency();
+                            taskDependency.setDependencyName(caesarScheduleConfig.getScheduleName());
+                            taskDependency.setSchedulerCode(caesarScheduleConfig.getScheduleCode());
+                            taskDependency.setJoinTypeDesc("自动识别");
+                            effectiveDependencies.add(taskDependency);
+                        }
                     }
 
                 }
@@ -470,8 +477,8 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         scheduleConfigMapper.updateTaskSchedule(scheduleConfig);
 
         for(GeneralScheduleInfoVo.Dependency dependency :Optional.ofNullable(scheduleInfo.getDependency()).orElse(new ArrayList<>())){
-            dependency.setPreScheduleName(scheduleConfigMapper.getScheduleNameFromScheduleCode(dependency.getPreScheduleCode()));
-//            dependency.setPreScheduleCode(scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(dependency.getPreScheduleName()));
+//            dependency.setPreScheduleName(scheduleConfigMapper.getScheduleNameFromScheduleCode(dependency.getPreScheduleCode()));
+            dependency.setPreScheduleCode(scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(dependency.getPreScheduleName()));
             CaesarScheduleConfig preScheduleConfig = scheduleConfigMapper.getSscheduleConfigByScheduleCode(dependency.getPreScheduleCode());
             if(null != preScheduleConfig && preScheduleConfig.getReleaseStatus() == 1){
                 this.updateTaskScheduleDenpendency(scheduleCode,dependency);

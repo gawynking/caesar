@@ -24,4 +24,6 @@ public interface UserManagerService extends IService<CaesarUser> {
     boolean addUserGroup(CaesarUserGroup userGroup);
 
     List<CaesarUserVo> getUserList();
+
+    Boolean validAdminUser(String userName);
 }

@@ -196,5 +196,8 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
 
     @Select("select * from caesar_schedule_config where schedule_name = #{scheduleName}")
     CaesarScheduleConfigDto findScheduleConfigFromScheduleName(String scheduleName);
+
+    @Select("select * from caesar_schedule_config where task_id = #{taskId}")
+    List<CaesarScheduleConfig> getScheduleConfigsByTaskId(int taskId);
 }
 
