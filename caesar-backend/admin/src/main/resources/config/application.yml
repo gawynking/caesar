@@ -23,7 +23,11 @@ schedule:
   version: 3.2.0
   token: b8f1c0059e65d24d9175799caa3da893
   level: workflow
-  ## 调度同步方式: created - 表示创建调度时即完成同步动作; interval - 表示间隔多久自动同步; close - 关闭自动同步操作,这种条件下只能手动同步配置信息
+  ## 调度同步方式:
+    # created - 表示创建调度时即完成同步动作;
+    # interval - 表示间隔多久自动同步;
+    # review - 审核通过同步调度任务;
+    # close - 关闭自动同步操作,这种条件下只能手动同步配置信息;
   sync-mode: created
   projects: ## 格式 ${project}___${workflow}
     hour: caesar___caesar_hour
