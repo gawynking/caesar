@@ -694,7 +694,8 @@ export default {
                     environment: this.environment,
                     period: this.form.period,
                     startDate: startDate,
-                    endDate: endDate
+                    endDate: endDate,
+                    username: this.loginUser
                 }
                 const response = await this.$axios.post('/develop/refresh', requestData);
                 if (response.data.status === 'success') {

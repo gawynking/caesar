@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class CaesarTaskExecuteRecord extends BaseEntity{
 
-    int planUuid;
+    String planUuid;
     String uuid;
     int taskId;
     String taskName;

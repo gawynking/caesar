@@ -3,27 +3,35 @@ package com.caesar.controller;
 import com.caesar.core.cache.Cache;
 import com.caesar.core.review.ReviewLevel;
 import com.caesar.entity.CaesarTask;
+import com.caesar.entity.CaesarTaskTestCase;
 import com.caesar.entity.dto.CaesarReviewTaskDto;
 import com.caesar.entity.dto.CaesarTaskDto;
 import com.caesar.entity.dto.CaesarTaskPublishDto;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.TaskPublishVo;
+import com.caesar.entity.vo.request.VerificationTestingVo;
 import com.caesar.model.JsonResponse;
 import com.caesar.service.*;
 import com.caesar.tool.BeanConverterTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 @RestController
 @RequestMapping("/review")
 public class CodeReviewCenterController {
 
+    private static final Logger logger = Logger.getLogger(CodeReviewCenterController.class.getName());
 
     @Autowired
     DevelopCenterService developCenterService;
+
+    @Autowired
+    ScheduleCenterService scheduleCenterService;
 
     @Autowired
     TaskExecuteService taskExecuteService;
@@ -37,6 +45,36 @@ public class CodeReviewCenterController {
     @Autowired
     UserManagerService userManagerService;
 
+
+
+    @GetMapping("/getTestCases")
+    public JsonResponse<List<CaesarTaskTestCase>> getTestCases(
+            @RequestParam String username,
+            @RequestParam(required = false) String taskName,
+            @RequestParam(required = false) Integer testResult) {
+
+        try {
+            List<CaesarTaskTestCase> testCases = taskExecuteService.getTestCases(
+                    userManagerService.getUserIdFromUserName(username),
+                    taskName,
+                    testResult
+            );
+            return JsonResponse.success(testCases);
+        } catch (Exception e) {
+            logger.info("获取测试用例失败");
+            return JsonResponse.fail("获取测试用例失败");
+        }
+    }
+
+
+    /**
+     * 验证测试
+     */
+    @PostMapping("/verificationTesting")
+    public JsonResponse<Boolean> verificationTesting(@RequestBody VerificationTestingVo verificationTestingVo){
+        Boolean testing = taskExecuteService.verificationTesting(verificationTestingVo);
+        return JsonResponse.success(testing);
+    }
 
 
     @PostMapping("/publish")

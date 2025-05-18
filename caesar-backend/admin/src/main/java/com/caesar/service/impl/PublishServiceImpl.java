@@ -70,8 +70,8 @@ public class PublishServiceImpl extends ServiceImpl<TaskMapper, CaesarTask> impl
                         taskReviewRecord.setUuid(UUID.randomUUID().toString().toLowerCase().replaceAll("-", ""));
                         taskReviewRecord.setTaskId(publishDto.getTaskId());
                         taskReviewRecord.setTaskName(publishDto.getTaskName());
-                        taskReviewRecord.setReviewBatch(reviewBatch);
-                        taskReviewRecord.setVersion(publishDto.getVersion());
+//                        taskReviewRecord.setReviewBatch(reviewBatch);
+                        taskReviewRecord.setTaskVersion(publishDto.getVersion());
                         if(null != preVersion){
                             taskReviewRecord.setPreVersion(preVersion);
                         }

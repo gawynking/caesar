@@ -21,4 +21,7 @@ public class CaesarTaskExecuteRecordDto {
     String parameter;
     String period;
 
+    // 过程属性
+    int userId;
+
 }

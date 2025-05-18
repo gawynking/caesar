@@ -20,7 +20,7 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             "\tfrom caesar_task_review_record \n" +
             "\twhere task_id = #{taskId} \n" +
             ") t2 on t1.id = t2.id \n" +
-            "join caesar_task_review_record t3 on t1.review_batch = t3.review_batch \n" +
+            "join caesar_task_review_record t3 on true \n" +
             "where t3.task_id = #{taskId} \n" +
             "  and t3.review_status = 1 -- 审核中")
     Boolean taskAlreadySubmitted(int taskId);
@@ -28,10 +28,9 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
 
     @Select("select \n" +
             "\tt1.id,\n" +
-            "\tt1.review_batch,\n" +
             "\tt1.task_id,\n" +
             "\tt1.task_name,\n" +
-            "\tt1.version,\n" +
+            "\tt1.task_version,\n" +
             "\tt1.pre_version,\n" +
             "\tt1.submit_username,\n" +
             "\tt1.code_desc,\n" +
@@ -44,10 +43,9 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             "from (\n" +
             "\tselect \n" +
             "\t\tt1.id,\n" +
-            "\t\tt1.review_batch,\n" +
             "\t\tt1.task_id,\n" +
             "\t\tt1.task_name,\n" +
-            "\t\tt1.version,\n" +
+            "\t\tt1.task_version,\n" +
             "\t\tt1.pre_version,\n" +
             "\t\tt2.username as submit_username,\n" +
             "\t\tt1.code_desc,\n" +
@@ -59,22 +57,22 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             "\t\tt4.task_script as last_code \n" +
             "\tfrom caesar_task_review_record t1 \n" +
             "\tjoin caesar_user t2 on t1.submit_user_id = t2.id \n" +
-            "\tjoin caesar_task t3 on t1.task_name = t3.task_name and t1.version = t3.version \n" +
+            "\tjoin caesar_task t3 on t1.task_name = t3.task_name and t1.task_version = t3.version \n" +
             "\tjoin caesar_task t4 on t1.task_name = t4.task_name and t1.pre_version = t4.version \n" +
             "\twhere find_in_set(#{loginUserId},review_users)\n" +
             "\t  and review_result = 0 -- 处理中 \n" +
             "\t  and review_status = 1 -- 处理中 \n" +
             ") t1 \n" +
             "join caesar_task_review_record t2 \n" +
-            "\t on t1.review_batch = t2.review_batch \n" +
+            "\t on true \n" +
             "\tand t2.review_result = 0 \n" +
             "\tand t2.review_status = 1 \n" +
             "group by \n" +
             "\tt1.id,\n" +
-            "\tt1.review_batch,\n" +
+
             "\tt1.task_id,\n" +
             "\tt1.task_name,\n" +
-            "\tt1.version,\n" +
+            "\tt1.task_version,\n" +
             "\tt1.pre_version,\n" +
             "\tt1.submit_username,\n" +
             "\tt1.code_desc,\n" +

@@ -72,7 +72,7 @@ public class DevelopCenterController {
             caesarMenus.addAll(developCenterService.listTaskToMenu(partten));
             List<MenuNode> menuNodes = MenuModel.convert(caesarMenus);
             return JsonResponse.success(menuNodes);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取任务列表失败");
@@ -92,10 +92,10 @@ public class DevelopCenterController {
             caesarTaskDto.setCreatedUser(createdUser);
             caesarTaskDto.setUpdatedUser(updatedUser);
             boolean flag = developCenterService.addTask(caesarTaskDto);
-            if(flag) {
+            if (flag) {
                 return JsonResponse.success("添加任务成功");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("添加任务失败");
@@ -114,12 +114,11 @@ public class DevelopCenterController {
                 return JsonResponse.success(String.valueOf(currentVersion));
             }
             return JsonResponse.fail("任务没有变化");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("保存任务失败");
     }
-
 
 
     @GetMapping("/deleteTask")
@@ -127,15 +126,15 @@ public class DevelopCenterController {
         try {
 
             List<CaesarTaskVo> taskInfos = developCenterService.getTaskInfos(taskName);
-            for(CaesarTaskVo task :taskInfos){
-                if(task.getIsReleased() == 1){
+            for (CaesarTaskVo task : taskInfos) {
+                if (task.getIsReleased() == 1) {
                     return JsonResponse.fail("不能删除已发版任务");
                 }
             }
 
             List<ScheduleInfoVo> taskSchedules = scheduleCenterService.getTaskSchedules(taskName);
-            for(ScheduleInfoVo scheduleInfo :taskSchedules){
-                if(scheduleInfo.getReleaseStatus() == 1){
+            for (ScheduleInfoVo scheduleInfo : taskSchedules) {
+                if (scheduleInfo.getReleaseStatus() == 1) {
                     return JsonResponse.fail("任务在线,不能删除在线任务");
                 }
             }
@@ -143,7 +142,7 @@ public class DevelopCenterController {
             if (developCenterService.markDeletedTaskFromTaskName(taskName)) {
                 return JsonResponse.success("删除任务成功");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("删除任务失败");
@@ -155,7 +154,7 @@ public class DevelopCenterController {
         try {
             List<CaesarTaskVo> caesarTaskVos = developCenterService.getTaskInfos(taskName);
             return JsonResponse.success(caesarTaskVos);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取任务信息失败");
@@ -166,7 +165,7 @@ public class DevelopCenterController {
         try {
             CaesarTaskVo caesarTaskVo = developCenterService.getCurrentTaskInfo(taskName);
             return JsonResponse.success(caesarTaskVo);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取当前任务信息失败");
@@ -177,7 +176,7 @@ public class DevelopCenterController {
         try {
             CaesarTaskVersionVo taskVersions = developCenterService.getTaskVersions(taskName, currentVersion);
             return JsonResponse.success(taskVersions);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取任务版本失败");
@@ -188,7 +187,7 @@ public class DevelopCenterController {
     public JsonResponse<List<CaesarTaskParameterVo>> getParams() {
         try {
             return JsonResponse.success(developCenterService.getParams());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取参数失败");
@@ -198,7 +197,7 @@ public class DevelopCenterController {
     public JsonResponse<CaesarTaskVo> getCurrentTaskInfoWithVersion(@RequestParam String taskName, int version) {
         try {
             return JsonResponse.success(developCenterService.getCurrentTaskInfoWithVersion(taskName, version));
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取当前版本对应任务信息失败");
@@ -208,7 +207,7 @@ public class DevelopCenterController {
     public JsonResponse<List<CaesarEngineVo>> getEngines() {
         try {
             return JsonResponse.success(engineService.getEngines());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取引擎列表失败");
@@ -221,7 +220,7 @@ public class DevelopCenterController {
             CaesarGroupServiceVo caesarGroupServiceVo = new CaesarGroupServiceVo();
             List<CaesarGroupServiceVo> caesarGroupServiceVos = caesarGroupServiceVo.assembleData(dbs);
             return JsonResponse.success(caesarGroupServiceVos);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取数据库信息失败");
@@ -233,7 +232,7 @@ public class DevelopCenterController {
         try {
             List<MenuDbs> menuDbs = groupServiceService.getMenuDbs();
             return JsonResponse.success(menuDbs);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("获取菜单对应数据库信息失败");
@@ -249,7 +248,7 @@ public class DevelopCenterController {
             taskExecuteRecordDto.setEnvironment(taskExecuteVo.getEnvironment());
             taskExecuteService.execute(taskExecuteRecordDto);
             return JsonResponse.success("执行成功");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("执行失败");
@@ -264,7 +263,7 @@ public class DevelopCenterController {
             CaesarTaskVo currentTaskInfo = developCenterService.getCurrentTaskInfoWithVersion(taskRefreshVo.getTaskName(), taskRefreshVo.getVersion());
 
             CaesarTaskExecutePlan taskExecutePlan = BeanConverterTools.convert(taskRefreshVo, CaesarTaskExecutePlan.class);
-            taskExecutePlan.setUuid(UUID.randomUUID().toString().replaceAll("-","").toLowerCase());
+            taskExecutePlan.setUuid(UUID.randomUUID().toString().replaceAll("-", "").toLowerCase());
             taskExecutePlan.setTaskId(currentTaskInfo.getId());
             taskExecutePlan.setTaskVersion(taskRefreshVo.getVersion());
             taskExecutePlan.setStatus(1);
@@ -285,11 +284,12 @@ public class DevelopCenterController {
 //                        parameter.put("end_date", DateUtils.dateFormat(startDate, "yyyy-MM-dd"));
                         JSONObject parameter = JSONUtils.getJSONObjectFromMap(TemplateUtils.generalRefreshParameter(DatePeriod.fromKey("day"), startDate));
                         caesarTaskExecuteRecordDto.setPlanUuid(taskExecutePlan.getUuid());
-                        caesarTaskExecuteRecordDto.setUuid(UUID.randomUUID().toString().replaceAll("-","").toLowerCase());
+                        caesarTaskExecuteRecordDto.setUuid(UUID.randomUUID().toString().replaceAll("-", "").toLowerCase());
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
                         caesarTaskExecuteRecordDto.setPeriod("day");
+                        caesarTaskExecuteRecordDto.setUserId(userManagerService.getUserIdFromUserName(taskRefreshVo.getUsername()));
                         taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
                         startDate = DateUtils.dateAdd(startDate, 1, false);
                     }
@@ -303,11 +303,12 @@ public class DevelopCenterController {
 //                        parameter.put("end_date", DateUtils.getMonthEnd(startDate));
                         JSONObject parameter = JSONUtils.getJSONObjectFromMap(TemplateUtils.generalRefreshParameter(DatePeriod.fromKey("month"), startDate));
                         caesarTaskExecuteRecordDto.setPlanUuid(taskExecutePlan.getUuid());
-                        caesarTaskExecuteRecordDto.setUuid(UUID.randomUUID().toString().replaceAll("-","").toLowerCase());
+                        caesarTaskExecuteRecordDto.setUuid(UUID.randomUUID().toString().replaceAll("-", "").toLowerCase());
                         caesarTaskExecuteRecordDto.setParameter(parameter.toJSONString());
                         caesarTaskExecuteRecordDto.setTaskId(currentTaskInfo.getId());
                         caesarTaskExecuteRecordDto.setEnvironment(taskRefreshVo.getEnvironment());
                         caesarTaskExecuteRecordDto.setPeriod("month");
+                        caesarTaskExecuteRecordDto.setUserId(userManagerService.getUserIdFromUserName(taskRefreshVo.getUsername()));
                         taskExecuteRecordDtos.add(caesarTaskExecuteRecordDto);
                         startDate = DateUtils.addMonth(startDate, 1);
                     }
@@ -319,14 +320,10 @@ public class DevelopCenterController {
                 e.printStackTrace();
             }
 
-            Boolean flag = taskExecuteService.refresh(taskExecuteRecordDtos);
-            if(flag){
-                return JsonResponse.success("提交回刷任务全部成功");
-            }else{
-                return JsonResponse.success("提交回刷任务未全部成功");
-            }
+            taskExecuteService.refresh(taskExecuteRecordDtos);
+            return JsonResponse.success("回刷任务提交成功");
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return JsonResponse.fail("提交回刷任务失败");

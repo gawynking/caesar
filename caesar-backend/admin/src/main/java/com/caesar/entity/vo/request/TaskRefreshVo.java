@@ -11,5 +11,6 @@ public class TaskRefreshVo {
     String period;
     String startDate;
     String endDate;
+    String username;
 
 }

@@ -319,7 +319,7 @@ create table caesar_task_review_config(
     id             int auto_increment                                                       comment 'ID',
     group_id       int not null                                                             comment '组ID',
     task_type      int not null                                                             comment '任务类型: 1-离线任务 2-实时任务',
-    review_level   int not null                                                             comment '审核级别: 1-initial 2-secondary 3-final',
+    review_level   int not null                                                             comment '审核级别,整数从小到大',
     review_user    int not null                                                             comment '审核员',
     review_desc    varchar(128)                                                             comment '审核节点描述',
     create_time    timestamp not null default current_timestamp                             comment '创建时间戳',
@@ -337,14 +337,13 @@ drop table if exists caesar_task_review_record;
 create table caesar_task_review_record(
     id              int auto_increment                                                       comment 'ID',
     uuid            varchar(64)                                                              comment 'UUID',
-    review_batch    varchar(64)                                                              comment '审核批次',
     task_id         int not null                                                             comment '任务ID',
     task_name       varchar(128) not null                                                    comment '任务名称',
-    version         int not null                                                             comment '版本号',
-    pre_version     int                                                                      comment '上一个版本号',
-    submit_user_id  varchar(32)                                                              comment '提交用户ID',
+    task_version    int not null                                                             comment '任务版本号',
+    pre_version     int                                                                      comment '上一个发版任务版本号',
+    submit_user_id  int                                                                      comment '提交用户ID',
     code_desc       varchar(512)                                                             comment '任务描述',
-    review_level    int not null                                                             comment '审核级别: 1-initial 2-secondary 3-final',
+    review_level    int not null                                                             comment '审核级别: 1-测试审核 2-发版审核',
     review_users    varchar(64) not null                                                     comment '审核员ID列表,逗号分隔',
     review_user     int                                                                      comment '审核员',
     review_status   int not null                                                             comment '审核状态: 1-审核中 2-已撤回 3-已驳回 4-系统驳回 5-成功',
@@ -356,6 +355,27 @@ create table caesar_task_review_record(
 )engine = innodb default charset=utf8mb4
 comment '任务审核流程表'
 ;
+
+
+-- 测试用例表
+drop table if exists caesar_task_test_case;
+create table caesar_task_test_case(
+    id              int auto_increment                                                       comment 'ID',
+    uuid            varchar(64)                                                              comment 'UUID',
+    task_id         int not null                                                             comment '任务ID',
+    task_name       varchar(128) not null                                                    comment '任务名称',
+    task_version    int not null                                                             comment '任务版本号',
+    user_id         int                                                                      comment '提交用户ID',
+    test_code       mediumtext                                                               comment '测试SQL',
+    test_result     int not null default 0                                                   comment '是否通过: 0-处理中 1-通过 2-未通过',
+    audit_message   varchar(512)                                                             comment '测试备注',
+    create_time     timestamp not null default current_timestamp                             comment '创建时间戳',
+    update_time     timestamp not null default current_timestamp on update current_timestamp comment '更新时间戳',
+    primary key(id)
+)engine = innodb default charset=utf8mb4
+comment '测试用例表'
+;
+
 
 -- 调度配置表
 drop table if exists caesar_schedule_config;
