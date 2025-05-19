@@ -71,7 +71,7 @@
       <el-table :data="testCases" style="width: 100%" border stripe highlight-current-row>
         <el-table-column prop="taskName" label="任务名称"></el-table-column>
         <el-table-column prop="taskVersion" label="版本号"></el-table-column>
-        <el-table-column prop="submitUsername" label="提交用户"></el-table-column>
+        <el-table-column prop="username" label="提交用户"></el-table-column>
         <el-table-column prop="testResult" label="测试结果" :formatter="formatTestResult"></el-table-column>
         <el-table-column prop="auditMessage" label="测试备注" show-overflow-tooltip></el-table-column>
         <el-table-column prop="createTime" label="创建时间"></el-table-column>
@@ -111,9 +111,9 @@
         <el-form-item label="版本号">
           <span>{{ currentTestTask.taskVersion }}</span>
         </el-form-item>
-        <el-form-item label="测试SQL" prop="testCode">
+        <!-- <el-form-item label="测试SQL" prop="testCode">
           <el-input type="textarea" :rows="10" v-model="currentTestTask.testCode" readonly></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="测试结果" prop="testResult">
           <el-radio-group v-model="testForm.testResult">
             <el-radio :label="1">通过</el-radio>
@@ -176,12 +176,6 @@ export default {
         auditMessage: ''
       }
     };
-  },
-  created() {
-    EventBus.$on('login-user', data => {
-      this.loginUser = sessionStorage.getItem('loginUser');
-      this.checkAdminStatus();
-    });
   },
   mounted() {
     this.loginUser = sessionStorage.getItem('loginUser');
@@ -286,7 +280,7 @@ export default {
         });
     },
     submitTest() {
-      this.$axios.post('/task/verificationTesting', this.testForm)
+      this.$axios.post('/review/verificationTesting', this.testForm)
         .then(response => {
           this.testDialogVisible = false;
           this.fetchTestCases();

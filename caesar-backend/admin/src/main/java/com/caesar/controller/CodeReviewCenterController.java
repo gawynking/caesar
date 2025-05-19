@@ -10,6 +10,7 @@ import com.caesar.entity.dto.CaesarTaskPublishDto;
 import com.caesar.entity.vo.CaesarTaskVo;
 import com.caesar.entity.vo.request.TaskPublishVo;
 import com.caesar.entity.vo.request.VerificationTestingVo;
+import com.caesar.entity.vo.response.CaesarTaskTestCaseVo;
 import com.caesar.model.JsonResponse;
 import com.caesar.service.*;
 import com.caesar.tool.BeanConverterTools;
@@ -48,7 +49,7 @@ public class CodeReviewCenterController {
 
 
     @GetMapping("/getTestCases")
-    public JsonResponse<List<CaesarTaskTestCase>> getTestCases(
+    public JsonResponse<List<CaesarTaskTestCaseVo>> getTestCases(
             @RequestParam String username,
             @RequestParam(required = false) String taskName,
             @RequestParam(required = false) Integer testResult) {
@@ -59,7 +60,16 @@ public class CodeReviewCenterController {
                     taskName,
                     testResult
             );
-            return JsonResponse.success(testCases);
+
+            List<CaesarTaskTestCaseVo> caesarTaskTestCaseVos = new ArrayList<>();
+            for(CaesarTaskTestCase testCase :testCases){
+                CaesarTaskTestCaseVo tmpTestCaseVo = BeanConverterTools.convert(testCase, CaesarTaskTestCaseVo.class);
+                tmpTestCaseVo.setUsername(username);
+                tmpTestCaseVo.setCreateTime(testCase.getCreateTime());
+                caesarTaskTestCaseVos.add(tmpTestCaseVo);
+            }
+
+            return JsonResponse.success(caesarTaskTestCaseVos);
         } catch (Exception e) {
             logger.info("获取测试用例失败");
             return JsonResponse.fail("获取测试用例失败");
