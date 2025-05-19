@@ -59,7 +59,8 @@
                                 </el-dropdown>
 
 
-                                <el-button type="primary" size="mini" plain @click="handleCodeAreaEdit">{{ item.editName }}</el-button>
+                                <el-button type="primary" size="mini" plain @click="handleCodeAreaEdit">{{ item.editName
+                                    }}</el-button>
                                 <el-button type="primary" size="mini" plain @click="handleCodeAreaSave">保存</el-button>
 
                                 <el-dropdown @command="handleExecute" style="margin-left: 10px; margin-right: 10px;">
@@ -70,7 +71,8 @@
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item command="test">测试</el-dropdown-item>
                                         <!-- <el-dropdown-item command="staging">预发</el-dropdown-item> -->
-                                        <el-dropdown-item :disabled="isOnlineTask"command="production">生产</el-dropdown-item>
+                                        <el-dropdown-item :disabled="isOnlineTask"
+                                            command="production">生产</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
 
@@ -123,19 +125,22 @@
 
 
                         <div class="main-code-editor-area" style="margin-top: 10px;">
-                            <CodeEditor v-model="item.dataDevelop.codeArea" :language="item.dataDevelop.language"
+                            <!-- <CodeEditor v-model="item.dataDevelop.codeArea" :language="item.dataDevelop.language"
                                 :readOnly="item.dataDevelop.isCodeAreaReadOnly" @input="changeTextarea"
-                                style="height: 100%"></CodeEditor>
+                                style="height: 100%">
+                            </CodeEditor> -->
+                            <monaco-editor v-model="item.dataDevelop.codeArea" language="sql" theme="vs"
+                                :options="editorOptions" :readOnly="item.dataDevelop.isCodeAreaReadOnly" />
                         </div>
 
-                        <div v-show="item.dataDevelop.isVisibleLogging" style="margin-top: 10px;">
+                        <!-- <div v-show="item.dataDevelop.isVisibleLogging" style="margin-top: 10px;">
                             <span>
                                 执行日志
                             </span>
                             <el-input type="textarea" size="small" :autosize="{ minRows: 20 }"
                                 v-model="item.dataDevelop.logArea" readonly>
                             </el-input>
-                        </div>
+                        </div> -->
 
                     </el-tab-pane>
 
@@ -146,7 +151,8 @@
                     <!-- 调度模块 -->
                     <el-tab-pane label="调度配置" name="schedule-config">
                         <div class="schedule-config">
-                            <el-form :label-position="item.scheduleConfig.labelPosition" label-width="100px" :model="item.scheduleConfig" size="mini" class="form-layout">
+                            <el-form :label-position="item.scheduleConfig.labelPosition" label-width="100px"
+                                :model="item.scheduleConfig" size="mini" class="form-layout">
                                 <el-row>
                                     <el-col :span="22">
                                         <h3>编辑区</h3>
@@ -178,8 +184,7 @@
                                                     {{ item.scheduleConfig.taskNodeName }}
                                                 </span>
                                                 <el-input v-model="item.scheduleConfig.taskNodeNameSuffix"
-                                                    :disabled="!isEditable"
-                                                    style="flex-grow: 1; margin-left: 2px;">
+                                                    :disabled="!isEditable" style="flex-grow: 1; margin-left: 2px;">
                                                 </el-input>
                                             </div>
                                         </el-form-item>
@@ -188,7 +193,8 @@
 
                                     <el-col :span="12">
                                         <el-form-item label="优先级">
-                                            <el-select v-model="item.scheduleConfig.priority" placeholder="请选择优先级" style="width: 100%">
+                                            <el-select v-model="item.scheduleConfig.priority" placeholder="请选择优先级"
+                                                style="width: 100%">
                                                 <el-option label="低" value="lower"></el-option>
                                                 <el-option label="中" value="medium"></el-option>
                                                 <el-option label="高" value="higher"></el-option>
@@ -233,7 +239,8 @@
                                     </el-col>
                                     <el-col :span="12">
                                         <el-form-item label="开始时间">
-                                            <el-input v-model="item.scheduleConfig.beginTime" style="width: 100%" disabled></el-input>
+                                            <el-input v-model="item.scheduleConfig.beginTime" style="width: 100%"
+                                                disabled></el-input>
                                         </el-form-item>
                                     </el-col>
 
@@ -246,10 +253,12 @@
                                 <el-form-item label="依赖任务">
                                     <el-divider></el-divider>
                                     <div class="align-end">
-                                        <el-button type="primary" size="mini" plain @click="fetchTaskDependencies">依赖识别</el-button>
+                                        <el-button type="primary" size="mini" plain
+                                            @click="fetchTaskDependencies">依赖识别</el-button>
                                     </div>
 
-                                    <el-empty v-if="!item.scheduleConfig.dependency.length" description="暂无依赖数据"></el-empty>
+                                    <el-empty v-if="!item.scheduleConfig.dependency.length"
+                                        description="暂无依赖数据"></el-empty>
 
                                     <el-table v-else :data="item.scheduleConfig.dependency" style="width: 100%">
                                         <el-table-column label="上游依赖">
@@ -271,14 +280,16 @@
                                         <el-table-column label="操作">
                                             <template slot-scope="scope">
                                                 <div class="operation-buttons">
-                                                    <el-button size="mini" type="danger" @click="handleDeleteDependency(scope.$index, scope.row)">删除</el-button>
+                                                    <el-button size="mini" type="danger"
+                                                        @click="handleDeleteDependency(scope.$index, scope.row)">删除</el-button>
                                                 </div>
                                             </template>
                                         </el-table-column>
                                     </el-table>
 
                                     <div class="align-end margin-top">
-                                        <el-button type="primary" size="mini" plain @click="showAddDialog">添加</el-button>
+                                        <el-button type="primary" size="mini" plain
+                                            @click="showAddDialog">添加</el-button>
                                     </div>
 
 
@@ -301,7 +312,8 @@
                                         </el-form>
                                         <span slot="footer" class="dialog-footer">
                                             <el-button @click="updateDialogVisible = false">取 消</el-button>
-                                            <el-button type="primary" @click="saveDependency">{{ isEditMode ? '保存' : '添加' }}</el-button>
+                                            <el-button type="primary" @click="saveDependency">{{ isEditMode ? '保存' :
+                                                '添加' }}</el-button>
                                         </span>
                                     </el-dialog>
 
@@ -318,7 +330,7 @@
                                 </el-form-item>
 
 
-                                
+
                                 <div class="align-end margin-top">
                                     <el-button type="primary" size="mini" plain
                                         @click="confirmSaveTaskDependency">保存</el-button>
@@ -330,14 +342,22 @@
                                         <h3>调度列表</h3>
                                     </el-divider>
 
-                                    <el-descriptions v-for="(schedule, index) in item.scheduleList" :key="index" :title="'调度名称: ' + schedule.scheduleName" :border="true">
+                                    <el-descriptions v-for="(schedule, index) in item.scheduleList" :key="index"
+                                        :title="'调度名称: ' + schedule.scheduleName" :border="true">
                                         <el-descriptions-item label="调度项目">{{ schedule.project }}</el-descriptions-item>
-                                        <el-descriptions-item label="任务类型">{{ schedule.taskType === 1 ? 'shell' : '未知类型' }}</el-descriptions-item>
-                                        <el-descriptions-item label="优先级">{{ schedule.taskPriority === 1 ? 'lower' : schedule.taskPriority === 2 ?'medium' : schedule.taskPriority === 3? 'higher' : 'other' }}</el-descriptions-item>
-                                        <el-descriptions-item label="重试间隔(分)">{{ schedule.failRetryInterval}}</el-descriptions-item>
-                                        <el-descriptions-item label="重试次数">{{schedule.failRetryTimes }}</el-descriptions-item>
+                                        <el-descriptions-item label="任务类型">{{ schedule.taskType === 1 ? 'shell' : '未知类型'
+                                            }}</el-descriptions-item>
+                                        <el-descriptions-item label="优先级">{{ schedule.taskPriority === 1 ? 'lower' :
+                                            schedule.taskPriority === 2
+                                            ?'medium' : schedule.taskPriority === 3? 'higher' : 'other'
+                                            }}</el-descriptions-item>
+                                        <el-descriptions-item label="重试间隔(分)">{{
+                                            schedule.failRetryInterval}}</el-descriptions-item>
+                                        <el-descriptions-item label="重试次数">{{ schedule.failRetryTimes
+                                            }}</el-descriptions-item>
                                         <el-descriptions-item label="调度周期">{{ schedule.period }}</el-descriptions-item>
-                                        <el-descriptions-item label="开始时间">{{ schedule.beginTime}}</el-descriptions-item>
+                                        <el-descriptions-item label="开始时间">{{
+                                            schedule.beginTime}}</el-descriptions-item>
 
                                         <el-descriptions-item label="操作">
                                             <div class="align-end margin-top" style="text-align: right;">
@@ -372,11 +392,13 @@ import CodeEditor from '../../common/CodeEditor.vue';
 import { EventBus } from '../../common/event-bus';
 import moment from 'moment-timezone';
 import { MessageBox, Message } from 'element-ui';
+import MonacoEditor from '../../common/MonacoEditor.vue';
 
 export default {
     name: 'TaskManagerMain',
     components: {
-        CodeEditor
+        CodeEditor,
+        MonacoEditor
     },
     data() {
         return {
@@ -414,6 +436,31 @@ export default {
             pickerOptions: {
                 // 你可以根据需求添加更多选项
                 selectableRange: '00:00:00 - 23:59:59', // 可选时间范围
+            },
+            editorOptions: {
+                // fontSize: 13,
+                // lineHeight: 20,
+                // wordWrap: 'on',
+                // automaticLayout: true,
+                // minimap: { enabled: false },
+                // scrollBeyondLastLine: false,
+                // roundedSelection: true,
+                // cursorBlinking: 'smooth'
+                automaticLayout: true,      // 关键！启用自动布局
+                scrollBeyondLastLine: false,
+                minimap: { enabled: false },// 关闭缩略图节省空间
+                fontSize: 13,
+                lineHeight: 20,
+                wordWrap: 'on',            // 自动换行
+                wrappingIndent: 'indent',  // 换行缩进
+                fixedOverflowWidgets: true,// 固定悬浮组件位置
+                renderLineHighlight: 'all', // 高亮当前行
+                lineNumbersMinChars: 3,    // 行号最小宽度
+                scrollbar: {
+                    verticalScrollbarSize: 8,
+                    horizontalScrollbarSize: 8,
+                    useShadows: false
+                }
             }
         }
     },
@@ -578,15 +625,15 @@ export default {
                 console.error("Failed to load data:", error);
             }
         },
-        async getUserIdFromUsername(userName){
+        async getUserIdFromUsername(userName) {
             const response = await this.$axios.get("/user/getUserIdFromUsername", {
-                    params: {
-                        userName: userName
-                    }
-                });
-                if (response.data && response.data.status === 'success') {
-                    return response.data.data.items;
+                params: {
+                    userName: userName
                 }
+            });
+            if (response.data && response.data.status === 'success') {
+                return response.data.data.items;
+            }
         },
         async getCurrentTaskInfoWithVersion(taskName, version) {
             try {
@@ -732,9 +779,9 @@ export default {
         },
 
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // 调度模块方法定义 -------------------------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------
+        // 调度模块方法定义 -------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------
         // 调度模块方法定义
         async fetchScheduleList() {
             try {
@@ -796,7 +843,7 @@ export default {
 
 
         // 添加依赖按钮 
-        showAddDialog() { 
+        showAddDialog() {
             this.isEditMode = false;
             this.currentDependency = { dependencyName: '', joinTypeDesc: '人工维护' };
             this.updateDialogVisible = true;

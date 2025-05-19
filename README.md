@@ -152,6 +152,7 @@
      npm install axios@1.7.4 --save
      npm install less-loader@6.2.0 --save-dev
      npm install moment-timezone@0.5.45
+     npm install monaco-editor@0.30.1 monaco-editor-webpack-plugin@6.0.0 --save
      ```
 
 2.   编译源码
