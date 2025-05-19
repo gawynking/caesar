@@ -145,8 +145,10 @@ public class TaskExecuteServiceImpl extends ServiceImpl<TaskExecuteMapper, Caesa
             List<CaesarTaskExecuteRecord> taskExecuteRecords = taskExecuteMapper.findRecordByPlan(taskExecuteRecordDtos.get(0).getPlanUuid());
             if (null != taskExecuteRecords && taskExecuteRecords.size() == taskExecuteRecordDtos.size()) {
                 taskExecutePlanMapper.updatePlanStatus(taskExecuteRecordDtos.get(0).getPlanUuid(), 3);
-                CaesarTask tmpTaskInfo = taskMapper.getTaskInfoFromId(taskExecuteRecordDtos.get(0).getTaskId());
-                this.executeTestCase(tmpTaskInfo.getTaskName(), tmpTaskInfo.getVersion(), taskExecuteRecordDtos.get(0).getUserId());
+                if(taskExecuteRecordDtos.get(0).getEnvironment().equals("test")){
+                    CaesarTask tmpTaskInfo = taskMapper.getTaskInfoFromId(taskExecuteRecordDtos.get(0).getTaskId());
+                    this.executeTestCase(tmpTaskInfo.getTaskName(), tmpTaskInfo.getVersion(), taskExecuteRecordDtos.get(0).getUserId());
+                }
             } else {
                 taskExecutePlanMapper.updatePlanStatus(taskExecuteRecordDtos.get(0).getPlanUuid(), 4);
             }
