@@ -16,7 +16,7 @@ public class CaesarTask extends BaseEntity{
     int isReleased;
     int isOnline;
     int isDeleted=0;
-    String taskScript;
+    String taskScript = "";
     String checksum;
     int createdUser;
     int updatedUser;

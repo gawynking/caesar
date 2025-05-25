@@ -63,4 +63,8 @@ public interface DevelopCenterService extends IService<CaesarTask> {
     Boolean currentVersionTaskOffline(int taskId);
 
     CaesarTask getTaskOnlineVersionInfoFromReviewTaskId(int taskId);
+
+    Boolean validateTaskPublish(int taskId);
+
+    void taskOnline(int taskId);
 }

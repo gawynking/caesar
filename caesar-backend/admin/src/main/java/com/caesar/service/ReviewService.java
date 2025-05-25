@@ -13,4 +13,8 @@ public interface ReviewService extends IService<CaesarTaskReviewRecord> {
     List<CaesarReviewTaskDto> getReviewTaskListByUserId(int loginUserId);
 
     Boolean review(int id,int taskId, int reviewStatus,int reviewResult, String auditMessage);
+
+    Boolean validateTaskReviewing(int taskId);
+
+    List<CaesarReviewTaskDto> getReviewTasks(Integer loginUser, String taskName, Integer reviewStatus, Integer reviewLevel);
 }

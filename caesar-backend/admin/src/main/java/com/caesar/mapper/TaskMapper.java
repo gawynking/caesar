@@ -216,4 +216,23 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
     @Select("select * from caesar_task where version = #{version}")
     CaesarTask getTaskInfoFromVersion(Integer version);
 
+    @Select("select max(1) \n" +
+            "from caesar_task \n" +
+            "where is_released = 1 \n" +
+            "  and id = #{taskId}")
+    Boolean validateTaskPublish(int taskId);
+
+    @Select("select t1.version as preVersion\n" +
+            "from caesar_task t1 \n" +
+            "join (\n" +
+            "\tselect task_name,version \n" +
+            "\tfrom caesar_task\n" +
+            "\twhere id = #{taskId}\n" +
+            ") t2 on t1.task_name = t2.task_name \n" +
+            "where t1.is_released = 1 \n" +
+            "  and t1.id = #{taskId}\n" +
+            "  and t1.version < t2.version \n" +
+            "order by t1.version \n" +
+            "limit 1")
+    Integer getTaskPreVersionReleased(int taskId);
 }

@@ -199,5 +199,10 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
 
     @Select("select * from caesar_schedule_config where task_id = #{taskId}")
     List<CaesarScheduleConfig> getScheduleConfigsByTaskId(int taskId);
+
+    @Select("select max(1)\n" +
+            "from caesar_schedule_config \n" +
+            "where task_name = #{taskName}")
+    Boolean validateTaskDeploySchedule(String taskName);
 }
 

@@ -231,5 +231,15 @@ public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTas
         return taskMapper.getTaskOnlineVersionInfoFromReviewTaskId(taskId);
     }
 
+    @Override
+    public Boolean validateTaskPublish(int taskId) {
+        return taskMapper.validateTaskPublish(taskId);
+    }
+
+    @Override
+    public void taskOnline(int taskId) {
+
+    }
+
 
 }

@@ -8,7 +8,7 @@
           <el-form-item label="任务名称">
             <el-input v-model="reviewQueryForm.taskName" placeholder="任务名称" clearable></el-input>
           </el-form-item>
-          <el-form-item label="审核状态">
+          <!-- <el-form-item label="审核状态">
             <el-select v-model="reviewQueryForm.reviewStatus" placeholder="审核状态" clearable>
               <el-option label="全部" value=""></el-option>
               <el-option label="审核中" value="1"></el-option>
@@ -17,7 +17,7 @@
               <el-option label="系统驳回" value="4"></el-option>
               <el-option label="成功" value="5"></el-option>
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="审计阶段">
             <el-select v-model="reviewQueryForm.reviewLevel" placeholder="审计阶段" clearable>
               <el-option label="全部" value=""></el-option>
@@ -38,7 +38,6 @@
         <el-table-column prop="submitUsername" label="提交用户"></el-table-column>
         <el-table-column prop="codeDesc" label="代码描述"></el-table-column>
         <el-table-column prop="reviewStatus" label="审核状态" :formatter="formatReviewStatus"></el-table-column>
-        <el-table-column prop="reviewLevel" label="审计阶段" :formatter="formatReviewLevel"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="small" @click="showReviewDialog(scope.row)">审核</el-button>
@@ -202,19 +201,13 @@ export default {
         });
     },
     fetchReviewTasks() {
-      if (!this.isAdmin) {
-        this.$message.warning('无权限访问代码审核列表');
-        return;
-      }
-      
-      const params = {
-        loginUser: this.loginUser,
-        taskName: this.reviewQueryForm.taskName,
-        reviewStatus: this.reviewQueryForm.reviewStatus,
-        reviewLevel: this.reviewQueryForm.reviewLevel
-      };
-      
-      this.$axios.get('/review/getReviewTaskList', { params })
+      this.$axios.get('/review/getReviewTaskList', { 
+        params: {
+          loginUser: this.loginUser,
+          taskName: this.reviewQueryForm.taskName,
+          reviewStatus: this.reviewQueryForm.reviewStatus,
+          reviewLevel: this.reviewQueryForm.reviewLevel
+      } })
         .then(response => {
           this.reviewTasks = response.data.data.items;
         })

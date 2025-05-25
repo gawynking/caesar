@@ -418,6 +418,45 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
         return scheduleConfigMapper.findScheduleConfigFromScheduleName(scheduleName);
     }
 
+    @Override
+    public Boolean validateTaskDeploySchedule(String taskName) {
+        return scheduleConfigMapper.validateTaskDeploySchedule(taskName);
+    }
+
+
+
+    @Override
+    public void releaseTask(int taskId) {
+
+        CaesarTask caesarTask = taskMapper.getTaskInfoFromId(taskId);
+        List<CaesarScheduleConfigInfoBo> allCaesarSystemSchedulerConfigs = scheduleConfigMapper.getAllCaesarSystemSchedulerConfigs();
+        for(CaesarScheduleConfigInfoBo scheduleConfigInfo: allCaesarSystemSchedulerConfigs){
+            if(caesarTask.getTaskName().equals(scheduleConfigInfo.getTaskName()) && scheduleConfigInfo.getReleaseStatus() == 2){
+                List<CaesarScheduleConfigInfoBo> caesarScheduleConfigInfoBosByPeriod = new ArrayList<>();
+                for(CaesarScheduleConfigInfoBo tmpConfig: allCaesarSystemSchedulerConfigs){
+                    if(scheduleConfigInfo.getPeriod().equals(tmpConfig.getPeriod())){
+                        caesarScheduleConfigInfoBosByPeriod.add(tmpConfig);
+                    }
+                }
+
+                try {
+                    SchedulerModel schedulerModel = CaesarScheduleUtils.convertScheduleConfigFromScheduleInfoBo(scheduleConfigInfo, caesarScheduleConfigInfoBosByPeriod, caesarTask);
+                    schedulerModel.setReleaseState(1); // 上线
+                    ScheduleResponse scheduleResponse = schedulerFacade.deployTask(schedulerModel); // 执行同步
+                    if(scheduleResponse.getCode() == 200){
+                    } else {
+                        logger.info(String.format("Caesar向外部调度系统同步调度[%s]失败.",scheduleConfigInfo.toString()));
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+
+    }
+
+
 
     @Override
     public synchronized Boolean genTaskSchedule(GeneralScheduleInfoVo scheduleInfo) {

@@ -319,7 +319,7 @@ create table caesar_task_review_config(
     id             int auto_increment                                                       comment 'ID',
     group_id       int not null                                                             comment '组ID',
     task_type      int not null                                                             comment '任务类型: 1-离线任务 2-实时任务',
-    review_level   int not null                                                             comment '审核级别,整数从小到大',
+    review_level   int not null default 1                                                   comment '审核级别,整数从小到大',
     review_user    int not null                                                             comment '审核员',
     review_desc    varchar(128)                                                             comment '审核节点描述',
     create_time    timestamp not null default current_timestamp                             comment '创建时间戳',
@@ -329,7 +329,6 @@ create table caesar_task_review_config(
 comment '任务审核流程表'
 ;
 insert into caesar_task_review_config(group_id,task_type,review_level,review_user,review_desc)values(1,1,1,1,'代码审核');
-insert into caesar_task_review_config(group_id,task_type,review_level,review_user,review_desc)values(1,1,3,1,'调度审核');
 
 
 -- 任务审核记录表

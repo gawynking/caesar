@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class CaesarReviewTaskDto {
     int id;
-    String reviewBatch;
     int taskId;
     String taskName;
     int version;
