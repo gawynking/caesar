@@ -21,6 +21,7 @@ public class ScheduleInfoVo {
     int version;
     String period;                  // 调度周期
     String dateValue;               // 依赖日期值
+    Boolean isOnline = false;
 
     String ownerName; // 创建人标识
 

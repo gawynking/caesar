@@ -361,10 +361,11 @@
 
                                         <el-descriptions-item label="操作">
                                             <div class="align-end margin-top" style="text-align: right;">
-                                                <el-button type="primary" size="mini" plain
-                                                    @click="handleEditConfig(schedule)">编辑</el-button>
-                                                <el-button type="danger" size="mini" plain
-                                                    @click="handleDeleteConfig(schedule)">删除</el-button>
+                                                <el-button type="primary" size="mini" plain @click="handleOnline(schedule)"> 
+                                                    {{ schedule.isOnline ? '下线' : '上线' }}
+                                                </el-button>
+                                                <el-button type="primary" size="mini" plain :disabled="schedule.isOnline" @click="handleEditConfig(schedule)">编辑</el-button>
+                                                <el-button type="danger" size="mini" plain :disabled="schedule.isOnline" @click="handleDeleteConfig(schedule)">删除</el-button>
                                             </div>
                                         </el-descriptions-item>
                                     </el-descriptions>
@@ -983,6 +984,10 @@ export default {
                         Message.error('请求失败：' + error.message);
                     });
             }
+        },
+        async handleOnline(schedule) {
+            const currentTab = this.editableTabs.find(tab => tab.name === this.editableTabsValue);
+            schedule.isOnline = !schedule.isOnline
         },
         async handleEditConfig(schedule) {
 

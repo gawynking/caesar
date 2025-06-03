@@ -195,6 +195,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
             scheduleInfoVo.setVersion(scheduleConfig.getVersion());
             scheduleInfoVo.setPeriod(scheduleConfig.getPeriod());
             scheduleInfoVo.setDateValue(scheduleConfig.getDateValue());
+            scheduleInfoVo.setIsOnline(scheduleConfig.getReleaseStatus()==1?true:false);
             scheduleInfoVo.setDependency(dependencys);
             for(CaesarScheduleDependency dependency:scheduleDependencies){
                 if(scheduleConfig.getScheduleCode().equals(dependency.getScheduleCode())){
