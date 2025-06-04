@@ -167,9 +167,8 @@ export default {
 <style scoped>
 .monaco-editor-container {
     width: 98%;
-    /* height: 100%; */
-    height: calc(100vh);
-    min-height: 650px;
+    height: calc(69vh);
+    min-height: 576px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
