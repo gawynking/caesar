@@ -71,7 +71,7 @@ public class SchedulerFacade {
         return new ScheduleResponse().faild("createTask");
     }
 
-    public ScheduleResponse updateTask(String taskId, SchedulerModel schedulerModel) {
+    public ScheduleResponse updateTask(SchedulerModel schedulerModel) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
