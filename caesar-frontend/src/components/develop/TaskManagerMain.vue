@@ -332,7 +332,7 @@
                                         <h3>在行调度列表</h3>
                                     </el-divider>
 
-                                    <el-descriptions v-for="(schedule, index) in item.scheduleList" :key="index" :title="'调度名称: ' + schedule.scheduleName" :border="true">
+                                    <el-descriptions v-for="(schedule, index) in item.scheduleList" :key="index" :title="'调度名称: ' + schedule.scheduleName + ' ;  状态: ' + (schedule.isOnline ? '调度下线' : '在线运行')" :border="true">
                                         <el-descriptions-item label="调度项目">
                                             {{ schedule.project }}
                                         </el-descriptions-item>
@@ -354,6 +354,9 @@
                                         <el-descriptions-item label="开始时间">
                                             {{schedule.beginTime}}
                                         </el-descriptions-item>
+                                        <!-- <el-descriptions-item label="调度状态">
+                                            {{schedule.isOnline ? '下线状态' : '运行状态'}}
+                                        </el-descriptions-item> -->
 
                                         <el-descriptions-item label="操作">
                                             <div class="align-end margin-top" style="text-align: right;">
