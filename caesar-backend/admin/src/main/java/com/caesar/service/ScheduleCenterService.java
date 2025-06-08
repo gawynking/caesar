@@ -38,4 +38,10 @@ public interface ScheduleCenterService extends IService<CaesarScheduleConfig> {
     Boolean validateTaskDeploySchedule(String taskName);
 
     void releaseTask(int taskId);
+
+    Boolean releaseScheduleByWorkflow(String scheduleName, Integer releaseState);
+
+    Boolean onlineScheduleByWorkflow(String scheduleName);
+
+    Boolean offlineScheduleByWorkflow(String scheduleName);
 }

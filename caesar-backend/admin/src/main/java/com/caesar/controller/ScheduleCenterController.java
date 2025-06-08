@@ -189,8 +189,8 @@ public class ScheduleCenterController {
     }
 
 
-    @PostMapping("/deleteTaskSchedule")
-    public JsonResponse<String> deleteTaskSchedule(@RequestBody String scheduleName){
+    @GetMapping("/deleteTaskSchedule")
+    public JsonResponse<String> deleteTaskSchedule(@RequestParam String scheduleName){
         try {
 
             CaesarScheduleConfigDto scheduleConfigDto = scheduleCenterService.findScheduleConfigFromScheduleName(scheduleName);
@@ -226,6 +226,26 @@ public class ScheduleCenterController {
         }
 
         return JsonResponse.fail();
+    }
+
+
+    /**
+     * 调度上下线
+     *
+     * @return
+     */
+    @GetMapping("/releaseSchedule")
+    public JsonResponse<Boolean> releaseSchedule(@RequestParam String scheduleName,@RequestParam Integer releaseState){
+
+        if(releaseState == 1){
+            scheduleCenterService.onlineScheduleByWorkflow(scheduleName);
+        } else if(releaseState==0){
+            scheduleCenterService.offlineScheduleByWorkflow(scheduleName);
+        }else {
+            return JsonResponse.fail("参数不准确,请检查后重试.");
+        }
+
+        return JsonResponse.success(true);
     }
 
 }

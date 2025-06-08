@@ -457,6 +457,69 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
 
     }
 
+    /**
+     * 调度上线/下线
+     *
+     * @param scheduleName
+     * @return
+     */
+    @Override
+    public Boolean releaseScheduleByWorkflow(String scheduleName, Integer releaseState) {
+
+        List<CaesarScheduleConfigInfoBo> allCaesarSystemSchedulerConfigs = scheduleConfigMapper.getAllCaesarSystemSchedulerConfigs();
+
+        String scheduleCode = scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(scheduleName);
+        CaesarScheduleConfigInfoBo caesarSystemSchedulerConfig = scheduleConfigMapper.getCaesarSystemSchedulerConfigByScheduleCode(scheduleCode);
+
+        List<CaesarScheduleConfigInfoBo> allCaesarSystemSchedulerConfigByPeriod = new ArrayList<>();
+        for(CaesarScheduleConfigInfoBo tmpCaesarSystemSchedulerConfig :allCaesarSystemSchedulerConfigs){
+            if(caesarSystemSchedulerConfig.getPeriod().equals(tmpCaesarSystemSchedulerConfig.getPeriod())){ // 处理同周期调度配置
+                allCaesarSystemSchedulerConfigByPeriod.add(tmpCaesarSystemSchedulerConfig);
+            }
+        }
+
+        CaesarTask taskInfo = taskMapper.getTaskInfoFromId(caesarSystemSchedulerConfig.getTaskId());
+
+        try {
+            SchedulerModel schedulerModel = CaesarScheduleUtils.convertScheduleConfigFromScheduleInfoBo(caesarSystemSchedulerConfig, allCaesarSystemSchedulerConfigByPeriod, taskInfo);
+            schedulerModel.setReleaseState(releaseState);
+            ScheduleResponse scheduleResponse = schedulerFacade.deployTask(schedulerModel); // 执行同步
+            if(scheduleResponse.getCode() == 200){
+            } else {
+                logger.info(String.format("Caesar向外部调度系统同步调度[%s]失败.",caesarSystemSchedulerConfig.toString()));
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * 调度上线
+     *
+     * @param scheduleName
+     * @return
+     */
+    @Override
+    public Boolean onlineScheduleByWorkflow(String scheduleName) {
+        return scheduleConfigMapper.onlineScheduleByWorkflow(scheduleName) && releaseScheduleByWorkflow(scheduleName,1);
+    }
+
+
+    /**
+     * 调度下线
+     *
+     * @param scheduleName
+     * @return
+     */
+    @Override
+    public Boolean offlineScheduleByWorkflow(String scheduleName) {
+        return scheduleConfigMapper.offlineScheduleByWorkflow(scheduleName) && releaseScheduleByWorkflow(scheduleName,0);
+    }
 
 
     @Override
@@ -547,11 +610,17 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
     @Override
     public synchronized Boolean deleteTaskSchedule(String scheduleName) {
 
-        String scheduleCode = scheduleConfigMapper.getTaskScheduleCodeFromScheduleName(scheduleName);
-        scheduleDependencyMapper.deleteByScheduleCode(scheduleCode);
-        scheduleConfigMapper.deleteByScheduleCode(scheduleCode);
+        List<CaesarScheduleConfig> taskScheduleCodes = scheduleConfigMapper.getTaskScheduleCodesFromScheduleName(scheduleName);
+        if(null == taskScheduleCodes || taskScheduleCodes.size() == 0){
+            return true;
+        }
+        for(CaesarScheduleConfig scheduleInfo :taskScheduleCodes){
+            scheduleDependencyMapper.deleteByScheduleCode(scheduleInfo.getScheduleCode());
+            scheduleConfigMapper.deleteByScheduleCode(scheduleInfo.getScheduleCode());
+        }
 
-        SchedulerModel scheduleModel = CaesarScheduleUtils.getDeleteScheduleModel(scheduleName);
+
+        SchedulerModel scheduleModel = CaesarScheduleUtils.getDeleteScheduleModel(scheduleName,taskScheduleCodes.get(0));
         ScheduleResponse scheduleResponse = schedulerFacade.deleteTask(scheduleModel);
 
         if(scheduleResponse.getCode() == 200){

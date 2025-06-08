@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.caesar.config.SchedulerConfig;
 import com.caesar.config.SchedulerConstant;
+import com.caesar.entity.CaesarScheduleConfig;
 import com.caesar.entity.CaesarScheduleDependency;
 import com.caesar.entity.CaesarTask;
 import com.caesar.entity.bo.CaesarScheduleConfigInfoBo;
+import com.caesar.entity.dto.CaesarScheduleConfigDto;
 import com.caesar.entity.dto.CaesarTaskExecuteRecordDto;
 import com.caesar.entity.vo.request.GeneralScheduleInfoVo;
 import com.caesar.enums.PriorityEnum;
@@ -36,12 +38,17 @@ public class CaesarScheduleUtils {
         return list;
     }
 
-    public static SchedulerModel getDeleteScheduleModel(String scheduleName) {
+
+    public static SchedulerModel getDeleteScheduleModel(String scheduleName, CaesarScheduleConfig scheduleInfo) {
         SchedulerModel schedulerModel = new SchedulerModel();
+        schedulerModel.setSystem(scheduleInfo.getScheduleCategory() == 1 ? "DolphinScheduler" : "Hera");
+        schedulerModel.setSchedulerEnum(scheduleInfo.getScheduleCategory() == 1 ? SchedulerEnum.DOLPHINSCHEDULER : SchedulerEnum.HERA);
+        schedulerModel.setProject(scheduleInfo.getProject());
         schedulerModel.setTaskNodeName(scheduleName);
         schedulerModel.setIsDelete(true);
         return schedulerModel;
     }
+
 
 
     public static SchedulerModel convertScheduleConfigFromScheduleInfoVo(GeneralScheduleInfoVo scheduleInfo) {

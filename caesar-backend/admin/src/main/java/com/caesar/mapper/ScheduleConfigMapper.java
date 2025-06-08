@@ -204,5 +204,46 @@ public interface ScheduleConfigMapper extends BaseMapper<CaesarScheduleConfig> {
             "from caesar_schedule_config \n" +
             "where task_name = #{taskName}")
     Boolean validateTaskDeploySchedule(String taskName);
+
+    @Select("select * from caesar_schedule_config where schedule_name=#{scheduleName}")
+    List<CaesarScheduleConfig> getTaskScheduleCodesFromScheduleName(String scheduleName);
+
+
+
+    @Select("select * from caesar_schedule_config where schedule_code = #{scheduleCode}")
+    @Results({
+            @Result(property = "id", column = "id"),
+            @Result(property = "taskId", column = "task_id"),
+            @Result(property = "taskName", column = "task_name"),
+            @Result(property = "taskVersion", column = "task_version"),
+            @Result(property = "scheduleCategory", column = "schedule_category"),
+            @Result(property = "scheduleLevel", column = "schedule_level"),
+            @Result(property = "project", column = "project"),
+            @Result(property = "scheduleCode", column = "schedule_code"),
+            @Result(property = "scheduleName", column = "schedule_name"),
+            @Result(property = "releaseStatus", column = "release_status"),
+            @Result(property = "taskType", column = "task_type"),
+            @Result(property = "scheduleParams", column = "schedule_params"),
+            @Result(property = "taskPriority", column = "task_priority"),
+            @Result(property = "failRetryTimes", column = "fail_retry_times"),
+            @Result(property = "failRetryInterval", column = "fail_retry_interval"),
+            @Result(property = "beginTime", column = "begin_time"),
+            @Result(property = "ownerId", column = "owner_id"),
+            @Result(property = "version", column = "version"),
+            @Result(property = "period", column = "period"),
+            @Result(property = "dateValue", column = "date_value"),
+            @Result(property = "genType", column = "gen_type"),
+            @Result(property = "createTime", column = "create_time"),
+
+            @Result(property = "dependencies", column = "schedule_code", javaType = List.class, many = @Many(select = "getDependenciesByScheduleCode"))
+
+    })
+    CaesarScheduleConfigInfoBo getCaesarSystemSchedulerConfigByScheduleCode(String scheduleCode);
+
+    @Update("update caesar_schedule_config set release_status = 1 where schedule_name = #{scheduleName}")
+    Boolean onlineScheduleByWorkflow(String scheduleName);
+
+    @Update("update caesar_schedule_config set release_status = 2 where schedule_name = #{scheduleName}")
+    Boolean offlineScheduleByWorkflow(String scheduleName);
 }
 

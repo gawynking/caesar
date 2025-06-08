@@ -98,10 +98,10 @@ public class CodeReviewCenterController {
             }
 
 
-            Boolean isDeploySchedule = scheduleCenterService.validateTaskDeploySchedule(currentTaskInfo.getTaskName());
-            if (null == isDeploySchedule || !isDeploySchedule) {
-                return JsonResponse.fail("当前发布任务没有部署调度,请先完成调度部署,然后重新发布任务.");
-            }
+//            Boolean isDeploySchedule = scheduleCenterService.validateTaskDeploySchedule(currentTaskInfo.getTaskName());
+//            if (null == isDeploySchedule || !isDeploySchedule) {
+//                return JsonResponse.fail("当前发布任务没有部署调度,请先完成调度部署,然后重新发布任务.");
+//            }
 
 
             Boolean isPublish = developCenterService.validateTaskPublish(currentTaskInfo.getId());
@@ -171,7 +171,7 @@ public class CodeReviewCenterController {
         try {
 
             // 1 调度生效
-            scheduleCenterService.releaseTask(taskId);
+//            scheduleCenterService.releaseTask(taskId);
 
             // 2 更新任务记录
             developCenterService.taskPassReview2Online(taskId);
