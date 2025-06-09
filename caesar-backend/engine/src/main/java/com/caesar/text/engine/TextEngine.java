@@ -417,7 +417,7 @@ public class TextEngine implements Engine {
                         scriptInfo.setProdScript(prodMysqlScript);
 
                         // 生成SQL脚本
-                        FileUtils.writeToFile(prodSqlFile, code.replaceAll(dbName+"."+tableName,dbName+"_test."+tableName));
+                        FileUtils.writeToFile(prodSqlFile, code.replaceAll(dbName+"."+tableName,dbName+"."+tableName));
                         FileDistributorUtils.distributeFile(prodSqlFile,this.schedulerCluster,prodSqlFile);
 
                         // 生成Shell脚本文件

@@ -68,9 +68,7 @@
                                     </el-button>
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item command="test">测试</el-dropdown-item>
-                                        <!-- <el-dropdown-item command="staging">预发</el-dropdown-item> -->
-                                        <el-dropdown-item :disabled="isOnlineTask"
-                                            command="production">生产</el-dropdown-item>
+                                        <el-dropdown-item :disabled="isOnlineTask" command="production">生产</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
 
@@ -438,14 +436,6 @@ export default {
                 selectableRange: '00:00:00 - 23:59:59', // 可选时间范围
             },
             editorOptions: {
-                // fontSize: 13,
-                // lineHeight: 20,
-                // wordWrap: 'on',
-                // automaticLayout: true,
-                // minimap: { enabled: false },
-                // scrollBeyondLastLine: false,
-                // roundedSelection: true,
-                // cursorBlinking: 'smooth'
                 automaticLayout: true,      // 关键！启用自动布局
                 scrollBeyondLastLine: false,
                 minimap: { enabled: false },// 关闭缩略图节省空间
