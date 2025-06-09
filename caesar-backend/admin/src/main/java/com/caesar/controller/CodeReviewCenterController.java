@@ -174,23 +174,15 @@ public class CodeReviewCenterController {
 //            scheduleCenterService.releaseTask(taskId);
 
             // 2 更新任务记录
-            developCenterService.taskPassReview2Online(taskId);
+            if(reviewStatus == 5 && reviewResult == 1){
+                developCenterService.releaseTask(taskId);
+            }
 
             // 3 更新数据记录
             Boolean review = reviewService.review(id, taskId, reviewStatus, reviewResult, auditMessage);
 
-            if(review){
-                return JsonResponse.success("审核成功.");
-            }
+            return JsonResponse.success("审核成功.");
 
-//            if (ReviewLevel.FINAL == ReviewLevel.fromKey(reviewLevel)) {
-//                CaesarTask onlineTask = developCenterService.getTaskOnlineVersionInfoFromReviewTaskId(taskId);
-//                if (null != onlineTask && onlineTask.getId() > 0) {
-//                    developCenterService.currentVersionTaskOffline(onlineTask.getId());
-//                }
-//                developCenterService.taskPassReview2Online(taskId);
-//                Cache.codeReviewCache.remove(taskId);
-//            }
         }catch (Exception e){
             e.printStackTrace();
         }

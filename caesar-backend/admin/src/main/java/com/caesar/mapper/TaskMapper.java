@@ -125,10 +125,13 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
     CaesarTaskVo getCurrentTaskInfo(String taskName);
 
     @Select("select \n" +
+            "\tt1.id              as id,\n" +
             "\tt1.menu_id         as menu_id,\n" +
             "\tt1.task_type       as task_type,\n" +
             "\tt1.task_name       as task_name,\n" +
             "\tt1.group_id        as group_id,\n" +
+            "\tt1.is_online       as is_online,\n" +
+            "\tt1.is_released     as is_released,\n" +
             "\tt1.datasource_info as datasource_info,\n" +
             "\tt1.engine          as engine,\n" +
             "\tt1.version         as version,\n" +
@@ -161,7 +164,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
             "from caesar_task \n" +
             "where task_name = #{taskName}\n" +
             "  and is_deleted = 0 \n" +
-            "order by update_time desc ")
+            "order by is_online desc,update_time desc")
     List<CaesarTaskVo> getTaskVersions(String taskName);
 
     @Select("select param_name,param_desc,expression from caesar_task_parameter")
@@ -183,7 +186,7 @@ public interface TaskMapper extends BaseMapper<CaesarTask> {
     Boolean checkTaskVersionIsOnline(int taskId);
 
     @Update("update caesar_task set is_released = 1,is_online = 1 where id = #{taskId}")
-    Boolean taskPassReview2Online(int taskId);
+    Boolean currentVersionTaskOnline(int taskId);
 
     @Select("select * \n" +
             "from caesar_task \n" +

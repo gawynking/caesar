@@ -16,7 +16,6 @@ import com.caesar.model.code.model.dto.TaskTemplateDto;
 import com.caesar.service.DevelopCenterService;
 import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.*;
-import com.mysql.cj.log.Log;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -217,8 +216,17 @@ public class DevelopManagerServiceImpl extends ServiceImpl<TaskMapper, CaesarTas
     }
 
     @Override
-    public Boolean taskPassReview2Online(int taskId) {
-        return taskMapper.taskPassReview2Online(taskId);
+    public Boolean releaseTask(int taskId) {
+        CaesarTask taskInfo = taskMapper.getTaskInfoFromId(taskId);
+        List<CaesarTaskVo> taskInfos = taskMapper.getTaskInfos(taskInfo.getTaskName());
+        for(CaesarTaskVo tmpTask:taskInfos){
+            if(tmpTask.getVersion() < taskInfo.getVersion()){
+                if(tmpTask.getIsOnline() == 1){
+                    taskMapper.currentVersionTaskOffline(tmpTask.getId());
+                }
+            }
+        }
+        return taskMapper.currentVersionTaskOnline(taskId);
     }
 
     @Override
