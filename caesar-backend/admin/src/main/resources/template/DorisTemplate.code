@@ -20,10 +20,13 @@ set caesar.system_user = root;
 ### Part Two ###############################################################################################
 ### Schema定义
 create table if not exists {{task_name}}(
-    id int not null auto_increment comment 'ID',
 
-    etl_time timestamp not null default current_timestamp on update current_timestamp comment 'ETL加工时间: yyyy-MM-dd HH:mm:ss' -- 审计数据、必须存在
-) engine = innodb default charset=utf8mb4
+    etl_time varchar(32) comment 'ETL加工时间: yyyy-MM-dd HH:mm:ss' -- 审计数据、必须存在
+) engine=olap
+aggregate key()
+partition by range()(
+)
+distributed by hash() buckets 16
 comment ''
 ;
 
