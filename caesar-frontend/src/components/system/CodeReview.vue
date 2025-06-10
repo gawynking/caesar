@@ -8,7 +8,7 @@
           <el-form-item label="任务名称">
             <el-input v-model="reviewQueryForm.taskName" placeholder="任务名称" clearable></el-input>
           </el-form-item>
-          <!-- <el-form-item label="审核状态">
+          <el-form-item label="审核状态">
             <el-select v-model="reviewQueryForm.reviewStatus" placeholder="审核状态" clearable>
               <el-option label="全部" value=""></el-option>
               <el-option label="审核中" value="1"></el-option>
@@ -17,13 +17,13 @@
               <el-option label="系统驳回" value="4"></el-option>
               <el-option label="成功" value="5"></el-option>
             </el-select>
-          </el-form-item> -->
-          <el-form-item label="审计阶段">
-            <el-select v-model="reviewQueryForm.reviewLevel" placeholder="审计阶段" clearable>
+          </el-form-item>
+          <el-form-item label="审核结果">
+            <el-select v-model="reviewQueryForm.reviewResult" placeholder="审核结果" clearable>
               <el-option label="全部" value=""></el-option>
-              <el-option label="初审" value="1"></el-option>
-              <el-option label="中审" value="2"></el-option>
-              <el-option label="终审" value="3"></el-option>
+              <el-option label="处理中" value="0"></el-option>
+              <el-option label="通过" value="1"></el-option>
+              <el-option label="驳回" value="-1"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -149,7 +149,7 @@ export default {
       reviewQueryForm: {
         taskName: '',
         reviewStatus: '',
-        reviewLevel: ''
+        reviewResult: ''
       },
       testQueryForm: {
         taskName: '',
@@ -206,7 +206,7 @@ export default {
           loginUser: this.loginUser,
           taskName: this.reviewQueryForm.taskName,
           reviewStatus: this.reviewQueryForm.reviewStatus,
-          reviewLevel: this.reviewQueryForm.reviewLevel
+          reviewResult: this.reviewQueryForm.reviewResult
       } })
         .then(response => {
           this.reviewTasks = response.data.data.items;

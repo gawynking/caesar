@@ -38,19 +38,13 @@ public interface TaskTestCaseMapper extends BaseMapper<CaesarTaskTestCase> {
 
     @Select("<script>" +
             "SELECT t1.* " +
-            "FROM caesar_task_test_case t1 " +
-            "JOIN (" +
-            "    SELECT task_version, MAX(update_time) AS update_time " +
-            "    FROM caesar_task_test_case " +
-            "    WHERE user_id = #{userId} " +
-            "    <if test='taskName != null and taskName != \"\"'> " +
-            "        AND task_name LIKE CONCAT('%', #{taskName}, '%') " +
-            "    </if> " +
-            "    <if test='testResult != null'> " +
-            "        AND test_result = #{testResult} " +
-            "    </if> " +
-            "    GROUP BY task_version " +
-            ") t2 ON t1.task_version = t2.task_version AND t1.update_time = t2.update_time " +
+            "FROM (select t1.* \n" +
+            "from caesar_task_test_case t1 \n" +
+            "join (\n" +
+            "\tselect max(id) as id  \n" +
+            "\tfrom caesar_task_test_case\n" +
+            "\tgroup by task_name \n" +
+            ") t2 on t1.id = t2.id) t1 " +
             "WHERE t1.user_id = #{userId} " +
             "<if test='taskName != null and taskName != \"\"'> " +
             "    AND t1.task_name LIKE CONCAT('%', #{taskName}, '%') " +

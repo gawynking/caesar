@@ -44,8 +44,8 @@ public class ReviewServiceImpl extends ServiceImpl<TaskReviewRecordMapper, Caesa
     }
 
     @Override
-    public List<CaesarReviewTaskDto> getReviewTasks(Integer loginUser, String taskName, Integer reviewStatus, Integer reviewLevel) {
-        List<CaesarTaskReviewRecord> caesarTaskReviewRecords = taskReviewRecordMapper.getReviewTasks(loginUser,taskName,reviewStatus,reviewLevel);
+    public List<CaesarReviewTaskDto> getReviewTasks(Integer loginUser, String taskName, Integer reviewStatus, Integer reviewResult) {
+        List<CaesarTaskReviewRecord> caesarTaskReviewRecords = taskReviewRecordMapper.getReviewTasks(loginUser,taskName,reviewStatus,reviewResult);
 
         List<CaesarReviewTaskDto> caesarReviewTaskDtos = new ArrayList<>();
         for(CaesarTaskReviewRecord reviewRecord :caesarTaskReviewRecords){

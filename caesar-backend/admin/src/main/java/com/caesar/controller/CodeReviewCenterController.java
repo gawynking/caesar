@@ -137,19 +137,19 @@ public class CodeReviewCenterController {
             @RequestParam String loginUser,
             @RequestParam String taskName,
             @RequestParam String reviewStatus,
-            @RequestParam String reviewLevel
+            @RequestParam String reviewResult
     ) {
         try {
             Integer loginUserId = userManagerService.getUserIdFromUserName(loginUser);
             Integer sendStatus = null;
-            Integer sendLevel = null;
+            Integer sendResult = null;
             if(null != reviewStatus && !"".equals(reviewStatus)){
                 sendStatus = Integer.valueOf(reviewStatus);
             }
-            if(null != reviewLevel && !"".equals(reviewLevel)){
-                sendLevel = Integer.valueOf(reviewLevel);
+            if(null != reviewResult && !"".equals(reviewResult)){
+                sendResult = Integer.valueOf(reviewResult);
             }
-            List<CaesarReviewTaskDto> caesarReviewTaskDtos =  reviewService.getReviewTasks(loginUserId,taskName,sendStatus,sendLevel);
+            List<CaesarReviewTaskDto> caesarReviewTaskDtos =  reviewService.getReviewTasks(loginUserId,taskName,sendStatus,sendResult);
 
             return JsonResponse.success(caesarReviewTaskDtos);
         }catch (Exception e){

@@ -92,7 +92,15 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
 
     @Select({
             "<script>",
-            "SELECT * FROM caesar_task_review_record",
+            "SELECT * FROM (" +
+            "select t1.* \n" +
+                    "from caesar_task_review_record t1 \n" +
+                    "join (\n" +
+                    "\tselect task_name,max(update_time) as update_time  \n" +
+                    "\tfrom caesar_task_review_record\n" +
+                    "\tgroup by task_name \n" +
+                    ") t2 on t1.task_name = t2.task_name and t1.update_time = t2.update_time" +
+            ") t",
             "WHERE submit_user_id = #{loginUser} ",
             "<if test='taskName != null and taskName != \"\"'>",
             "   AND task_name LIKE CONCAT('%', #{taskName}, '%')",
@@ -100,8 +108,8 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             "<if test='reviewStatus != null'>",
             "   AND review_status = #{reviewStatus}",
             "</if>",
-            "<if test='reviewLevel != null'>",
-            "   AND review_level = #{reviewLevel}",
+            "<if test='reviewResult != null'>",
+            "   AND review_result = #{reviewResult}",
             "</if>",
             "ORDER BY create_time DESC",
             "</script>"
@@ -110,7 +118,7 @@ public interface TaskReviewRecordMapper extends BaseMapper<CaesarTaskReviewRecor
             @Param("loginUser") Integer loginUser,
             @Param("taskName") String taskName,
             @Param("reviewStatus") Integer reviewStatus,
-            @Param("reviewLevel") Integer reviewLevel
+            @Param("reviewResult") Integer reviewResult
     );
 }
 
