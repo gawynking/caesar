@@ -23,13 +23,13 @@ import java.util.logging.Logger;
 /**
  * 工作流粒度调度管理器
  */
-public class DolphinSchedulerWorkflowInstance20250613 extends DolphinSchedulerBaseInstance implements SchedulerInstance{
+public class DolphinSchedulerWorkflowInstanceExtend extends DolphinSchedulerBaseInstance implements SchedulerInstance{
 
-    private static final Logger logger = Logger.getLogger(DolphinSchedulerWorkflowInstance20250613.class.getName());
+    private static final Logger logger = Logger.getLogger(DolphinSchedulerWorkflowInstanceExtend.class.getName());
 
     public static DolphinSchedulerProjectInstance projectInstance = new DolphinSchedulerProjectInstance();
 
-    public DolphinSchedulerWorkflowInstance20250613(){
+    public DolphinSchedulerWorkflowInstanceExtend(){
         super();
     }
 
@@ -257,6 +257,8 @@ public class DolphinSchedulerWorkflowInstance20250613 extends DolphinSchedulerBa
 
     public JSONObject updateTaskForStatus(SchedulerModel schedulerModel) throws ProjectNotExistsException,GenTaskCodeFaildException, TaskCodeNotNullException {
 
+        logger.info("更新在线状态: " + schedulerModel.toString());
+
         Long projectCode;
         Long processDefinitionCode; // code
         String name;
@@ -363,7 +365,7 @@ public class DolphinSchedulerWorkflowInstance20250613 extends DolphinSchedulerBa
             tmpTask.put("flag",tmptaskDefinition.getString("flag")); // ReleaseState
             tmpTask.put("taskParams",tmptaskDefinition.getString("taskParams")); // execTaskScript
 
-            if(tmptaskDefinition.getString("code").equals(taskDefinitionCode)){
+            if(tmptaskDefinition.getLong("code").equals(taskDefinitionCode)){
 //                tmpTask.put("failRetryInterval",Optional.ofNullable(schedulerModel.getRetryInterval()).orElse(tmptaskDefinition.getInteger("failRetryInterval"))); // retryInterval
 //                tmpTask.put("failRetryTimes",Optional.ofNullable(schedulerModel.getRetryTimes()).orElse(tmptaskDefinition.getInteger("failRetryTimes"))); // retryTimes
 //                tmpTask.put("flag",schedulerModel.getReleaseState()==1?"YES":"NO"); // ReleaseState

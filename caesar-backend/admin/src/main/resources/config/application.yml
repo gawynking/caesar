@@ -21,7 +21,7 @@ schedule:
   system: dolphinscheduler
   base-url: http://127.0.0.1:12345/dolphinscheduler
   version: 3.2.0
-  token: b8f1c0059e65d24d9175799caa3da893
+  token: e3f421d43a115972f8e101e7c8d626c5
   level: workflow
   ## 调度同步方式:
     # created - 表示创建调度时即完成同步动作;

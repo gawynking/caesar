@@ -1,7 +1,6 @@
 package com.caesar.scheduler.dolphin;
 
 import com.alibaba.fastjson.JSONObject;
-import com.caesar.config.SchedulerConstant;
 import com.caesar.exception.GenTaskCodeFaildException;
 import com.caesar.exception.ProjectNotExistsException;
 import com.caesar.exception.TaskCodeNotNullException;
@@ -10,6 +9,7 @@ import com.caesar.model.SchedulerModel;
 import com.caesar.scheduler.SchedulerInstance;
 import com.caesar.scheduler.dolphin.model.BaseModel;
 import com.caesar.scheduler.dolphin.model.ShellModel;
+import com.caesar.tool.BeanConverterTools;
 import com.caesar.util.StringUtils;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstance implements SchedulerInstance{
 
-    private static final Logger LOGGER = Logger.getLogger(DolphinSchedulerWorkflowInstance.class.getName());
+    private static final Logger logger = Logger.getLogger(DolphinSchedulerWorkflowInstance.class.getName());
 
     public static DolphinSchedulerProjectInstance projectInstance = new DolphinSchedulerProjectInstance();
 
@@ -163,6 +163,10 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
     @Override
     public JSONObject updateTask(SchedulerModel schedulerModel) throws ProjectNotExistsException, GenTaskCodeFaildException,TaskCodeNotNullException {
 
+        logger.info("开始更新任务: " + schedulerModel.toString());
+
+        SchedulerModel tmpSchedulerModel = BeanConverterTools.convert(schedulerModel, SchedulerModel.class);
+
         Long projectCode = null;
         Long processDefinitionCode = null;
         String taskDefinitionJsonObj = null;
@@ -235,6 +239,7 @@ public class DolphinSchedulerWorkflowInstance extends DolphinSchedulerBaseInstan
             schedulerModel.setReleaseState(tmpReleaseState);
             // 3 更新任务
             result = this.schedulerAPI.updateTaskWithUpstream(projectCode,taskDefinitionCode,taskDefinitionJsonObj,upstreamCodes);
+            new DolphinSchedulerWorkflowInstanceExtend().updateTaskForStatus(tmpSchedulerModel);
             // 4 上线工作流
             schedulerModel.setReleaseState(1);
             releaseWorkflow(schedulerModel);

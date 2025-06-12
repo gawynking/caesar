@@ -427,7 +427,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
 
 
     @Override
-    public void releaseTask(int taskId) {
+    public synchronized void releaseTask(int taskId) {
 
         CaesarTask caesarTask = taskMapper.getTaskInfoFromId(taskId);
         List<CaesarScheduleConfigInfoBo> allCaesarSystemSchedulerConfigs = scheduleConfigMapper.getAllCaesarSystemSchedulerConfigs();
@@ -464,7 +464,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
      * @return
      */
     @Override
-    public Boolean releaseScheduleByWorkflow(String scheduleName, Integer releaseState) {
+    public synchronized Boolean releaseScheduleByWorkflow(String scheduleName, Integer releaseState) {
 
         List<CaesarScheduleConfigInfoBo> allCaesarSystemSchedulerConfigs = scheduleConfigMapper.getAllCaesarSystemSchedulerConfigs();
 
@@ -505,7 +505,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
      * @return
      */
     @Override
-    public Boolean onlineScheduleByWorkflow(String scheduleName) {
+    public synchronized Boolean onlineScheduleByWorkflow(String scheduleName) {
         return scheduleConfigMapper.onlineScheduleByWorkflow(scheduleName) && releaseScheduleByWorkflow(scheduleName,1);
     }
 
@@ -517,7 +517,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
      * @return
      */
     @Override
-    public Boolean offlineScheduleByWorkflow(String scheduleName) {
+    public synchronized Boolean offlineScheduleByWorkflow(String scheduleName) {
         return scheduleConfigMapper.offlineScheduleByWorkflow(scheduleName) && releaseScheduleByWorkflow(scheduleName,0);
     }
 
@@ -634,7 +634,7 @@ public class ScheduleCenterServiceImpl extends ServiceImpl<ScheduleConfigMapper,
 
 
     @Override
-    public Boolean updateTaskScheduleDenpendency(String scheduleCode, GeneralScheduleInfoVo.Dependency dependency) {
+    public synchronized Boolean updateTaskScheduleDenpendency(String scheduleCode, GeneralScheduleInfoVo.Dependency dependency) {
         CaesarScheduleDependency caesarScheduleDependency = scheduleDependencyMapper.findTaskDependency(scheduleCode,dependency.getPreScheduleCode());
 
         Boolean flag = false;
