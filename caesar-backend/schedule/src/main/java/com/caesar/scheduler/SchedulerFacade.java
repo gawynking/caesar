@@ -33,7 +33,7 @@ public class SchedulerFacade {
 
 
 
-    public ScheduleResponse deployTask(SchedulerModel schedulerModel) {
+    public synchronized ScheduleResponse deployTask(SchedulerModel schedulerModel) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
@@ -53,7 +53,7 @@ public class SchedulerFacade {
         return new ScheduleResponse().faild("deployTask");
     }
 
-    public ScheduleResponse createTask(SchedulerModel schedulerModel) {
+    public synchronized ScheduleResponse createTask(SchedulerModel schedulerModel) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
@@ -71,7 +71,7 @@ public class SchedulerFacade {
         return new ScheduleResponse().faild("createTask");
     }
 
-    public ScheduleResponse updateTask(SchedulerModel schedulerModel) {
+    public synchronized ScheduleResponse updateTask(SchedulerModel schedulerModel) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
@@ -92,7 +92,7 @@ public class SchedulerFacade {
     }
 
 
-    public ScheduleResponse deleteTask(SchedulerModel schedulerModel) {
+    public synchronized ScheduleResponse deleteTask(SchedulerModel schedulerModel) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
@@ -112,7 +112,7 @@ public class SchedulerFacade {
         return new ScheduleResponse().faild("deleteTask");
     }
 
-    public ScheduleResponse release(SchedulerModel schedulerModel) {
+    public synchronized ScheduleResponse release(SchedulerModel schedulerModel) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
@@ -133,7 +133,7 @@ public class SchedulerFacade {
 
 
     @Deprecated
-    public JSONObject queryTaskList(String project,String workFlow) {
+    public synchronized JSONObject queryTaskList(String project,String workFlow) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
@@ -152,7 +152,7 @@ public class SchedulerFacade {
     }
 
 
-    public JSONObject queryProcessTaskList(String project,String workFlow) {
+    public synchronized JSONObject queryProcessTaskList(String project,String workFlow) {
         SchedulerInstance instance = null;
         try {
             instance = schedulerFactory.createScheduler();
